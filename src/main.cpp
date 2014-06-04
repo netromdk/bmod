@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "formats/MachO.h"
+#include "formats/Format.h"
 
 int main(int argc, char **argv) {
   // Temporary!
@@ -12,7 +12,12 @@ int main(int argc, char **argv) {
   QString file{argv[1]};
   qDebug() << "File:" << file;
 
-  MachO fmt(file);
-  qDebug() << "MachO:" << fmt.detect();
+  auto fmt = Format::detect(file);
+  if (fmt != nullptr) {
+    qDebug() << "detected";
+  }
+  else {
+    qDebug() << "unknown file";
+  }
   return 0;
 }

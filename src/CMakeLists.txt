@@ -6,6 +6,7 @@ ADD_EXECUTABLE(
   main.cpp
 
   formats/Format.h
+  formats/Format.cpp
   formats/MachO.h
   formats/MachO.cpp
   )
