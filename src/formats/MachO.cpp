@@ -2,12 +2,12 @@
 #include <QDebug>
 
 #include "MachO.h"
+#include "../Util.h"
 #include "../Reader.h"
 
 MachO::MachO(const QString &file)
-  : Format(Kind::MachO), file{file}, magic{0}, cpuType{0}, cpuSubType{0},
-  fileType{0}, ncmds{0}, sizeOfCmds{0}, flags{0}, littleEndian{true},
-  systemBits{32}
+  : Format(Kind::MachO), file{file}, littleEndian{true}, systemBits{32},
+  cpuType{CpuType::X86}
 { }
 
 bool MachO::detect() {
@@ -33,24 +33,26 @@ bool MachO::parse() {
     return false;
   }
 
+  quint32 magic, cputype, cpusubtype, filetype, ncmds, sizeofcmds, flags;
+
   Reader r(f);
   bool ok;
   magic = r.getUInt32(&ok);
   if (!ok) return false;
 
-  cpuType = r.getUInt32(&ok);
+  cputype = r.getUInt32(&ok);
   if (!ok) return false;
 
-  cpuSubType = r.getUInt32(&ok);
+  cpusubtype = r.getUInt32(&ok);
   if (!ok) return false;
 
-  fileType = r.getUInt32(&ok);
+  filetype = r.getUInt32(&ok);
   if (!ok) return false;
 
   ncmds = r.getUInt32(&ok);
   if (!ok) return false;
 
-  sizeOfCmds = r.getUInt32(&ok);
+  sizeofcmds = r.getUInt32(&ok);
   if (!ok) return false;
 
   flags = r.getUInt32(&ok);
@@ -73,14 +75,40 @@ bool MachO::parse() {
     systemBits = 64;
     littleEndian = false;
   }
-  qDebug() << "system bits:" << systemBits;
-  qDebug() << "little endian:" << littleEndian;
+  qDebug() << " system bits:" << systemBits;
+  qDebug() << " little endian:" << littleEndian;
 
-  qDebug() << "cputype:" << cpuType;
-  qDebug() << "cpusubtype:" << cpuSubType;
-  qDebug() << "filetype:" << fileType;
+  qDebug() << "cputype:" << cputype;
+  if (cputype == 7) { // CPU_TYPE_X86, CPU_TYPE_I386
+    cpuType = CpuType::X86;
+  }
+  else if (cputype == 7 + 0x01000000) { // CPU_TYPE_X86 | CPU_ARCH_ABI64
+    cpuType = CpuType::X86_64;
+  }
+  else if (cputype == 11) { // CPU_TYPE_HPPA
+    cpuType = CpuType::HPPA;
+  }
+  else if (cputype == 12) { // CPU_TYPE_ARM
+    cpuType = CpuType::ARM;
+  }
+  else if (cputype == 14) { // CPU_TYPE_SPARC
+    cpuType = CpuType::SPARC;
+  }
+  else if (cputype == 15) { // CPU_TYPE_I860
+    cpuType = CpuType::I860;
+  }
+  else if (cputype == 18) { // CPU_TYPE_POWERPC
+    cpuType = CpuType::PowerPc;
+  }
+  else if (cputype == 18 + 0x01000000) { // CPU_TYPE_POWERPC | CPU_ARCH_ABI64
+    cpuType = CpuType::PowerPc_64;
+  }
+  qDebug() << " cpu type:" << Util::cpuTypeString(cpuType);
+
+  qDebug() << "cpusubtype:" << cpusubtype;
+  qDebug() << "filetype:" << filetype;
   qDebug() << "ncmds:" << ncmds;
-  qDebug() << "sizeofcmds:" << sizeOfCmds;
+  qDebug() << "sizeofcmds:" << sizeofcmds;
   qDebug() << "flags:" << flags;
 
   return false;

@@ -4,6 +4,7 @@
 #include <QString>
 
 #include "Format.h"
+#include "../CpuType.h"
 
 class MachO : public Format {
 public:
@@ -17,9 +18,9 @@ public:
 private:
   QString file;
 
-  quint32 magic, cpuType, cpuSubType, fileType, ncmds, sizeOfCmds, flags;
   bool littleEndian;
   int systemBits;
+  CpuType cpuType;
 };
 
 #endif // BMOD_MACHO_FORMAT_H
