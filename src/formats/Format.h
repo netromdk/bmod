@@ -24,9 +24,14 @@ public:
   
   /**
    * Detect whether the magic code of the file corresponds to the
-   * format.
+   * format. Only reads the first chunk of the file and not all of it!
    */
   virtual bool detect() =0;
+
+  /**
+   * Parses the file into the various sections and so on.
+   */
+  virtual bool parse() =0;
 
 private:
   Kind kind;
