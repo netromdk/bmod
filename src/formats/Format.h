@@ -1,9 +1,9 @@
 #ifndef BMOD_FORMAT_H
 #define BMOD_FORMAT_H
 
-#include <memory>
+#include <QString>
 
-class QString;
+#include <memory>
 
 class Format {
 public:
@@ -20,6 +20,7 @@ public:
   static std::unique_ptr<Format> detect(const QString &file);
 
   Kind getKind() const { return kind; }
+  virtual QString getName() const =0;
   
   /**
    * Detect whether the magic code of the file corresponds to the

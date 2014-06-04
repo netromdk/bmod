@@ -1,5 +1,3 @@
-#include <QString>
-
 #include "MachO.h"
 #include "Format.h"
 

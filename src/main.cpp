@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 
   auto fmt = Format::detect(file);
   if (fmt != nullptr) {
-    qDebug() << "detected";
+    qDebug() << "detected" << fmt->getName();
   }
   else {
     qDebug() << "unknown file";

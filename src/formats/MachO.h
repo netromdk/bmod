@@ -8,6 +8,8 @@
 class MachO : public Format {
 public:
   MachO(const QString &file);
+
+  QString getName() const { return "Mach-O"; }
   
   bool detect();
 
