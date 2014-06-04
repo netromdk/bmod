@@ -5,6 +5,9 @@ ADD_EXECUTABLE(
 
   main.cpp
 
+  Util.h
+  Util.cpp
+
   Reader.h
   Reader.cpp
 
