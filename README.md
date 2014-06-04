@@ -1,4 +1,4 @@
 bmod
 ====
 
-bmoc makes binary modifications and patches.
+bmod makes binary modifications and patches.
