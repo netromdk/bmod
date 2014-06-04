@@ -20,7 +20,7 @@ private:
 
   bool littleEndian;
   int systemBits;
-  CpuType cpuType;
+  CpuType cpuType, cpuSubType;
 };
 
 #endif // BMOD_MACHO_FORMAT_H
