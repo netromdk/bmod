@@ -629,6 +629,21 @@ bool MachO::parse() {
       qDebug() << "stacksize:" << stacksize;
     }
 
+    // LC_FUNCTION_STARTS
+    else if (type == 0x26) {
+      qDebug() << "=== FUNCTION STARTS ===";
+
+      // File offset to data in __LINKEDIT segment.
+      quint32 dataoff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "dataoff:" << dataoff;
+
+      // File size of data in __LINKEDIT segment.
+      quint32 datasize = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "datasize:" << datasize;
+    }
+
     qDebug();
   }
 
