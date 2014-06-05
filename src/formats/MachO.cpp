@@ -552,6 +552,18 @@ bool MachO::parse() {
       qDebug() << "dyld name:" << dyname;
     }
 
+    // LC_UUID
+    else if (type == 0x1B) {
+      qDebug() << "=== UUID ===";
+
+      const QByteArray uuid{f.read(16)};
+      QString uuidStr;
+      for (int h = 0; h < uuid.size(); h++) {
+        uuidStr += QString::number((unsigned char) uuid[h], 16);
+      }
+      qDebug() << "uuid:" << uuidStr.toUpper();
+    }
+
     qDebug();
   }
 
