@@ -587,6 +587,10 @@ bool MachO::parse() {
       quint32 version = r.getUInt32(&ok);
       if (!ok) return false;
       qDebug() << "version:" << version;
+
+      quint32 version2 = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "version2:" << version2;
     }
 
     qDebug();
