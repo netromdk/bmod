@@ -12,6 +12,9 @@ public:
   quint64 getUInt64(bool *ok = nullptr);
 
 private:
+  template <typename T>
+  T getUInt(bool *ok = nullptr);
+
   QIODevice &dev;
 };
 

@@ -6,45 +6,28 @@
 Reader::Reader(QIODevice &dev) : dev{dev} { }
 
 quint16 Reader::getUInt16(bool *ok) {
-  constexpr int num = sizeof(quint16);
-  QByteArray buf = dev.read(num);
-  if (buf.size() < num) {
-    if (ok) *ok = false;
-    return 0;
-  }
-  quint16 res{0};
-  for (int i = 0; i < num; i++) {
-    res += ((quint16) (unsigned char) buf[i]) << i * 8;
-  }
-  if (ok) *ok = true;
-  return res;
+  return getUInt<quint16>(ok);
 }
-  
+
 quint32 Reader::getUInt32(bool *ok) {
-  constexpr int num = sizeof(quint32);
-  QByteArray buf = dev.read(num);
-  if (buf.size() < num) {
-    if (ok) *ok = false;
-    return 0;
-  }
-  quint32 res{0};
-  for (int i = 0; i < num; i++) {
-    res += ((quint32) (unsigned char) buf[i]) << i * 8;
-  }
-  if (ok) *ok = true;
-  return res;
+  return getUInt<quint32>(ok);
 }
 
 quint64 Reader::getUInt64(bool *ok) {
-  constexpr int num = sizeof(quint64);
+  return getUInt<quint64>(ok);
+}
+
+template <typename T>
+T Reader::getUInt(bool *ok) {
+  constexpr int num = sizeof(T);
   QByteArray buf = dev.read(num);
   if (buf.size() < num) {
     if (ok) *ok = false;
     return 0;
   }
-  quint64 res{0};
+  T res{0};
   for (int i = 0; i < num; i++) {
-    res += ((quint64) (unsigned char) buf[i]) << i * 8;
+    res += ((T) (unsigned char) buf[i]) << i * 8;
   }
   if (ok) *ok = true;
   return res;
