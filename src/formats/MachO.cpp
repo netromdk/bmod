@@ -225,52 +225,52 @@ bool MachO::parse() {
       qDebug() << "name:" << name;
 
       // Memory address of this segment.
+      quint64 vmaddr;
       if (systemBits == 32) {
-        quint32 vmaddr = r.getUInt32(&ok);
+        vmaddr = r.getUInt32(&ok);
         if (!ok) return false;
-        qDebug() << "vmaddr:" << vmaddr;
       }
       else {
-        quint64 vmaddr = r.getUInt64(&ok);
+        vmaddr = r.getUInt64(&ok);
         if (!ok) return false;
-        qDebug() << "vmaddr:" << vmaddr;
       }
+      qDebug() << "vmaddr:" << vmaddr;
 
       // Memory size of this segment.
+      quint64 vmsize;
       if (systemBits == 32) {
-        quint32 vmsize = r.getUInt32(&ok);
+        vmsize = r.getUInt32(&ok);
         if (!ok) return false;
-        qDebug() << "vmsize:" << vmsize;
       }
       else {
-        quint64 vmsize = r.getUInt64(&ok);
+        vmsize = r.getUInt64(&ok);
         if (!ok) return false;
-        qDebug() << "vmsize:" << vmsize;
       }
+      qDebug() << "vmsize:" << vmsize;
 
       // File offset of this segment.
+      quint64 fileoff;
       if (systemBits == 32) {
-        quint32 fileoff = r.getUInt32(&ok);
+        fileoff = r.getUInt32(&ok);
         if (!ok) return false;
-        qDebug() << "fileoff:" << fileoff;
       }
       else {
-        quint64 fileoff = r.getUInt64(&ok);
+        fileoff = r.getUInt64(&ok);
         if (!ok) return false;
-        qDebug() << "fileoff:" << fileoff;
       }
+      qDebug() << "fileoff:" << fileoff;
 
       // Amount to map from the file.
+      quint64 filesize;
       if (systemBits == 32) {
-        quint32 filesize = r.getUInt32(&ok);
+        filesize = r.getUInt32(&ok);
         if (!ok) return false;
-        qDebug() << "filesize:" << filesize;
       }
       else {
-        quint64 filesize = r.getUInt64(&ok);
+        filesize = r.getUInt64(&ok);
         if (!ok) return false;
-        qDebug() << "filesize:" << filesize;
       }
+      qDebug() << "filesize:" << filesize;
 
       // Maximum VM protection.
       quint32 maxprot = r.getUInt32(&ok);
@@ -303,28 +303,28 @@ bool MachO::parse() {
           qDebug() << "segname:" << segname;
 
           // Memory address of this section.
+          quint64 addr;
           if (systemBits == 32) {
-            quint32 addr = r.getUInt32(&ok);
+            addr = r.getUInt32(&ok);
             if (!ok) return false;
-            qDebug() << "addr:" << addr;
           }
           else {
-            quint64 addr = r.getUInt64(&ok);
+            addr = r.getUInt64(&ok);
             if (!ok) return false;
-            qDebug() << "addr:" << addr;
           }
+          qDebug() << "addr:" << addr;
 
           // Size in bytes of this section.
+          quint64 secsize;
           if (systemBits == 32) {
-            quint32 secsize = r.getUInt32(&ok);
+            secsize = r.getUInt32(&ok);
             if (!ok) return false;
-            qDebug() << "secsize:" << secsize;
           }
           else {
-            quint64 secsize = r.getUInt64(&ok);
+            secsize = r.getUInt64(&ok);
             if (!ok) return false;
-            qDebug() << "secsize:" << secsize;
           }
+          qDebug() << "secsize:" << secsize;
 
           // File offset of this section.
           quint32 secfileoff = r.getUInt32(&ok);
