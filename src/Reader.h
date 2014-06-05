@@ -8,6 +8,7 @@ public:
   Reader(QIODevice &dev);
 
   quint32 getUInt32(bool *ok = nullptr);
+  quint64 getUInt64(bool *ok = nullptr);
 
 private:
   QIODevice &dev;
