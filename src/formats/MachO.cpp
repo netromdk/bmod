@@ -579,6 +579,16 @@ bool MachO::parse() {
       qDebug() << "sdk:" << sdk;
     }
 
+    // LC_SOURCE_VERSION
+    else if (type == 0x2A) {
+      qDebug() << "=== SOURCE VERSION ===";
+
+      // Version (A.B.C.D.E packed as a24.b10.c10.d10.e10)
+      quint32 version = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "version:" << version;
+    }
+
     qDebug();
   }
 
