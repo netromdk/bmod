@@ -358,6 +358,12 @@ bool MachO::parse() {
             r.getUInt32();
           }
 
+          // Store needed sections.
+          if (segname == "__TEXT" && secname == "__text") {
+            SectionPtr sec(new Section(SectionType::Text, addr, secsize, secfileoff));
+            sections << sec;
+          }
+
           qDebug();
         }
       }
@@ -670,6 +676,12 @@ bool MachO::parse() {
     }
 
     qDebug();
+  }
+
+  // Fill data of stored sections.
+  foreach (auto sec, sections) {
+    f.seek(sec->getOffset());
+    sec->setData(f.read(sec->getSize()));
   }
 
   return true;

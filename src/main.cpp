@@ -22,6 +22,17 @@ int main(int argc, char **argv) {
       qDebug() << "CPU type:" << Util::cpuTypeString(fmt->getCpuType());
       qDebug() << "CPU sub type:" << Util::cpuTypeString(fmt->getCpuSubType());
       qDebug() << "File type:" << Util::fileTypeString(fmt->getFileType());
+      qDebug() << "Sections:";
+      foreach (const auto sec, fmt->getSections()) {
+        qDebug();
+        qDebug() << "Type:" << Util::sectionTypeString(sec->getType());
+        qDebug() << "Address:" << sec->getAddress();
+        qDebug() << "Size:" << sec->getSize();
+        qDebug() << "Offset:" << sec->getOffset();
+        qDebug() << "Data:";
+        QString addrView{Util::addrDataString(sec->getAddress(), sec->getData())};
+        qDebug() << qPrintable(addrView);
+      }
     }
   }
   else {

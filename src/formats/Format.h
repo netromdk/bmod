@@ -1,12 +1,17 @@
 #ifndef BMOD_FORMAT_H
 #define BMOD_FORMAT_H
 
+#include <QList>
 #include <QString>
 
 #include <memory>
 
+#include "../Section.h"
 #include "../CpuType.h"
 #include "../FileType.h"
+
+class Format;
+typedef std::unique_ptr<Format> FormatPtr;
 
 class Format {
 public:
@@ -20,7 +25,7 @@ public:
    * Try each of the known formats and see if any of them are
    * compatible with the file.
    */
-  static std::unique_ptr<Format> detect(const QString &file);
+  static FormatPtr detect(const QString &file);
 
   /**
    * Detect whether the magic code of the file corresponds to the
@@ -40,6 +45,7 @@ public:
   virtual CpuType getCpuType() const =0;
   virtual CpuType getCpuSubType() const =0;
   virtual FileType getFileType() const =0;
+  virtual const QList<SectionPtr> &getSections() const =0;
 
 private:
   Kind kind;

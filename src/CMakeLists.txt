@@ -11,6 +11,9 @@ ADD_EXECUTABLE(
   Reader.h
   Reader.cpp
 
+  Section.h
+  Section.cpp
+
   formats/Format.h
   formats/Format.cpp
   formats/MachO.h

@@ -111,3 +111,44 @@ QString Util::fileTypeString(FileType type) {
     return "Bundle";
   }
 }
+
+QString Util::sectionTypeString(SectionType type) {
+  switch (type) {
+  default:
+  case SectionType::Text:
+    return "Text";
+  }
+}
+
+QString Util::addrDataString(quint64 addr, QByteArray data) {
+  quint64 rest = data.size() % 16;
+  if (rest != 0) {
+    int amount = 16 - rest;
+    for (int i = 0; i < amount; i++) {
+      data += (char) 0;
+    }
+  }
+  QString output = QString::number(addr, 16).toUpper() + ": ";
+  QString ascii;
+  for (int i = 0; i < data.size(); i++) {
+    char c = data[i];
+    int ic = c;
+    unsigned char uc = c;
+    QString hc = QString::number(uc, 16).toUpper();
+    if (hc.size() == 1) {
+      hc = "0" + hc;
+    }
+    output += hc + " ";
+    ascii += (ic >= 33 && ic <= 126 ? c : '.');
+    ascii += " ";
+    if ((i + 1) % 16 == 0 || i == data.size() - 1) {
+      addr += 16;
+      output += "  " + ascii;
+      ascii.clear();
+      if ((i + 1) % 16 == 0 && i != data.size() - 1) {
+        output += "\n" + QString::number(addr, 16).toUpper() + ": ";
+      }
+    }
+  }
+  return output;
+}

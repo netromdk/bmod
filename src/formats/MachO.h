@@ -1,11 +1,7 @@
 #ifndef BMOD_MACHO_FORMAT_H
 #define BMOD_MACHO_FORMAT_H
 
-#include <QString>
-
 #include "Format.h"
-#include "../CpuType.h"
-#include "../FileType.h"
 
 class MachO : public Format {
 public:
@@ -20,6 +16,7 @@ public:
   CpuType getCpuType() const { return cpuType; }
   CpuType getCpuSubType() const { return cpuSubType; }
   FileType getFileType() const { return fileType; }
+  const QList<SectionPtr> &getSections() const { return sections; }
 
 private:
   QString file;
@@ -28,6 +25,7 @@ private:
   int systemBits;
   CpuType cpuType, cpuSubType;
   FileType fileType;
+  QList<SectionPtr> sections;
 };
 
 #endif // BMOD_MACHO_FORMAT_H
