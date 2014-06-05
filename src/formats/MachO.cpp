@@ -363,6 +363,61 @@ bool MachO::parse() {
       }
     }
 
+    // LC_DYLD_INFO or LC_DYLD_INFO_ONLY
+    else if (type == 0x22 || type == (0x22 | 0x80000000)) {
+      qDebug() << "=== DYLD INFO ===";
+
+      // File offset to rebase info.
+      quint32 rebase_off = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "rebase_off:" << rebase_off;
+
+      // Size of rebase info.
+      quint32 rebase_size = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "rebase_size:" << rebase_size;
+
+      // File offset to binding info.
+      quint32 bind_off = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "bind_off:" << bind_off;
+
+      // Size of binding info.
+      quint32 bind_size = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "bind_size:" << bind_size;
+
+      // File offset to weak binding info.
+      quint32 weak_bind_off = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "weak_bind_off:" << weak_bind_off;
+
+      // Size of weak binding info.
+      quint32 weak_bind_size = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "weak_bind_size:" << weak_bind_size;
+
+      // File offset to lazy binding info.
+      quint32 lazy_bind_off = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "lazy_bind_off:" << lazy_bind_off;
+
+      // Size of lazy binding info.
+      quint32 lazy_bind_size = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "lazy_bind_size:" << lazy_bind_size;
+
+      // File offset to export info.
+      quint32 export_off = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "export_off:" << export_off;
+
+      // Size of export info.
+      quint32 export_size = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "export_size:" << export_size;
+    }
+
     qDebug();
   }
 
