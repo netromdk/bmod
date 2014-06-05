@@ -564,6 +564,21 @@ bool MachO::parse() {
       qDebug() << "uuid:" << uuidStr.toUpper();
     }
 
+    // LC_VERSION_MIN_MACOSX
+    else if (type == 0x24) {
+      qDebug() << "=== VERSION MIN MACOSX ===";
+
+      // Version (X.Y.Z is encoded in nibbles xxxx.yy.zz)
+      quint32 version = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "version:" << version;
+
+      // SDK version (X.Y.Z is encoded in nibbles xxxx.yy.zz)
+      quint32 sdk = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "sdk:" << sdk;
+    }
+
     qDebug();
   }
 
