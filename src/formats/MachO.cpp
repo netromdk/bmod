@@ -629,9 +629,14 @@ bool MachO::parse() {
       qDebug() << "stacksize:" << stacksize;
     }
 
-    // LC_FUNCTION_STARTS
-    else if (type == 0x26) {
-      qDebug() << "=== FUNCTION STARTS ===";
+    // LC_FUNCTION_STARTS or LC_DYLIB_CODE_SIGN_DRS
+    else if (type == 0x26 || type == 0x2B) {
+      if (type == 0x26) {
+        qDebug() << "=== FUNCTION STARTS ===";
+      }
+      else {
+        qDebug() << "=== DYLIB CODE SIGN DRS ===";
+      }
 
       // File offset to data in __LINKEDIT segment.
       quint32 dataoff = r.getUInt32(&ok);
