@@ -548,15 +548,7 @@ bool MachO::parse() {
       if (!ok) return false;
       qDebug() << "offset:" << offset;
 
-      QString dyname;
-      while (true) {
-        char c;
-        if (!f.getChar(&c)) {
-          return false;
-        }
-        if (c == 0) break;
-        dyname += c;
-      }
+      QString dyname{f.read(cmdsize - offset)};
       qDebug() << "dyld name:" << dyname;
     }
 
