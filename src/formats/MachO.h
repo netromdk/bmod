@@ -5,6 +5,7 @@
 
 #include "Format.h"
 #include "../CpuType.h"
+#include "../FileType.h"
 
 class MachO : public Format {
 public:
@@ -21,6 +22,7 @@ private:
   bool littleEndian;
   int systemBits;
   CpuType cpuType, cpuSubType;
+  FileType fileType;
 };
 
 #endif // BMOD_MACHO_FORMAT_H

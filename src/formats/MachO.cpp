@@ -7,7 +7,7 @@
 
 MachO::MachO(const QString &file)
   : Format(Kind::MachO), file{file}, littleEndian{true}, systemBits{32},
-  cpuType{CpuType::X86}
+  cpuType{CpuType::X86}, fileType{FileType::Execute}
 { }
 
 bool MachO::detect() {
@@ -173,6 +173,29 @@ bool MachO::parse() {
   qDebug() << " cpu sub type:" << Util::cpuTypeString(cpuSubType);
 
   qDebug() << "filetype:" << filetype;
+  if (filetype == 1) { // MH_OBJECT
+    fileType = FileType::Object;
+  }
+  else if (filetype == 2) { // MH_EXECUTE
+    fileType = FileType::Execute;
+  }
+  else if (filetype == 4) { // MH_CORE
+    fileType = FileType::Core;
+  }
+  else if (filetype == 5) { // MH_PRELOAD
+    fileType = FileType::Preload;
+  }
+  else if (filetype == 6) { // MH_DYLIB
+    fileType = FileType::Dylib;
+  }
+  else if (filetype == 7) { // MH_DYLINKER
+    fileType = FileType::Dylinker;
+  }
+  else if (filetype == 8) { // MH_BUNDLE
+    fileType = FileType::Bundle;
+  }
+  qDebug() << " file type:" << Util::fileTypeString(fileType);
+
   qDebug() << "ncmds:" << ncmds;
   qDebug() << "sizeofcmds:" << sizeofcmds;
   qDebug() << "flags:" << flags;
