@@ -1,6 +1,8 @@
 #include <QFile>
 #include <QDebug>
 
+#include <cmath>
+
 #include "MachO.h"
 #include "../Util.h"
 #include "../Reader.h"
@@ -74,6 +76,11 @@ bool MachO::parse() {
   else if (magic == 0xFCAFDEEF) {
     systemBits = 64;
     littleEndian = false;
+  }
+
+  // Read reserved field.
+  if (systemBits == 64) {
+    r.getUInt32();
   }
 
   //qDebug() << "cputype:" << cputype;
@@ -190,14 +197,174 @@ bool MachO::parse() {
   else if (filetype == 8) { // MH_BUNDLE
     fileType = FileType::Bundle;
   }
-
-  /*
   qDebug() << "ncmds:" << ncmds;
+  /*
   qDebug() << "sizeofcmds:" << sizeofcmds;
   qDebug() << "flags:" << flags;
   */
 
   // TODO: Load flags when necessary.
+
+  // Parse load commands sequentially. Each consists of the type, size
+  // and data.
+  for (int i = 0; i < ncmds; i++) {
+    qDebug() << "load cmd #" << i;
+
+    quint32 type = r.getUInt32(&ok);
+    if (!ok) return false;
+    qDebug() << "type:" << type;
+
+    quint32 size = r.getUInt32(&ok);
+    if (!ok) return false;
+    qDebug() << "size:" << size;
+
+    // LC_SEGMENT or LC_SEGMENT_64
+    if (type == 1 || type == 25) {
+      qDebug() << "=== SEGMENT ===";
+      QString name{f.read(16)};
+      qDebug() << "name:" << name;
+
+      // Memory address of this segment.
+      if (systemBits == 32) {
+        quint32 vmaddr = r.getUInt32(&ok);
+        if (!ok) return false;
+        qDebug() << "vmaddr:" << vmaddr;
+      }
+      else {
+        quint64 vmaddr = r.getUInt64(&ok);
+        if (!ok) return false;
+        qDebug() << "vmaddr:" << vmaddr;
+      }
+
+      // Memory size of this segment.
+      if (systemBits == 32) {
+        quint32 vmsize = r.getUInt32(&ok);
+        if (!ok) return false;
+        qDebug() << "vmsize:" << vmsize;
+      }
+      else {
+        quint64 vmsize = r.getUInt64(&ok);
+        if (!ok) return false;
+        qDebug() << "vmsize:" << vmsize;
+      }
+
+      // File offset of this segment.
+      if (systemBits == 32) {
+        quint32 fileoff = r.getUInt32(&ok);
+        if (!ok) return false;
+        qDebug() << "fileoff:" << fileoff;
+      }
+      else {
+        quint64 fileoff = r.getUInt64(&ok);
+        if (!ok) return false;
+        qDebug() << "fileoff:" << fileoff;
+      }
+
+      // Amount to map from the file.
+      if (systemBits == 32) {
+        quint32 filesize = r.getUInt32(&ok);
+        if (!ok) return false;
+        qDebug() << "filesize:" << filesize;
+      }
+      else {
+        quint64 filesize = r.getUInt64(&ok);
+        if (!ok) return false;
+        qDebug() << "filesize:" << filesize;
+      }
+
+      // Maximum VM protection.
+      quint32 maxprot = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "maxprot:" << maxprot;
+
+      // Initial VM protection.
+      quint32 initprot = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "initprot:" << initprot;
+
+      // Number of sections in segment.
+      quint32 nsects = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nsects:" << nsects;
+
+      // Flags.
+      quint32 segflags = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "segflags:" << segflags;
+
+      // Read sections.
+      if (nsects > 0) {
+        qDebug() << endl << "== SECTIONS ==";
+        for (int j = 0; j < nsects; j++) {
+          QString secname{f.read(16)};
+          qDebug() << "secname:" << secname;
+
+          QString segname{f.read(16)};
+          qDebug() << "segname:" << segname;
+
+          // Memory address of this section.
+          if (systemBits == 32) {
+            quint32 addr = r.getUInt32(&ok);
+            if (!ok) return false;
+            qDebug() << "addr:" << addr;
+          }
+          else {
+            quint64 addr = r.getUInt64(&ok);
+            if (!ok) return false;
+            qDebug() << "addr:" << addr;
+          }
+
+          // Size in bytes of this section.
+          if (systemBits == 32) {
+            quint32 secsize = r.getUInt32(&ok);
+            if (!ok) return false;
+            qDebug() << "secsize:" << secsize;
+          }
+          else {
+            quint64 secsize = r.getUInt64(&ok);
+            if (!ok) return false;
+            qDebug() << "secsize:" << secsize;
+          }
+
+          // File offset of this section.
+          quint32 secfileoff = r.getUInt32(&ok);
+          if (!ok) return false;
+          qDebug() << "secfileoff:" << secfileoff;
+
+          // Section alignment (power of 2).
+          quint32 align = pow(2, r.getUInt32(&ok));
+          if (!ok) return false;
+          qDebug() << "align:" << align;
+
+          // File offset of relocation entries.
+          quint32 reloff = r.getUInt32(&ok);
+          if (!ok) return false;
+          qDebug() << "reloff:" << reloff;
+
+          // Number of relocation entries.
+          quint32 nreloc = r.getUInt32(&ok);
+          if (!ok) return false;
+          qDebug() << "nreloc:" << nreloc;
+
+          // Flags.
+          quint32 secflags = r.getUInt32(&ok);
+          if (!ok) return false;
+          qDebug() << "secflags:" << secflags;
+
+          // Reserved fields.
+          r.getUInt32();
+          r.getUInt32();
+          if (systemBits == 64) {
+            r.getUInt32();
+          }
+
+          qDebug();
+        }
+      }
+    }
+
+    qDebug();
+  }
 
   return true;
 }
