@@ -538,12 +538,37 @@ bool MachO::parse() {
       qDebug() << "nlocrel:" << nlocrel;
     }
 
-    // LC_LOAD_DYLINKER (dylinker_command struct)
+    // LC_LOAD_DYLIB
+    else if (type == 0xC) {
+      qDebug() << "=== LOAD DYLIB ===";
+
+      // Library path name offset.
+      quint32 offset = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "offset:" << offset;
+
+      quint32 timestamp = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "timestamp:" << timestamp;
+
+      quint32 current_version = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "current_version:" << current_version;
+
+      quint32 compatibility_version = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "compatibility_version:" << compatibility_version;
+
+      // Library path name.
+      QString libname{f.read(cmdsize - offset)};
+      qDebug() << "lib name:" << libname;
+    }
+
+    // LC_LOAD_DYLINKER
     else if (type == 0xE) {
       qDebug() << "=== LOAD DYLINKER ===";
 
       // Dynamic linker's path name.
-
       quint32 offset = r.getUInt32(&ok);
       if (!ok) return false;
       qDebug() << "offset:" << offset;
