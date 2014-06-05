@@ -443,6 +443,101 @@ bool MachO::parse() {
       qDebug() << "strsize:" << strsize;
     }
 
+    // LC_DYSYMTAB
+    else if (type == 0xB) {
+      qDebug() << "=== DYSYMTAB ===";
+
+      // Index to local symbols.
+      quint32 ilocalsym = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "ilocalsym:" << ilocalsym;
+
+      // Number of local symbols.
+      quint32 nlocalsym = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nlocalsym:" << nlocalsym;
+
+      // Index to externally defined symbols.
+      quint32 iextdefsym = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "iextdefsym:" << iextdefsym;
+
+      // Number of externally defined symbols.
+      quint32 nextdefsym = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nextdefsym:" << nextdefsym;
+
+      // Index to undefined defined symbols.
+      quint32 iundefsym = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "iundefsym:" << iundefsym;
+
+      // Number of undefined defined symbols.
+      quint32 nundefsym = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nundefsym:" << nundefsym;
+
+      // File offset to table of contents.
+      quint32 tocoff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "tocoff:" << tocoff;
+
+      // Number of entries in the table of contents.
+      quint32 ntoc = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "ntoc:" << ntoc;
+
+      // File offset to module table.
+      quint32 modtaboff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "modtaboff:" << modtaboff;
+
+      // Number of module table entries.
+      quint32 nmodtab = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nmodtab:" << nmodtab;
+
+      // File offset to referenced symbol table.
+      quint32 extrefsymoff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "extrefsymoff:" << extrefsymoff;
+
+      // Number of referenced symbol table entries.
+      quint32 nextrefsyms = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nextrefsyms:" << nextrefsyms;
+
+      // File offset to indirect symbol table.
+      quint32 indirectrefsymoff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "indirectrefsymoff:" << indirectrefsymoff;
+
+      // Number of indirect symbol table entries.
+      quint32 nindirectrefsyms = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nindirectrefsyms:" << nindirectrefsyms;
+
+      // File offset to external relocation entries.
+      quint32 extreloff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "extreloff:" << extreloff;
+
+      // Number of external relocation entries.
+      quint32 nextrel = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nextrel:" << nextrel;
+
+      // File offset to local relocation entries.
+      quint32 locreloff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "locreloff:" << locreloff;
+
+      // Number of local relocation entries.
+      quint32 nlocrel = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nlocrel:" << nlocrel;
+    }
+
     qDebug();
   }
 
