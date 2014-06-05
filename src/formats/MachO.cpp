@@ -107,6 +107,11 @@ bool MachO::parse() {
   }
   qDebug() << " cpu type:" << Util::cpuTypeString(cpuType);
 
+  // Subtract 64-bit mask.
+  if (systemBits == 64) {
+    cpusubtype -= 0x80000000;
+  }
+
   qDebug() << "cpusubtype:" << cpusubtype;
   if (cpusubtype == 3) { // CPU_SUBTYPE_386
     cpuSubType = CpuType::I386;
