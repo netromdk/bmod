@@ -418,6 +418,31 @@ bool MachO::parse() {
       qDebug() << "export_size:" << export_size;
     }
 
+    // LC_SYMTAB
+    else if (type == 2) {
+      qDebug() << "=== SYMTAB ===";
+
+      // Symbol table offset.
+      quint32 symoff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "symoff:" << symoff;
+
+      // Number of symbol table entries.
+      quint32 nsyms = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "nsyms:" << nsyms;
+
+      // String table offset.
+      quint32 stroff = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "stroff:" << stroff;
+
+      // String table size in bytes.
+      quint32 strsize = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "strsize:" << strsize;
+    }
+
     qDebug();
   }
 
