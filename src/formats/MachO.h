@@ -11,10 +11,15 @@ class MachO : public Format {
 public:
   MachO(const QString &file);
 
-  QString getName() const { return "Mach-O"; }
-  
   bool detect();
   bool parse();
+
+  QString getName() const { return "Mach-O"; }
+  bool isLittleEndian() const { return littleEndian; }
+  int getSystemBits() const { return systemBits; }
+  CpuType getCpuType() const { return cpuType; }
+  CpuType getCpuSubType() const { return cpuSubType; }
+  FileType getFileType() const { return fileType; }
 
 private:
   QString file;

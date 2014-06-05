@@ -58,7 +58,7 @@ bool MachO::parse() {
   flags = r.getUInt32(&ok);
   if (!ok) return false;
 
-  qDebug() << "magic:" << magic;
+  //qDebug() << "magic:" << magic;
   if (magic == 0xFEEDFACE) {
     systemBits = 32;
     littleEndian = true;
@@ -75,10 +75,8 @@ bool MachO::parse() {
     systemBits = 64;
     littleEndian = false;
   }
-  qDebug() << " system bits:" << systemBits;
-  qDebug() << " little endian:" << littleEndian;
 
-  qDebug() << "cputype:" << cputype;
+  //qDebug() << "cputype:" << cputype;
 
   // Types in /usr/local/mach/machine.h
   if (cputype == 7) { // CPU_TYPE_X86, CPU_TYPE_I386
@@ -105,14 +103,13 @@ bool MachO::parse() {
   else if (cputype == 18 + 0x01000000) { // CPU_TYPE_POWERPC | CPU_ARCH_ABI64
     cpuType = CpuType::PowerPc_64;
   }
-  qDebug() << " cpu type:" << Util::cpuTypeString(cpuType);
 
   // Subtract 64-bit mask.
   if (systemBits == 64) {
     cpusubtype -= 0x80000000;
   }
 
-  qDebug() << "cpusubtype:" << cpusubtype;
+  //qDebug() << "cpusubtype:" << cpusubtype;
   if (cpusubtype == 3) { // CPU_SUBTYPE_386
     cpuSubType = CpuType::I386;
   }
@@ -170,9 +167,8 @@ bool MachO::parse() {
   else if (cpusubtype == 12 + (1 << 4)) { // CPU_SUBTYPE_XEON_MP
     cpuSubType = CpuType::Xeon_MP;
   }
-  qDebug() << " cpu sub type:" << Util::cpuTypeString(cpuSubType);
 
-  qDebug() << "filetype:" << filetype;
+  //qDebug() << "filetype:" << filetype;
   if (filetype == 1) { // MH_OBJECT
     fileType = FileType::Object;
   }
@@ -194,11 +190,14 @@ bool MachO::parse() {
   else if (filetype == 8) { // MH_BUNDLE
     fileType = FileType::Bundle;
   }
-  qDebug() << " file type:" << Util::fileTypeString(fileType);
 
+  /*
   qDebug() << "ncmds:" << ncmds;
   qDebug() << "sizeofcmds:" << sizeofcmds;
   qDebug() << "flags:" << flags;
+  */
 
-  return false;
+  // TODO: Load flags when necessary.
+
+  return true;
 }

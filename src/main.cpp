@@ -1,5 +1,6 @@
 #include <QDebug>
 
+#include "Util.h"
 #include "formats/Format.h"
 
 int main(int argc, char **argv) {
@@ -15,7 +16,13 @@ int main(int argc, char **argv) {
   auto fmt = Format::detect(file);
   if (fmt != nullptr) {
     qDebug() << "detected:" << fmt->getName();
-    qDebug() << "parsed:" << fmt->parse();
+    if (fmt->parse()) {
+      qDebug() << "Little Endian:" << fmt->isLittleEndian();
+      qDebug() << "System bits:" << fmt->getSystemBits();
+      qDebug() << "CPU type:" << Util::cpuTypeString(fmt->getCpuType());
+      qDebug() << "CPU sub type:" << Util::cpuTypeString(fmt->getCpuSubType());
+      qDebug() << "File type:" << Util::fileTypeString(fmt->getFileType());
+    }
   }
   else {
     qDebug() << "unknown file";
