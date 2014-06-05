@@ -13,6 +13,16 @@ public:
   static QString cpuTypeString(CpuType type);
   static QString fileTypeString(FileType type);
   static QString sectionTypeString(SectionType type);
+
+  /**
+   * Generate string of format:
+   *
+   * ADDR: 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  . . . . . . . . . . . . . . . .
+   * ADDR: 02 00 01 04 03 06 07 05 08 09 0A 0D 0B 0C 0F 0E  . . . . . . . . . . . . . . . .
+   *
+   * And so on, where ADDR is the address followed by data in hex and
+   * ASCII representation of meaningful values.
+   */
   static QString addrDataString(quint64 addr, QByteArray data);
 };
 

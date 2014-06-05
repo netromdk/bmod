@@ -121,6 +121,7 @@ QString Util::sectionTypeString(SectionType type) {
 }
 
 QString Util::addrDataString(quint64 addr, QByteArray data) {
+  // Pad data to a multiple of 16.
   quint64 rest = data.size() % 16;
   if (rest != 0) {
     int amount = 16 - rest;
@@ -128,6 +129,7 @@ QString Util::addrDataString(quint64 addr, QByteArray data) {
       data += (char) 0;
     }
   }
+
   QString output = QString::number(addr, 16).toUpper() + ": ";
   QString ascii;
   for (int i = 0; i < data.size(); i++) {
@@ -142,10 +144,10 @@ QString Util::addrDataString(quint64 addr, QByteArray data) {
     ascii += (ic >= 33 && ic <= 126 ? c : '.');
     ascii += " ";
     if ((i + 1) % 16 == 0 || i == data.size() - 1) {
-      addr += 16;
       output += "  " + ascii;
       ascii.clear();
-      if ((i + 1) % 16 == 0 && i != data.size() - 1) {
+      if (i != data.size() - 1) {
+        addr += 16;
         output += "\n" + QString::number(addr, 16).toUpper() + ": ";
       }
     }
