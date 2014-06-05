@@ -584,13 +584,24 @@ bool MachO::parse() {
       qDebug() << "=== SOURCE VERSION ===";
 
       // Version (A.B.C.D.E packed as a24.b10.c10.d10.e10)
-      quint32 version = r.getUInt32(&ok);
+      quint64 version = r.getUInt64(&ok);
       if (!ok) return false;
       qDebug() << "version:" << version;
+    }
 
-      quint32 version2 = r.getUInt32(&ok);
+    // LC_MAIN
+    else if (type == 0x28 || type == (0x28 | 0x80000000)) {
+      qDebug() << "=== MAIN ===";
+
+      // File (__TEXT) offset of main()
+      quint64 entryoff = r.getUInt64(&ok);
       if (!ok) return false;
-      qDebug() << "version2:" << version2;
+      qDebug() << "entryoff:" << entryoff;
+
+      // Initial stack size if not zero.
+      quint64 stacksize = r.getUInt64(&ok);
+      if (!ok) return false;
+      qDebug() << "stacksize:" << stacksize;
     }
 
     qDebug();
