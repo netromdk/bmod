@@ -590,7 +590,7 @@ bool MachO::parse() {
     }
 
     // LC_MAIN
-    else if (type == 0x28 || type == (0x28 | 0x80000000)) {
+    else if (type == (0x28 | 0x80000000)) {
       qDebug() << "=== MAIN ===";
 
       // File (__TEXT) offset of main()
