@@ -214,9 +214,9 @@ bool MachO::parse() {
     if (!ok) return false;
     qDebug() << "type:" << type;
 
-    quint32 size = r.getUInt32(&ok);
+    quint32 cmdsize = r.getUInt32(&ok);
     if (!ok) return false;
-    qDebug() << "size:" << size;
+    qDebug() << "size:" << cmdsize;
 
     // LC_SEGMENT or LC_SEGMENT_64
     if (type == 1 || type == 25) {
@@ -536,6 +536,28 @@ bool MachO::parse() {
       quint32 nlocrel = r.getUInt32(&ok);
       if (!ok) return false;
       qDebug() << "nlocrel:" << nlocrel;
+    }
+
+    // LC_LOAD_DYLINKER (dylinker_command struct)
+    else if (type == 0xE) {
+      qDebug() << "=== LOAD DYLINKER ===";
+
+      // Dynamic linker's path name.
+
+      quint32 offset = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "offset:" << offset;
+
+      QString dyname;
+      while (true) {
+        char c;
+        if (!f.getChar(&c)) {
+          return false;
+        }
+        if (c == 0) break;
+        dyname += c;
+      }
+      qDebug() << "dyld name:" << dyname;
     }
 
     qDebug();
