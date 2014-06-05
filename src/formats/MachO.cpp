@@ -644,6 +644,26 @@ bool MachO::parse() {
       qDebug() << "datasize:" << datasize;
     }
 
+    // LC_DATA_IN_CODE
+    else if (type == 0x29) {
+      qDebug() << "=== DATA IN CODE ===";
+
+      // From mach_header to start of data range.
+      quint32 offset = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "offset:" << offset;
+
+      // Number of bytes in data range.
+      quint16 length = r.getUInt16(&ok);
+      if (!ok) return false;
+      qDebug() << "length:" << length;
+
+      // Dice kind value.
+      quint16 kind = r.getUInt16(&ok);
+      if (!ok) return false;
+      qDebug() << "kind:" << kind;
+    }
+
     qDebug();
   }
 
