@@ -117,6 +117,9 @@ QString Util::sectionTypeString(SectionType type) {
   default:
   case SectionType::Text:
     return "Text";
+
+  case SectionType::CString:
+    return "CString";
   }
 }
 

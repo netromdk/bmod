@@ -427,9 +427,17 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
           }
 
           // Store needed sections.
-          if (segname == "__TEXT" && secname == "__text") {
-            SectionPtr sec(new Section(SectionType::Text, addr, secsize, offset + secfileoff));
-            sections << sec;
+          if (segname == "__TEXT") {
+            if (secname == "__text") {
+              SectionPtr sec(new Section(SectionType::Text, addr, secsize,
+                                         offset + secfileoff));
+              sections << sec;
+            }
+            else if (secname == "__cstring") {
+              SectionPtr sec(new Section(SectionType::CString, addr, secsize,
+                                         offset + secfileoff));
+              sections << sec;
+            }
           }
 
           qDebug();
