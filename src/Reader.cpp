@@ -19,6 +19,14 @@ quint64 Reader::getUInt64(bool *ok) {
   return getUInt<quint64>(ok);
 }
 
+QByteArray Reader::read(quint64 max) {
+  return dev.read(max);
+}
+
+bool Reader::seek(quint64 pos) {
+  return dev.seek(pos);
+}
+
 template <typename T>
 T Reader::getUInt(bool *ok) {
   constexpr int num = sizeof(T);
