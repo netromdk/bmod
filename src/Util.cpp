@@ -145,7 +145,6 @@ QString Util::addrDataString(quint64 addr, QByteArray data) {
     }
     output += hc + " ";
     ascii += (ic >= 33 && ic <= 126 ? c : '.');
-    ascii += " ";
     if ((i + 1) % 16 == 0 || i == data.size() - 1) {
       output += "  " + ascii;
       ascii.clear();
