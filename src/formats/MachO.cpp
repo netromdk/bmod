@@ -7,10 +7,7 @@
 #include "../Util.h"
 #include "../Reader.h"
 
-MachO::MachO(const QString &file)
-  : Format(Kind::MachO), file{file}, littleEndian{true}, systemBits{32},
-  cpuType{CpuType::X86}, fileType{FileType::Execute}
-{ }
+MachO::MachO(const QString &file) : Format(Kind::MachO), file{file} { }
 
 bool MachO::detect() {
   QFile f{file};
@@ -99,6 +96,8 @@ bool MachO::parse() {
 }
 
 bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
+  BinaryObjectPtr binaryObject(new BinaryObject);
+
   r.seek(offset);
 
   bool ok;
@@ -106,6 +105,8 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   if (!ok) return false;
 
   //qDebug() << "magic:" << magic;
+  int systemBits{32};
+  bool littleEndian{true};
   if (magic == 0xFEEDFACE) {
     systemBits = 32;
     littleEndian = true;
@@ -122,6 +123,9 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     systemBits = 64;
     littleEndian = false;
   }
+
+  binaryObject->setSystemBits(systemBits);
+  binaryObject->setLittleEndian(littleEndian);
 
   // Read info in the endianness of the file.
   r.setLittleEndian(littleEndian);
@@ -154,6 +158,7 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   //qDebug() << "cputype:" << cputype;
 
   // Types in /usr/local/mach/machine.h
+  CpuType cpuType{CpuType::X86};
   if (cputype == 7) { // CPU_TYPE_X86, CPU_TYPE_I386
     cpuType = CpuType::X86;
   }
@@ -179,12 +184,15 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     cpuType = CpuType::PowerPC_64;
   }
 
+  binaryObject->setCpuType(cpuType);
+
   // Subtract 64-bit mask.
   if (systemBits == 64) {
     cpusubtype -= 0x80000000;
   }
 
   //qDebug() << "cpusubtype:" << cpusubtype;
+  CpuType cpuSubType{CpuType::I386};
   if (cpusubtype == 3) { // CPU_SUBTYPE_386
     cpuSubType = CpuType::I386;
   }
@@ -243,7 +251,10 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     cpuSubType = CpuType::Xeon_MP;
   }
 
+  binaryObject->setCpuSubType(cpuSubType);
+
   //qDebug() << "filetype:" << filetype;
+  FileType fileType{FileType::Object};
   if (filetype == 1) { // MH_OBJECT
     fileType = FileType::Object;
   }
@@ -265,6 +276,9 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   else if (filetype == 8) { // MH_BUNDLE
     fileType = FileType::Bundle;
   }
+
+  binaryObject->setFileType(fileType);
+
   qDebug() << "ncmds:" << ncmds;
   /*
   qDebug() << "sizeofcmds:" << sizeofcmds;
@@ -431,12 +445,12 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
             if (secname == "__text") {
               SectionPtr sec(new Section(SectionType::Text, addr, secsize,
                                          offset + secfileoff));
-              sections << sec;
+              binaryObject->addSection(sec);
             }
             else if (secname == "__cstring") {
               SectionPtr sec(new Section(SectionType::CString, addr, secsize,
                                          offset + secfileoff));
-              sections << sec;
+              binaryObject->addSection(sec);
             }
           }
 
@@ -755,10 +769,11 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   }
 
   // Fill data of stored sections.
-  foreach (auto sec, sections) {
+  foreach (auto sec, binaryObject->getSections()) {
     r.seek(sec->getOffset());
     sec->setData(r.read(sec->getSize()));
   }
 
+  objects << binaryObject;
   return true;
 }

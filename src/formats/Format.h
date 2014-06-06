@@ -9,6 +9,7 @@
 #include "../Section.h"
 #include "../CpuType.h"
 #include "../FileType.h"
+#include "../BinaryObject.h"
 
 class Format;
 typedef std::unique_ptr<Format> FormatPtr;
@@ -21,11 +22,9 @@ public:
 
   Format(Kind kind) : kind{kind} { }
 
-  /**
-   * Try each of the known formats and see if any of them are
-   * compatible with the file.
-   */
-  static FormatPtr detect(const QString &file);
+  Kind getKind() const { return kind; }
+
+  virtual QString getName() const =0;
 
   /**
    * Detect whether the magic code of the file corresponds to the
@@ -38,14 +37,16 @@ public:
    */
   virtual bool parse() =0;
 
-  Kind getKind() const { return kind; }
-  virtual QString getName() const =0;
-  virtual bool isLittleEndian() const =0;
-  virtual int getSystemBits() const =0;
-  virtual CpuType getCpuType() const =0;
-  virtual CpuType getCpuSubType() const =0;
-  virtual FileType getFileType() const =0;
-  virtual const QList<SectionPtr> &getSections() const =0;
+  /**
+   * Get the list of probed binary objects of the file.
+   */
+  virtual QList<BinaryObjectPtr> getObjects() const =0;
+
+  /**
+   * Try each of the known formats and see if any of them are
+   * compatible with the file.
+   */
+  static FormatPtr detect(const QString &file);
 
 private:
   Kind kind;

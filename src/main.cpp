@@ -17,21 +17,23 @@ int main(int argc, char **argv) {
   if (fmt != nullptr) {
     qDebug() << "detected:" << fmt->getName();
     if (fmt->parse()) {
-      qDebug() << "Little Endian:" << fmt->isLittleEndian();
-      qDebug() << "System bits:" << fmt->getSystemBits();
-      qDebug() << "CPU type:" << Util::cpuTypeString(fmt->getCpuType());
-      qDebug() << "CPU sub type:" << Util::cpuTypeString(fmt->getCpuSubType());
-      qDebug() << "File type:" << Util::fileTypeString(fmt->getFileType());
-      qDebug() << "Sections:";
-      foreach (const auto sec, fmt->getSections()) {
-        qDebug();
-        qDebug() << "Type:" << Util::sectionTypeString(sec->getType());
-        qDebug() << "Address:" << sec->getAddress();
-        qDebug() << "Size:" << sec->getSize();
-        qDebug() << "Offset:" << sec->getOffset();
-        qDebug() << "Data:";
-        QString addrView{Util::addrDataString(sec->getAddress(), sec->getData())};
-        qDebug() << qPrintable(addrView);
+      foreach (const auto bin, fmt->getObjects()) {
+        qDebug() << "Little Endian:" << bin->isLittleEndian();
+        qDebug() << "System bits:" << bin->getSystemBits();
+        qDebug() << "CPU type:" << Util::cpuTypeString(bin->getCpuType());
+        qDebug() << "CPU sub type:" << Util::cpuTypeString(bin->getCpuSubType());
+        qDebug() << "File type:" << Util::fileTypeString(bin->getFileType());
+        qDebug() << "Sections:";
+        foreach (const auto sec, bin->getSections()) {
+          qDebug();
+          qDebug() << "Type:" << Util::sectionTypeString(sec->getType());
+          qDebug() << "Address:" << sec->getAddress();
+          qDebug() << "Size:" << sec->getSize();
+          qDebug() << "Offset:" << sec->getOffset();
+          qDebug() << "Data:";
+          QString addrView{Util::addrDataString(sec->getAddress(), sec->getData())};
+          qDebug() << qPrintable(addrView);
+        }
       }
     }
   }
