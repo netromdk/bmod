@@ -21,10 +21,10 @@ QString Util::cpuTypeString(CpuType type) {
   case CpuType::I860:
     return "i860";
     
-  case CpuType::PowerPc:
+  case CpuType::PowerPC:
     return "PowerPC";
     
-  case CpuType::PowerPc_64:
+  case CpuType::PowerPC_64:
     return "PowerPC 64";
 
   case CpuType::I386:

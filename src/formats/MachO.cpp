@@ -105,10 +105,10 @@ bool MachO::parse() {
     cpuType = CpuType::I860;
   }
   else if (cputype == 18) { // CPU_TYPE_POWERPC
-    cpuType = CpuType::PowerPc;
+    cpuType = CpuType::PowerPC;
   }
   else if (cputype == 18 + 0x01000000) { // CPU_TYPE_POWERPC | CPU_ARCH_ABI64
-    cpuType = CpuType::PowerPc_64;
+    cpuType = CpuType::PowerPC_64;
   }
 
   // Subtract 64-bit mask.

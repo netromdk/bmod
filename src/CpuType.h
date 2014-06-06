@@ -8,8 +8,8 @@ enum class CpuType {
   ARM,
   SPARC,
   I860,
-  PowerPc,
-  PowerPc_64,
+  PowerPC,
+  PowerPC_64,
 
   // Sub types
   I386,
