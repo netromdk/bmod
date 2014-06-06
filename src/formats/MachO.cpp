@@ -44,6 +44,8 @@ bool MachO::parse() {
     // Values are saved as big-endian so read as such.
     r.setLittleEndian(false);
 
+    qDebug() << "magic:" << magic;
+
     quint32 nfat_arch = r.getUInt32(&ok);
     if (!ok) return false;
     qDebug() << "nfat_arch:" << nfat_arch;
@@ -54,10 +56,13 @@ bool MachO::parse() {
     for (quint32 i = 0; i < nfat_arch; i++) {
       qDebug() << "arch #" << i;
 
-      r.getUInt32(&ok); // cpu type
+      quint32 cputype = r.getUInt32(&ok);
       if (!ok) return false;
-      r.getUInt32(&ok); // cpu sub type
+      qDebug() << "cputype:" << cputype;
+
+      quint32 cpusubtype = r.getUInt32(&ok);
       if (!ok) return false;
+      qDebug() << "cpusubtype:" << cpusubtype;
 
       // File offset to this object file.
       quint32 offset = r.getUInt32(&ok);
@@ -99,6 +104,7 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   BinaryObjectPtr binaryObject(new BinaryObject);
 
   r.seek(offset);
+  r.setLittleEndian(true);
 
   bool ok;
   quint32 magic = r.getUInt32(&ok);
@@ -123,6 +129,9 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     systemBits = 64;
     littleEndian = false;
   }
+
+  qDebug() << "system bits:" << systemBits;
+  qDebug() << "little endian:" << littleEndian;
 
   binaryObject->setSystemBits(systemBits);
   binaryObject->setLittleEndian(littleEndian);
@@ -280,10 +289,8 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   binaryObject->setFileType(fileType);
 
   qDebug() << "ncmds:" << ncmds;
-  /*
   qDebug() << "sizeofcmds:" << sizeofcmds;
   qDebug() << "flags:" << flags;
-  */
 
   // TODO: Load flags when necessary.
 
