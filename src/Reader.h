@@ -5,7 +5,10 @@ class QIODevice;
 
 class Reader {
 public:
-  Reader(QIODevice &dev);
+  Reader(QIODevice &dev, bool littleEndian = true);
+
+  bool isLittleEndian() const { return littleEndian; }
+  void setLittleEndian(bool little) { littleEndian = little; }
 
   quint16 getUInt16(bool *ok = nullptr);
   quint32 getUInt32(bool *ok = nullptr);
@@ -16,6 +19,7 @@ private:
   T getUInt(bool *ok = nullptr);
 
   QIODevice &dev;
+  bool littleEndian;
 };
 
 #endif // BMOD_READER_H

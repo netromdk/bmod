@@ -3,7 +3,9 @@
 
 #include "Reader.h"
 
-Reader::Reader(QIODevice &dev) : dev{dev} { }
+Reader::Reader(QIODevice &dev, bool littleEndian)
+  : dev{dev}, littleEndian{littleEndian}
+{ }
 
 quint16 Reader::getUInt16(bool *ok) {
   return getUInt<quint16>(ok);
@@ -27,7 +29,11 @@ T Reader::getUInt(bool *ok) {
   }
   T res{0};
   for (int i = 0; i < num; i++) {
-    res += ((T) (unsigned char) buf[i]) << i * 8;
+    int j = i;
+    if (!littleEndian) {
+      j = num - (i + 1);
+    }
+    res += ((T) (unsigned char) buf[i]) << j * 8;
   }
   if (ok) *ok = true;
   return res;
