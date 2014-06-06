@@ -641,9 +641,14 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       qDebug() << "nlocrel:" << nlocrel;
     }
 
-    // LC_LOAD_DYLIB
-    else if (type == 0xC) {
-      qDebug() << "=== LOAD DYLIB ===";
+    // LC_LOAD_DYLIB or LC_ID_DYLIB
+    else if (type == 0xC || type == 0xD) {
+      if (type == 0xC) {
+        qDebug() << "=== LOAD DYLIB ===";
+      }
+      else {
+        qDebug() << "=== ID DYLIB ===";
+      }
 
       // Library path name offset.
       quint32 liboffset = r.getUInt32(&ok);
@@ -770,6 +775,12 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       quint16 kind = r.getUInt16(&ok);
       if (!ok) return false;
       qDebug() << "kind:" << kind;
+    }
+
+    // Temporary: Fail if unknown!
+    else {
+      qDebug() << "what is type:" << type;
+      exit(0);
     }
 
     qDebug();
