@@ -44,8 +44,6 @@ bool MachO::parse() {
 
   // Check if this is a universal "fat" binary.
   if (magic == 0xCAFEBABE || magic == 0xBEBAFECA) {
-    qDebug() << "FAT BINARY";
-
     // Values are saved as big-endian so read as such.
     r.setLittleEndian(false);
 
@@ -84,6 +82,7 @@ bool MachO::parse() {
       archs << puu(offset, size);
     }
 
+    // Parse the actual binary objects.
     foreach (const auto &arch, archs) {
       if (!parseHeader(arch.first, arch.second, r)) {
         return false;
