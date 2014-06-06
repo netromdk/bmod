@@ -3,6 +3,8 @@
 
 #include "Format.h"
 
+class Reader;
+
 class MachO : public Format {
 public:
   MachO(const QString &file);
@@ -19,8 +21,9 @@ public:
   const QList<SectionPtr> &getSections() const { return sections; }
 
 private:
-  QString file;
+  bool parseHeader(quint32 offset, quint32 size, Reader &reader);
 
+  QString file;
   bool littleEndian;
   int systemBits;
   CpuType cpuType, cpuSubType;

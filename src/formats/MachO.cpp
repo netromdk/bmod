@@ -26,7 +26,9 @@ bool MachO::detect() {
   return magic == 0xFEEDFACE || // 32-bit little endian
     magic == 0xFEEDFACF || // 64-bit little endian
     magic == 0xECAFDEEF || // 32-bit big endian
-    magic == 0xFCAFDEEF; // 64-bit big endian
+    magic == 0xFCAFDEEF || // 64-bit big endian
+    magic == 0xCAFEBABE || // Universal binary little endian
+    magic == 0xBEBAFECA; // Universal binary big endian
 }
 
 bool MachO::parse() {
@@ -35,29 +37,73 @@ bool MachO::parse() {
     return false;
   }
 
-  quint32 magic, cputype, cpusubtype, filetype, ncmds, sizeofcmds, flags;
-
   Reader r(f);
   bool ok;
-  magic = r.getUInt32(&ok);
+  quint32 magic = r.getUInt32(&ok);
   if (!ok) return false;
 
-  cputype = r.getUInt32(&ok);
-  if (!ok) return false;
+  // Check if this is a universal "fat" binary.
+  if (magic == 0xCAFEBABE || magic == 0xBEBAFECA) {
+    qDebug() << "FAT BINARY";
 
-  cpusubtype = r.getUInt32(&ok);
-  if (!ok) return false;
+    // Values are saved as big-endian so read as such.
+    r.setLittleEndian(false);
 
-  filetype = r.getUInt32(&ok);
-  if (!ok) return false;
+    quint32 nfat_arch = r.getUInt32(&ok);
+    if (!ok) return false;
+    qDebug() << "nfat_arch:" << nfat_arch;
 
-  ncmds = r.getUInt32(&ok);
-  if (!ok) return false;
+    // Read "fat" headers.
+    typedef QPair<quint32, quint32> puu;
+    QList<puu> archs;
+    for (quint32 i = 0; i < nfat_arch; i++) {
+      qDebug() << "arch #" << i;
 
-  sizeofcmds = r.getUInt32(&ok);
-  if (!ok) return false;
+      r.getUInt32(&ok); // cpu type
+      if (!ok) return false;
+      r.getUInt32(&ok); // cpu sub type
+      if (!ok) return false;
 
-  flags = r.getUInt32(&ok);
+      // File offset to this object file.
+      quint32 offset = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "offset:" << offset;
+
+      // Size of this object file.
+      quint32 size = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug() << "size:" << size;
+
+      // Alignment as a power of 2.
+      quint32 align = pow(2, r.getUInt32(&ok));
+      if (!ok) return false;
+      qDebug() << "align:" << align;
+
+      qDebug();
+
+      archs << puu(offset, size);
+    }
+
+    foreach (const auto &arch, archs) {
+      if (!parseHeader(arch.first, arch.second, r)) {
+        return false;
+      }
+    }
+  }
+
+  // Otherwise, just parse a single object file.
+  else {
+    return parseHeader(0, 0, r);
+  }
+
+  return true;
+}
+
+bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
+  r.seek(offset);
+
+  bool ok;
+  quint32 magic = r.getUInt32(&ok);
   if (!ok) return false;
 
   //qDebug() << "magic:" << magic;
@@ -77,6 +123,29 @@ bool MachO::parse() {
     systemBits = 64;
     littleEndian = false;
   }
+
+  // Read info in the endianness of the file.
+  r.setLittleEndian(littleEndian);
+
+  quint32 cputype, cpusubtype, filetype, ncmds, sizeofcmds, flags;
+
+  cputype = r.getUInt32(&ok);
+  if (!ok) return false;
+
+  cpusubtype = r.getUInt32(&ok);
+  if (!ok) return false;
+
+  filetype = r.getUInt32(&ok);
+  if (!ok) return false;
+
+  ncmds = r.getUInt32(&ok);
+  if (!ok) return false;
+
+  sizeofcmds = r.getUInt32(&ok);
+  if (!ok) return false;
+
+  flags = r.getUInt32(&ok);
+  if (!ok) return false;
 
   // Read reserved field.
   if (systemBits == 64) {
@@ -221,7 +290,7 @@ bool MachO::parse() {
     // LC_SEGMENT or LC_SEGMENT_64
     if (type == 1 || type == 25) {
       qDebug() << "=== SEGMENT ===";
-      QString name{f.read(16)};
+      QString name{r.read(16)};
       qDebug() << "name:" << name;
 
       // Memory address of this segment.
@@ -296,10 +365,10 @@ bool MachO::parse() {
       if (nsects > 0) {
         qDebug() << endl << "== SECTIONS ==";
         for (int j = 0; j < nsects; j++) {
-          QString secname{f.read(16)};
+          QString secname{r.read(16)};
           qDebug() << "secname:" << secname;
 
-          QString segname{f.read(16)};
+          QString segname{r.read(16)};
           qDebug() << "segname:" << segname;
 
           // Memory address of this section.
@@ -360,7 +429,7 @@ bool MachO::parse() {
 
           // Store needed sections.
           if (segname == "__TEXT" && secname == "__text") {
-            SectionPtr sec(new Section(SectionType::Text, addr, secsize, secfileoff));
+            SectionPtr sec(new Section(SectionType::Text, addr, secsize, offset + secfileoff));
             sections << sec;
           }
 
@@ -549,9 +618,9 @@ bool MachO::parse() {
       qDebug() << "=== LOAD DYLIB ===";
 
       // Library path name offset.
-      quint32 offset = r.getUInt32(&ok);
+      quint32 liboffset = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "offset:" << offset;
+      qDebug() << "liboffset:" << liboffset;
 
       quint32 timestamp = r.getUInt32(&ok);
       if (!ok) return false;
@@ -566,7 +635,7 @@ bool MachO::parse() {
       qDebug() << "compatibility_version:" << compatibility_version;
 
       // Library path name.
-      QString libname{f.read(cmdsize - offset)};
+      QString libname{r.read(cmdsize - liboffset)};
       qDebug() << "lib name:" << libname;
     }
 
@@ -575,11 +644,11 @@ bool MachO::parse() {
       qDebug() << "=== LOAD DYLINKER ===";
 
       // Dynamic linker's path name.
-      quint32 offset = r.getUInt32(&ok);
+      quint32 noffset = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "offset:" << offset;
+      qDebug() << "noffset:" << noffset;
 
-      QString dyname{f.read(cmdsize - offset)};
+      QString dyname{r.read(cmdsize - noffset)};
       qDebug() << "dyld name:" << dyname;
     }
 
@@ -587,7 +656,7 @@ bool MachO::parse() {
     else if (type == 0x1B) {
       qDebug() << "=== UUID ===";
 
-      const QByteArray uuid{f.read(16)};
+      const QByteArray uuid{r.read(16)};
       QString uuidStr;
       for (int h = 0; h < uuid.size(); h++) {
         uuidStr += QString::number((unsigned char) uuid[h], 16);
@@ -660,9 +729,9 @@ bool MachO::parse() {
       qDebug() << "=== DATA IN CODE ===";
 
       // From mach_header to start of data range.
-      quint32 offset = r.getUInt32(&ok);
+      quint32 hoffset = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "offset:" << offset;
+      qDebug() << "hoffset:" << hoffset;
 
       // Number of bytes in data range.
       quint16 length = r.getUInt16(&ok);
@@ -680,8 +749,8 @@ bool MachO::parse() {
 
   // Fill data of stored sections.
   foreach (auto sec, sections) {
-    f.seek(sec->getOffset());
-    sec->setData(f.read(sec->getSize()));
+    r.seek(sec->getOffset());
+    sec->setData(r.read(sec->getSize()));
   }
 
   return true;
