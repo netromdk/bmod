@@ -1,7 +1,10 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QTreeWidget>
+#include <QApplication>
+#include <QProgressDialog>
 
+#include "../Util.h"
 #include "ProgramPane.h"
 
 ProgramPane::ProgramPane(BinaryObjectPtr obj)
@@ -45,6 +48,13 @@ void ProgramPane::setup() {
     int len = data.size(), rows = len / 16;
     if (len % 16 > 0) rows++;
 
+    QProgressDialog progDiag(this);
+    progDiag.setLabelText(tr("Processing data.."));
+    progDiag.setCancelButton(nullptr);
+    progDiag.setRange(0, 100);
+    progDiag.show();
+    qApp->processEvents();
+
     for (int row = 0, byte = 0; row < rows; row++) {
       auto *item = new QTreeWidgetItem;
       item->setText(0, QString::number(addr, 16).toUpper());
@@ -70,6 +80,18 @@ void ProgramPane::setup() {
 
       treeWidget->addTopLevelItem(item);
       addr += 16;
+
+      static int lastPerc{0};
+      int perc = (float) row / (float) rows * 100.0;
+      if (perc > lastPerc || perc == 100) {
+        lastPerc = perc;
+        progDiag.setValue(perc);
+        progDiag.setLabelText(tr("Processing data.. %1% (%2 of %3)")
+                              .arg(perc)
+                              .arg(Util::formatSize(byte))
+                              .arg(Util::formatSize(len)));
+        qApp->processEvents();
+      }
     }
   }
 }
