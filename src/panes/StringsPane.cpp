@@ -7,7 +7,7 @@
 #include "../MachineCodeWidget.h"
 
 StringsPane::StringsPane(BinaryObjectPtr obj)
-  : Pane(Kind::Strings), obj{obj}
+  : Pane(Kind::Strings), obj{obj}, shown{false}
 {
   createLayout();
 }
@@ -89,7 +89,6 @@ void StringsPane::setup() {
       treeWidget->addTopLevelItem(item);
       addr += cur.size();
       cur.clear();
-      continue;
     }
   }
 }
