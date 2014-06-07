@@ -591,11 +591,7 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
 
     // LC_UUID
     else if (type == 0x1B) {
-      const QByteArray uuid{r.read(16)};
-      QString uuidStr;
-      for (int h = 0; h < uuid.size(); h++) {
-        uuidStr += QString::number((unsigned char) uuid[h], 16);
-      }
+      r.read(16);
     }
 
     // LC_VERSION_MIN_MACOSX
