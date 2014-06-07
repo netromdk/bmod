@@ -17,7 +17,7 @@ BinaryWidget::BinaryWidget(FormatPtr fmt) : fmt{fmt} {
 
 void BinaryWidget::createLayout() {
   listWidget = new QListWidget;
-  listWidget->setFixedWidth(150);
+  listWidget->setFixedWidth(160);
   connect(listWidget, &QListWidget::currentRowChanged,
           this, &BinaryWidget::onModeChanged);
 
