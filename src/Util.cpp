@@ -155,6 +155,14 @@ QString Util::formatSize(qint64 bytes, int digits) {
   return QString("%1 %2").arg(QString::number(size, 'f', digits)).arg(unit);
 }
 
+QString Util::padString(const QString &str, int size, char pad) {
+  int addrLen = str.size();
+  if (addrLen < size) {
+    return QString(size - addrLen, pad) + str;
+  }
+  return str;
+}
+
 QString Util::addrDataString(quint64 addr, QByteArray data) {
   // Pad data to a multiple of 16.
   quint64 rest = data.size() % 16;

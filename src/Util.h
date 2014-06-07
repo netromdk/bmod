@@ -18,6 +18,7 @@ public:
 
   static void centerWidget(QWidget *widget);
   static QString formatSize(qint64 bytes, int digits = 1);
+  static QString padString(const QString &str, int size, char pad = 48);
 
   /**
    * Generate string of format:

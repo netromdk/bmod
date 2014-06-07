@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QTreeWidget>
 
+#include "../Util.h"
 #include "StringsPane.h"
 #include "../MachineCodeWidget.h"
 
@@ -64,13 +65,8 @@ void StringsPane::setup() {
     cur += c;
     if (c == 0) {
       auto *item = new QTreeWidgetItem;
-
-      QString addrStr{QString::number(addr, 16).toUpper()};
-      int pad = obj->getSystemBits() / 8, addrLen = addrStr.size();
-      if (addrLen < pad) {
-        addrStr = QString(pad - addrLen, (char) 48) + addrStr;
-      }
-      item->setText(0, addrStr);
+      item->setText(0, Util::padString(QString::number(addr, 16).toUpper(),
+                                       obj->getSystemBits() / 8));
 
       QString str = QString::fromUtf8(cur);
       item->setText(1, str);
