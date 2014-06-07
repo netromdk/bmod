@@ -13,14 +13,21 @@
 #include "BinaryWidget.h"
 #include "formats/Format.h"
 
-MainWindow::MainWindow() {
+MainWindow::MainWindow(const QStringList &files) {
   setWindowTitle("bmod");
   createLayout();
   createMenu();
   resize(600, 400);
 
-  // If no file was specified on CLI then show open-file-dialog.
-  openBinary();
+  // Load specified files or open file dialog.
+  if (files.isEmpty()) {
+    openBinary();
+  }
+  else {
+    foreach (const auto &file, files) {
+      loadBinary(file);
+    }
+  }
 }
 
 void MainWindow::openBinary() {
