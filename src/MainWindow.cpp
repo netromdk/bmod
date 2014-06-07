@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QApplication>
+#include <QProgressDialog>
 
 #include "MainWindow.h"
 #include "BinaryWidget.h"
@@ -28,6 +30,13 @@ void MainWindow::openBinary() {
                                  tr("Mach-O (* *.dylib *.bundle *.o)"));
   if (file.isEmpty()) return;
 
+  QProgressDialog progDiag(this);
+  progDiag.setLabelText(tr("Detecting format.."));
+  progDiag.setCancelButton(nullptr);
+  progDiag.setRange(0, 0);
+  progDiag.show();
+  qApp->processEvents();
+
   auto fmt = Format::detect(file);
   if (fmt == nullptr) {
     QMessageBox::critical(this, tr("bmod"), tr("Unknown file - could not open!"));
@@ -35,6 +44,9 @@ void MainWindow::openBinary() {
   }
   
   qDebug() << "detected:" << fmt->getName();
+
+  progDiag.setLabelText(tr("Reading and parsing binary.."));
+  qApp->processEvents();
   if (!fmt->parse()) {
     QMessageBox::warning(this, tr("bmod"), tr("Could not parse file!"));
     return;
