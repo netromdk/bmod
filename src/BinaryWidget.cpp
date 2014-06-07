@@ -17,6 +17,8 @@ BinaryWidget::BinaryWidget(FormatPtr fmt) : fmt{fmt} {
 void BinaryWidget::createLayout() {
   listWidget = new QListWidget;
   listWidget->setFixedWidth(150);
+  connect(listWidget, &QListWidget::currentRowChanged,
+          this, &BinaryWidget::onModeChanged);
 
   stackLayout = new QStackedLayout;
   
@@ -25,6 +27,10 @@ void BinaryWidget::createLayout() {
   layout->addLayout(stackLayout);
   
   setLayout(layout);
+}
+
+void BinaryWidget::onModeChanged(int row) {
+  stackLayout->setCurrentIndex(row);
 }
 
 void BinaryWidget::setup() {
@@ -36,6 +42,10 @@ void BinaryWidget::setup() {
 
     auto *progPane = new ProgramPane(obj);
     addPane(tr("Program"), progPane, 1);
+  }
+
+  if (listWidget->count() > 0) {
+    listWidget->setCurrentRow(0);
   }
 }
 

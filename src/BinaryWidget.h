@@ -11,8 +11,13 @@ class QListWidget;
 class QStackedLayout;
 
 class BinaryWidget : public QWidget {
+  Q_OBJECT
+
 public:
   BinaryWidget(FormatPtr fmt);
+
+private slots:
+  void onModeChanged(int row);
 
 private:
   void createLayout();
