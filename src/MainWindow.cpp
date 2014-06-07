@@ -62,9 +62,16 @@ void MainWindow::openBinary() {
                                  tr("Mach-O (* *.dylib *.bundle *.o)"));
   if (file.isEmpty()) {
     if (binaryWidgets.isEmpty()) {
-      closeBinary();
+      qApp->quit();
     }
     return;
+  }
+
+  foreach (const auto *binary, binaryWidgets) {
+    if (binary->getFile() == file) {
+      QMessageBox::warning(this, "bmod", tr("Can't open same binary twice!"));
+      return;
+    }
   }
 
   loadBinary(file);

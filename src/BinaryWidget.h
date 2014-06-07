@@ -16,6 +16,8 @@ class BinaryWidget : public QWidget {
 public:
   BinaryWidget(FormatPtr fmt);
 
+  QString getFile() const { return fmt->getFile(); }
+
 private slots:
   void onModeChanged(int row);
 
