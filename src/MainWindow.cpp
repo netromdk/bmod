@@ -30,6 +30,27 @@ void MainWindow::openBinary() {
                                  tr("Mach-O (* *.dylib *.bundle *.o)"));
   if (file.isEmpty()) return;
 
+  loadBinary(file);
+}
+
+void MainWindow::createLayout() {
+  tabWidget = new QTabWidget;
+
+  auto *layout = new QVBoxLayout;
+  layout->addWidget(tabWidget);
+
+  auto *w = new QWidget;
+  w->setLayout(layout);
+  setCentralWidget(w);
+}
+
+void MainWindow::createMenu() {
+  QMenu *fileMenu = menuBar()->addMenu(tr("File"));
+  QAction *openBin = fileMenu->addAction("Open binary");
+  connect(openBin, &QAction::triggered, this, &MainWindow::openBinary);
+}
+
+void MainWindow::loadBinary(const QString &file) {
   QProgressDialog progDiag(this);
   progDiag.setLabelText(tr("Detecting format.."));
   progDiag.setCancelButton(nullptr);
@@ -55,21 +76,4 @@ void MainWindow::openBinary() {
   auto *binWidget = new BinaryWidget(fmt);
   binaryWidgets << binWidget;
   tabWidget->addTab(binWidget, QFileInfo(file).fileName());
-}
-
-void MainWindow::createLayout() {
-  tabWidget = new QTabWidget;
-  
-  auto *layout = new QVBoxLayout;
-  layout->addWidget(tabWidget);
-
-  auto *w = new QWidget;
-  w->setLayout(layout);
-  setCentralWidget(w);
-}
-
-void MainWindow::createMenu() {
-  QMenu *fileMenu = menuBar()->addMenu(tr("File"));
-  QAction *openBin = fileMenu->addAction("Open binary");
-  connect(openBin, &QAction::triggered, this, &MainWindow::openBinary);
 }

@@ -20,6 +20,8 @@ private:
   void createLayout();
   void createMenu();
 
+  void loadBinary(const QString &file);
+
   QTabWidget *tabWidget;
   QList<BinaryWidget*> binaryWidgets;
 };
