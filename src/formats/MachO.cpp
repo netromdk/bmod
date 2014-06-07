@@ -473,12 +473,16 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       if (!ok) return false;
 
       // String table offset.
-      r.getUInt32(&ok);
+      quint32 stroff = r.getUInt32(&ok);
       if (!ok) return false;
 
       // String table size in bytes.
-      r.getUInt32(&ok);
+      quint32 strsize = r.getUInt32(&ok);
       if (!ok) return false;
+
+      SectionPtr sec(new Section(SectionType::String, stroff, strsize,
+                                 offset + stroff));
+      binaryObject->addSection(sec);
     }
 
     // LC_DYSYMTAB

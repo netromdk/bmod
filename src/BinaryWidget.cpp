@@ -46,8 +46,11 @@ void BinaryWidget::setup() {
     auto *progPane = new ProgramPane(obj);
     addPane(tr("Program"), progPane, 1);
 
-    auto *strPane = new StringsPane(obj);
-    addPane(tr("Strings"), strPane, 1);
+    auto *strPane = new StringsPane(obj, SectionType::CString);
+    addPane(tr("C-Strings"), strPane, 1);
+
+    auto *strPane2 = new StringsPane(obj, SectionType::String);
+    addPane(tr("String Table"), strPane2, 1);
   }
 
   if (listWidget->count() > 0) {

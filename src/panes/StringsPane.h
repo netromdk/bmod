@@ -8,7 +8,7 @@ class QTreeWidget;
 
 class StringsPane : public Pane {
 public:
-  StringsPane(BinaryObjectPtr obj);
+  StringsPane(BinaryObjectPtr obj, SectionType type);
 
 protected:
   void showEvent(QShowEvent *event);
@@ -18,6 +18,7 @@ private:
   void setup();
 
   BinaryObjectPtr obj;
+  SectionType type;
 
   bool shown;
   QTreeWidget *treeWidget;
