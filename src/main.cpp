@@ -1,3 +1,4 @@
+#include <QTImer>
 #include <QStringList>
 #include <QApplication>
 
@@ -14,8 +15,9 @@ int main(int argc, char **argv) {
     files << QString::fromUtf8(argv[i]);
   }
 
+  // Start in event loop.
   MainWindow main(files);
-  main.show();
+  QTimer::singleShot(0, &main, SLOT(show()));
 
   return app.exec();
 }
