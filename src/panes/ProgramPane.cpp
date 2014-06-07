@@ -57,7 +57,13 @@ void ProgramPane::setup() {
 
     for (int row = 0, byte = 0; row < rows; row++) {
       auto *item = new QTreeWidgetItem;
-      item->setText(0, QString::number(addr, 16).toUpper());
+
+      QString addrStr{QString::number(addr, 16).toUpper()};
+      int pad = obj->getSystemBits() / 8, addrLen = addrStr.size();
+      if (addrLen < pad) {
+        addrStr = QString(pad - addrLen, (char) 48) + addrStr;
+      }
+      item->setText(0, addrStr);
 
       QString code, ascii;
       for (int cur = 0; cur < 16 && byte < len; cur++, byte++) {
