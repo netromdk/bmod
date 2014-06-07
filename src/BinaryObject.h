@@ -34,6 +34,7 @@ public:
   void setFileType(FileType type) { fileType = type; }
 
   QList<SectionPtr> getSections() const { return sections; }
+  SectionPtr getSection(SectionType type) const;
   void addSection(SectionPtr ptr) { sections << ptr; }
 
 private:

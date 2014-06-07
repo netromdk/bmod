@@ -19,7 +19,7 @@ public:
   quint64 getSize() const { return size; }
   quint32 getOffset() const { return offset; }
 
-  QByteArray getData() const { return data; }
+  const QByteArray &getData() const { return data; }
   void setData(const QByteArray &data) { this->data = data; }
 
 private:

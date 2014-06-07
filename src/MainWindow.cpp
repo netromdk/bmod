@@ -17,7 +17,7 @@ MainWindow::MainWindow(const QStringList &files) {
   setWindowTitle("bmod");
   createLayout();
   createMenu();
-  resize(600, 400);
+  resize(900, 500);
 
   // Load specified files or open file dialog.
   if (files.isEmpty()) {

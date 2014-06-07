@@ -14,6 +14,9 @@ ADD_EXECUTABLE(
   Section.h
   Section.cpp
 
+  BinaryObject.h
+  BinaryObject.cpp
+
   MainWindow.h
   MainWindow.cpp
 
