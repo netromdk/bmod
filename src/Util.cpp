@@ -132,6 +132,29 @@ void Util::centerWidth(QWidget *widget) {
                - widget->rect().center());
 }
 
+QString Util::formatSize(qint64 bytes, int digits) {
+  constexpr double KB = 1024, MB = 1024 * KB, GB = 1024 * MB, TB = 1024 * GB;
+  QString unit{"B"};
+  double size = bytes;
+  if (size >= TB) {
+    size /= TB;
+    unit = "TB";
+  }
+  else if (size >= GB) {
+    size /= GB;
+    unit = "GB";
+  }
+  else if (size >= MB) {
+    size /= MB;
+    unit = "MB";
+  }
+  else if (size >= KB) {
+    size /= KB;
+    unit = "KB";
+  }
+  return QString("%1 %2").arg(QString::number(size, 'f', digits)).arg(unit);
+}
+
 QString Util::addrDataString(quint64 addr, QByteArray data) {
   // Pad data to a multiple of 16.
   quint64 rest = data.size() % 16;

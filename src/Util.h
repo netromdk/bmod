@@ -17,6 +17,7 @@ public:
   static QString sectionTypeString(SectionType type);
 
   static void centerWidth(QWidget *widget);
+  static QString formatSize(qint64 bytes, int digits = 1);
 
   /**
    * Generate string of format:
