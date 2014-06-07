@@ -1,12 +1,13 @@
 #include <QStringList>
 #include <QApplication>
 
+#include "Version.h"
 #include "MainWindow.h"
 
 int main(int argc, char **argv) {
   QApplication app(argc, argv);
   QCoreApplication::setApplicationName("bmod");
-  QCoreApplication::setApplicationVersion("0.1.0");
+  QCoreApplication::setApplicationVersion(versionString());
 
   QStringList files;
   for (int i = 1; i < argc; i++) {
