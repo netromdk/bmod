@@ -13,8 +13,8 @@ void ProgramPane::createLayout() {
   treeWidget = new QTreeWidget;
   treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data"), tr("ASCII")});
   treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
-  treeWidget->setColumnWidth(1, 350);
-  treeWidget->setColumnWidth(2, 100);
+  treeWidget->setColumnWidth(1, 370);
+  treeWidget->setColumnWidth(2, 110);
 
   // Set fixed-width font.
   treeWidget->setFont(QFont("Courier"));
