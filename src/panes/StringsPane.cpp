@@ -74,10 +74,8 @@ void StringsPane::setup() {
 
       QString dataStr;
       for (int j = 0; j < cur.size(); j++) {
-        QString hex{QString::number((unsigned char) cur[j], 16)};
-        if (hex.size() == 1) {
-          hex = "0" + hex;
-        }
+        QString hex =
+          Util::padString(QString::number((unsigned char) cur[j], 16), 2);
         dataStr += hex;
       }
       item->setText(3, dataStr.toUpper());

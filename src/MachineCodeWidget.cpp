@@ -79,10 +79,8 @@ void MachineCodeWidget::setup() {
 
     QString code, ascii;
     for (int cur = 0; cur < 16 && byte < len; cur++, byte++) {
-      QString hex{QString::number((unsigned char) data[byte], 16)};
-      if (hex.size() == 1) {
-        hex = "0" + hex;
-      }
+      QString hex =
+        Util::padString(QString::number((unsigned char) data[byte], 16), 2);
       code += hex + " ";
 
       int ic = data[byte];
