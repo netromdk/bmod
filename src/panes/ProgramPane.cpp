@@ -20,10 +20,12 @@ void ProgramPane::showEvent(QShowEvent *event) {
 
 void ProgramPane::createLayout() {
   treeWidget = new QTreeWidget;
-  treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data"), tr("ASCII")});
+  treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data Low"),
+        tr("Data High"), tr("ASCII")});
   treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
-  treeWidget->setColumnWidth(1, 380);
-  treeWidget->setColumnWidth(2, 110);
+  treeWidget->setColumnWidth(1, 200);
+  treeWidget->setColumnWidth(2, 200);
+  treeWidget->setColumnWidth(3, 110);
 
   // Set fixed-width font.
   treeWidget->setFont(QFont("Courier"));
@@ -61,8 +63,10 @@ void ProgramPane::setup() {
       if (code.endsWith(" ")) {
         code.chop(1);
       }
-      item->setText(1, code.toUpper());
-      item->setText(2, ascii);
+      code = code.toUpper();
+      item->setText(1, code.mid(0, 8 * 3));
+      item->setText(2, code.mid(8 * 3));
+      item->setText(3, ascii);
 
       treeWidget->addTopLevelItem(item);
       addr += 16;

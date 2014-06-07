@@ -8,6 +8,8 @@
 #include "CpuType.h"
 #include "FileType.h"
 
+class QWidget;
+
 class Util {
 public:
   static QString cpuTypeString(CpuType type);
