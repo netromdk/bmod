@@ -18,6 +18,9 @@
 MainWindow::MainWindow(const QStringList &files)
   : shown{false}, startupFiles{files}
 {
+  // Remove possible duplicates.
+  startupFiles = startupFiles.toSet().toList();
+
   setWindowTitle("bmod");
   createLayout();
   createMenu();
