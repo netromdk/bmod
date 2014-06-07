@@ -12,9 +12,16 @@ ArchPane::ArchPane(BinaryObjectPtr obj) : Pane(Kind::Arch), obj{obj} {
 void ArchPane::createLayout() {
   auto *gridLayout = new QGridLayout;
   gridLayout->setContentsMargins(0, 0, 0, 0);
+
+  gridLayout->addWidget(new QLabel(tr("Format type:")), 0, 0);
+  gridLayout->addWidget(new QLabel(Util::formatTypeString(obj->getFormatType())),
+                        0, 1);
+
+                        /*
   gridLayout->addWidget(new QLabel(tr("System bits:")), 0, 0);
   gridLayout->addWidget(new QLabel(QString::number(obj->getSystemBits())),
                         0, 1);
+                        */
 
   gridLayout->addWidget(new QLabel(tr("Little endian:")), 1, 0);
   gridLayout->addWidget(new QLabel(obj->isLittleEndian() ?

@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "FormatType.h"
 #include "../Section.h"
 #include "../CpuType.h"
 #include "../FileType.h"
@@ -16,15 +17,10 @@ typedef std::shared_ptr<Format> FormatPtr;
 
 class Format {
 public:
-  enum class Kind {
-    MachO
-  };
+  Format(FormatType type) : type{type} { }
 
-  Format(Kind kind) : kind{kind} { }
+  FormatType getType() const { return type; }
 
-  Kind getKind() const { return kind; }
-
-  virtual QString getName() const =0;
   virtual QString getFile() const =0;
 
   /**
@@ -50,7 +46,7 @@ public:
   static FormatPtr detect(const QString &file);
 
 private:
-  Kind kind;
+  FormatType type;
 };
 
 #endif // BMOD_FORMAT_H

@@ -8,15 +8,19 @@
 #include "Section.h"
 #include "CpuType.h"
 #include "FileType.h"
+#include "formats/FormatType.h"
 
 class BinaryObject;
 typedef std::shared_ptr<BinaryObject> BinaryObjectPtr;
 
 class BinaryObject {
 public:
-  BinaryObject() : littleEndian{true}, systemBits{32}, cpuType{CpuType::X86},
-    fileType{FileType::Execute}
+  BinaryObject() : formatType{FormatType::MachO}, littleEndian{true},
+    systemBits{32}, cpuType{CpuType::X86}, fileType{FileType::Execute}
   { }
+
+  FormatType getFormatType() const { return formatType; }
+  void setFormatType(FormatType type) { formatType = type; }
   
   bool isLittleEndian() const { return littleEndian; }
   void setLittleEndian(bool little) { littleEndian = little; }
@@ -39,6 +43,7 @@ public:
   void addSection(SectionPtr ptr) { sections << ptr; }
 
 private:
+  FormatType formatType;
   bool littleEndian;
   int systemBits;
   CpuType cpuType, cpuSubType;

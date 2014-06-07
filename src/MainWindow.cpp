@@ -91,7 +91,7 @@ void MainWindow::loadBinary(const QString &file) {
     return;
   }
   
-  qDebug() << "detected:" << fmt->getName();
+  qDebug() << "detected:" << Util::formatTypeString(fmt->getType());
 
   progDiag.setLabelText(tr("Reading and parsing binary.."));
   qApp->processEvents();

@@ -7,11 +7,13 @@
 #include "Section.h"
 #include "CpuType.h"
 #include "FileType.h"
+#include "formats/FormatType.h"
 
 class QWidget;
 
 class Util {
 public:
+  static QString formatTypeString(FormatType type);
   static QString cpuTypeString(CpuType type);
   static QString fileTypeString(FileType type);
   static QString sectionTypeString(SectionType type);
