@@ -784,6 +784,26 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       qDebug() << "kind:" << kind;
     }
 
+    // LC_THREAD or LC_UNIXTHREAD
+    else if (type == 0x4 || type == 0x5) {
+      if (type == 0x4) {
+        qDebug() << "=== THREAD ===";
+      }
+      else {
+        qDebug() << "=== UNIX THREAD ===";
+      }
+
+      quint32 flavor = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug()<< "flavor:" << flavor;
+
+      quint32 count = r.getUInt32(&ok);
+      if (!ok) return false;
+      qDebug()<< "count:" << count;
+
+      QByteArray data = r.read(flavor * count);
+    }
+
     // Temporary: Fail if unknown!
     else {
       qDebug() << "what is type:" << type;
