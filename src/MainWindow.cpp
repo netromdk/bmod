@@ -71,13 +71,22 @@ void MainWindow::openBinary() {
 }
 
 void MainWindow::closeBinary() {
-  if (binaryWidgets.isEmpty()) {
-    qDebug() << "close program";
-    qApp->quit();
-    return;
+  int idx = tabWidget->currentIndex();
+  if (idx != -1) {
+    auto answer =
+      QMessageBox::question(this, "bmod",
+                            tr("Are you sure you want to close the binary?"));
+    if (answer == QMessageBox::No) {
+      return;
+    }
+
+    tabWidget->removeTab(idx);
+    delete binaryWidgets.takeAt(idx);
   }
 
-  qDebug() << "close";
+  if (binaryWidgets.isEmpty()) {
+    qApp->quit();
+  }
 }
 
 void MainWindow::createLayout() {
