@@ -127,7 +127,7 @@ QString Util::sectionTypeString(SectionType type) {
   }
 }
 
-void Util::centerWidth(QWidget *widget) {
+void Util::centerWidget(QWidget *widget) {
   widget->move(QApplication::desktop()->screen()->rect().center()
                - widget->rect().center());
 }

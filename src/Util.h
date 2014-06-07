@@ -16,7 +16,7 @@ public:
   static QString fileTypeString(FileType type);
   static QString sectionTypeString(SectionType type);
 
-  static void centerWidth(QWidget *widget);
+  static void centerWidget(QWidget *widget);
   static QString formatSize(qint64 bytes, int digits = 1);
 
   /**

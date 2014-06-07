@@ -13,6 +13,10 @@ class MainWindow : public QMainWindow {
 
 public:
   MainWindow(const QStringList &files = QStringList());
+  ~MainWindow();
+
+protected:
+  void showEvent(QShowEvent *event);
 
 private slots:
   void openBinary();

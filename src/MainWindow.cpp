@@ -1,6 +1,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QMenuBar>
+#include <QSettings>
 #include <QFileInfo>
 #include <QTabWidget>
 #include <QVBoxLayout>
@@ -18,7 +19,6 @@ MainWindow::MainWindow(const QStringList &files) {
   setWindowTitle("bmod");
   createLayout();
   createMenu();
-  resize(900, 500);
 
   // Load specified files or open file dialog.
   if (files.isEmpty()) {
@@ -29,8 +29,25 @@ MainWindow::MainWindow(const QStringList &files) {
       loadBinary(file);
     }
   }
+}
 
-  Util::centerWidth(this);
+MainWindow::~MainWindow() {
+  QSettings settings;
+  settings.setValue("MainWindow_geometry", saveGeometry());
+}
+
+void MainWindow::showEvent(QShowEvent *event) {
+  QMainWindow::showEvent(event);
+
+  QSettings settings;
+  QVariant val = settings.value("MainWindow_geometry");
+  if (val.isNull()) {
+    resize(900, 500);
+    Util::centerWidget(this);
+  }
+  else {
+    restoreGeometry(val.toByteArray());
+  }
 }
 
 void MainWindow::openBinary() {
