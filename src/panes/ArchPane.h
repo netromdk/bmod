@@ -9,6 +9,8 @@ public:
   ArchPane(BinaryObjectPtr obj);
 
 private:
+  void createLayout();
+
   BinaryObjectPtr obj;
 };
 
