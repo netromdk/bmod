@@ -16,6 +16,9 @@ void ProgramPane::createLayout() {
   treeWidget->setColumnWidth(1, 350);
   treeWidget->setColumnWidth(2, 100);
 
+  // Set fixed-width font.
+  treeWidget->setFont(QFont("Courier"));
+
   auto *layout = new QVBoxLayout;
   layout->addWidget(treeWidget);
   
