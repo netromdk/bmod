@@ -102,5 +102,6 @@ void MainWindow::loadBinary(const QString &file) {
 
   auto *binWidget = new BinaryWidget(fmt);
   binaryWidgets << binWidget;
-  tabWidget->addTab(binWidget, QFileInfo(file).fileName());
+  int idx = tabWidget->addTab(binWidget, QFileInfo(file).fileName());
+  tabWidget->setCurrentIndex(idx);
 }
