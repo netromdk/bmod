@@ -2,6 +2,8 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QTreeWidget>
+#include <QApplication>
+#include <QProgressDialog>
 
 #include "../Util.h"
 #include "StringsPane.h"
@@ -58,6 +60,13 @@ void StringsPane::setup() {
     return;
   }
 
+  QProgressDialog progDiag(this);
+  progDiag.setLabelText(tr("Processing strings.."));
+  progDiag.setCancelButton(nullptr);
+  progDiag.setRange(0, 100);
+  progDiag.show();
+  qApp->processEvents();
+
   QByteArray cur;
   int len = data.size();
   for (int i = 0; i < len; i++) {
@@ -83,6 +92,18 @@ void StringsPane::setup() {
       treeWidget->addTopLevelItem(item);
       addr += cur.size();
       cur.clear();
+
+      static int lastPerc{0};
+      int perc = (float) i / (float) len * 100.0;
+      if (perc > lastPerc || perc == 100) {
+        lastPerc = perc;
+        progDiag.setValue(perc);
+        progDiag.setLabelText(tr("Processing strings.. %1% (%2 of %3)")
+                              .arg(perc)
+                              .arg(Util::formatSize(i))
+                              .arg(Util::formatSize(len)));
+        qApp->processEvents();
+      }
     }
   }
 }
