@@ -43,14 +43,22 @@ void BinaryWidget::setup() {
       cpuSubStr = Util::cpuTypeString(obj->getCpuSubType());
     addPane(tr("%1 (%2)").arg(cpuStr).arg(cpuSubStr), archPane);
 
-    auto *progPane = new ProgramPane(obj);
-    addPane(tr("Program"), progPane, 1);
+    SectionPtr sec = obj->getSection(SectionType::Text);
+    if (sec) {
+      auto *progPane = new ProgramPane(obj, sec);
+      addPane(sec->getName(), progPane, 1);
+    }
 
-    auto *strPane = new StringsPane(obj, SectionType::CString);
-    addPane(tr("C-Strings"), strPane, 1);
+    sec = obj->getSection(SectionType::String);
+    if (sec) {
+      auto *strPane = new StringsPane(obj, sec);
+      addPane(sec->getName(), strPane, 1);
+    }
 
-    auto *strPane2 = new StringsPane(obj, SectionType::String);
-    addPane(tr("String Table"), strPane2, 1);
+    foreach (auto sec, obj->getSectionsByType(SectionType::CString)) {
+      auto *cstrPane = new StringsPane(obj, sec);
+      addPane(sec->getName(), cstrPane, 1);
+    }
   }
 
   if (listWidget->count() > 0) {

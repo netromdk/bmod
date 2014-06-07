@@ -404,13 +404,21 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
           // Store needed sections.
           if (segname == "__TEXT") {
             if (secname == "__text") {
-              SectionPtr sec(new Section(SectionType::Text, addr, secsize,
-                                         offset + secfileoff));
+              SectionPtr sec(new Section(SectionType::Text,
+                                         QObject::tr("Program"),
+                                         addr, secsize, offset + secfileoff));
               binaryObject->addSection(sec);
             }
             else if (secname == "__cstring") {
-              SectionPtr sec(new Section(SectionType::CString, addr, secsize,
-                                         offset + secfileoff));
+              SectionPtr sec(new Section(SectionType::CString,
+                                         QObject::tr("C-Strings"),
+                                         addr, secsize, offset + secfileoff));
+              binaryObject->addSection(sec);
+            }
+            else if (secname == "__objc_methname") {
+              SectionPtr sec(new Section(SectionType::CString,
+                                         QObject::tr("ObjC Method Names"),
+                                         addr, secsize, offset + secfileoff));
               binaryObject->addSection(sec);
             }
           }
@@ -480,8 +488,9 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       quint32 strsize = r.getUInt32(&ok);
       if (!ok) return false;
 
-      SectionPtr sec(new Section(SectionType::String, stroff, strsize,
-                                 offset + stroff));
+      SectionPtr sec(new Section(SectionType::String,
+                                 QObject::tr("String Table"),
+                                 stroff, strsize, offset + stroff));
       binaryObject->addSection(sec);
     }
 

@@ -7,8 +7,8 @@
 #include "Util.h"
 #include "MachineCodeWidget.h"
 
-MachineCodeWidget::MachineCodeWidget(BinaryObjectPtr obj, SectionType type)
-  : obj{obj}, type{type}, shown{false}
+MachineCodeWidget::MachineCodeWidget(BinaryObjectPtr obj, SectionPtr sec)
+  : obj{obj}, sec{sec}, shown{false}
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   createLayout();
@@ -45,13 +45,6 @@ void MachineCodeWidget::createLayout() {
 }
 
 void MachineCodeWidget::setup() {
-  SectionPtr sec = obj->getSection(type);
-  if (sec == nullptr) {
-    label->setText(tr("No section."));
-    treeWidget->hide();
-    return;
-  }
-
   quint64 addr = sec->getAddress();
   const QByteArray &data = sec->getData();
   int len = data.size(), rows = len / 16;

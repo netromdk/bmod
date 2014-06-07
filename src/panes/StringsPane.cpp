@@ -9,8 +9,8 @@
 #include "StringsPane.h"
 #include "../MachineCodeWidget.h"
 
-StringsPane::StringsPane(BinaryObjectPtr obj, SectionType type)
-  : Pane(Kind::Strings), obj{obj}, type{type}, shown{false}
+StringsPane::StringsPane(BinaryObjectPtr obj, SectionPtr sec)
+  : Pane(Kind::Strings), obj{obj}, sec{sec}, shown{false}
 {
   createLayout();
 }
@@ -24,7 +24,7 @@ void StringsPane::showEvent(QShowEvent *event) {
 }
 
 void StringsPane::createLayout() {
-  auto *codeWidget = new MachineCodeWidget(obj, type);
+  auto *codeWidget = new MachineCodeWidget(obj, sec);
 
   treeWidget = new QTreeWidget;
   treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("String"),
@@ -49,14 +49,9 @@ void StringsPane::createLayout() {
 }
 
 void StringsPane::setup() {
-  // THhs is only for CString!
-  if (type != SectionType::CString) {
+  // This is only for CString!
+  if (sec->getType() != SectionType::CString) {
     treeWidget->hide();
-    return;
-  }
-
-  SectionPtr sec = obj->getSection(type);
-  if (sec == nullptr) {
     return;
   }
 
