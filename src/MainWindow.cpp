@@ -15,20 +15,12 @@
 #include "BinaryWidget.h"
 #include "formats/Format.h"
 
-MainWindow::MainWindow(const QStringList &files) {
+MainWindow::MainWindow(const QStringList &files)
+  : shown{false}, startupFiles{files}
+{
   setWindowTitle("bmod");
   createLayout();
   createMenu();
-
-  // Load specified files or open file dialog.
-  if (files.isEmpty()) {
-    openBinary();
-  }
-  else {
-    foreach (const auto &file, files) {
-      loadBinary(file);
-    }
-  }
 }
 
 MainWindow::~MainWindow() {
@@ -39,6 +31,9 @@ MainWindow::~MainWindow() {
 void MainWindow::showEvent(QShowEvent *event) {
   QMainWindow::showEvent(event);
 
+  if (shown) return;
+  shown = true;
+
   QSettings settings;
   QVariant val = settings.value("MainWindow_geometry");
   if (val.isNull()) {
@@ -48,6 +43,16 @@ void MainWindow::showEvent(QShowEvent *event) {
   else {
     restoreGeometry(val.toByteArray());
   }
+
+  // Load specified files or open file dialog.
+  if (startupFiles.isEmpty()) {
+    openBinary();
+  }
+  else {
+    foreach (const auto &file, startupFiles) {
+      loadBinary(file);
+    }
+  }
 }
 
 void MainWindow::openBinary() {
@@ -55,9 +60,24 @@ void MainWindow::openBinary() {
     QFileDialog::getOpenFileName(this, tr("Open Binary"),
                                  QDir::homePath(),
                                  tr("Mach-O (* *.dylib *.bundle *.o)"));
-  if (file.isEmpty()) return;
+  if (file.isEmpty()) {
+    if (binaryWidgets.isEmpty()) {
+      closeBinary();
+    }
+    return;
+  }
 
   loadBinary(file);
+}
+
+void MainWindow::closeBinary() {
+  if (binaryWidgets.isEmpty()) {
+    qDebug() << "close program";
+    qApp->quit();
+    return;
+  }
+
+  qDebug() << "close";
 }
 
 void MainWindow::createLayout() {
@@ -73,8 +93,10 @@ void MainWindow::createLayout() {
 
 void MainWindow::createMenu() {
   QMenu *fileMenu = menuBar()->addMenu(tr("File"));
-  QAction *openBin = fileMenu->addAction("Open binary");
-  connect(openBin, &QAction::triggered, this, &MainWindow::openBinary);
+  fileMenu->addAction(tr("Open binary"), this, SLOT(openBinary()),
+                      QKeySequence::Open);
+  fileMenu->addAction(tr("Close binary"), this, SLOT(closeBinary()),
+                      QKeySequence::Close);
 }
 
 void MainWindow::loadBinary(const QString &file) {

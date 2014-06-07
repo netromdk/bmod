@@ -20,12 +20,16 @@ protected:
 
 private slots:
   void openBinary();
+  void closeBinary();
 
 private:
   void createLayout();
   void createMenu();
 
   void loadBinary(const QString &file);
+
+  bool shown;
+  QStringList startupFiles;
 
   QTabWidget *tabWidget;
   QList<BinaryWidget*> binaryWidgets;
