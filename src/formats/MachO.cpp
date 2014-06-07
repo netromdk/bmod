@@ -44,42 +44,32 @@ bool MachO::parse() {
     // Values are saved as big-endian so read as such.
     r.setLittleEndian(false);
 
-    qDebug() << "magic:" << magic;
-
     quint32 nfat_arch = r.getUInt32(&ok);
     if (!ok) return false;
-    qDebug() << "nfat_arch:" << nfat_arch;
 
     // Read "fat" headers.
     typedef QPair<quint32, quint32> puu;
     QList<puu> archs;
     for (quint32 i = 0; i < nfat_arch; i++) {
-      qDebug() << "arch #" << i;
-
-      quint32 cputype = r.getUInt32(&ok);
+      // CPU type.
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "cputype:" << cputype;
 
-      quint32 cpusubtype = r.getUInt32(&ok);
+      // CPU sub type.
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "cpusubtype:" << cpusubtype;
 
       // File offset to this object file.
       quint32 offset = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "offset:" << offset;
 
       // Size of this object file.
       quint32 size = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "size:" << size;
 
       // Alignment as a power of 2.
-      quint32 align = pow(2, r.getUInt32(&ok));
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "align:" << align;
-
-      qDebug();
 
       archs << puu(offset, size);
     }
@@ -110,7 +100,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   quint32 magic = r.getUInt32(&ok);
   if (!ok) return false;
 
-  //qDebug() << "magic:" << magic;
   int systemBits{32};
   bool littleEndian{true};
   if (magic == 0xFEEDFACE) {
@@ -129,9 +118,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     systemBits = 64;
     littleEndian = false;
   }
-
-  qDebug() << "system bits:" << systemBits;
-  qDebug() << "little endian:" << littleEndian;
 
   binaryObject->setSystemBits(systemBits);
   binaryObject->setLittleEndian(littleEndian);
@@ -163,8 +149,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   if (systemBits == 64) {
     r.getUInt32();
   }
-
-  //qDebug() << "cputype:" << cputype;
 
   // Types in /usr/local/mach/machine.h
   CpuType cpuType{CpuType::X86};
@@ -200,7 +184,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     cpusubtype -= 0x80000000;
   }
 
-  //qDebug() << "cpusubtype:" << cpusubtype;
   CpuType cpuSubType{CpuType::I386};
   if (cpusubtype == 3) { // CPU_SUBTYPE_386
     cpuSubType = CpuType::I386;
@@ -262,7 +245,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
 
   binaryObject->setCpuSubType(cpuSubType);
 
-  //qDebug() << "filetype:" << filetype;
   FileType fileType{FileType::Object};
   if (filetype == 1) { // MH_OBJECT
     fileType = FileType::Object;
@@ -288,30 +270,22 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
 
   binaryObject->setFileType(fileType);
 
-  qDebug() << "ncmds:" << ncmds;
-  qDebug() << "sizeofcmds:" << sizeofcmds;
-  qDebug() << "flags:" << flags;
-
   // TODO: Load flags when necessary.
 
   // Parse load commands sequentially. Each consists of the type, size
   // and data.
   for (int i = 0; i < ncmds; i++) {
-    qDebug() << "load cmd #" << i;
 
     quint32 type = r.getUInt32(&ok);
     if (!ok) return false;
-    qDebug() << "type:" << type;
 
     quint32 cmdsize = r.getUInt32(&ok);
     if (!ok) return false;
-    qDebug() << "size:" << cmdsize;
 
     // LC_SEGMENT or LC_SEGMENT_64
     if (type == 1 || type == 25) {
-      qDebug() << "=== SEGMENT ===";
+
       QString name{r.read(16)};
-      qDebug() << "name:" << name;
 
       // Memory address of this segment.
       quint64 vmaddr;
@@ -323,7 +297,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
         vmaddr = r.getUInt64(&ok);
         if (!ok) return false;
       }
-      qDebug() << "vmaddr:" << vmaddr;
 
       // Memory size of this segment.
       quint64 vmsize;
@@ -335,7 +308,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
         vmsize = r.getUInt64(&ok);
         if (!ok) return false;
       }
-      qDebug() << "vmsize:" << vmsize;
 
       // File offset of this segment.
       quint64 fileoff;
@@ -347,7 +319,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
         fileoff = r.getUInt64(&ok);
         if (!ok) return false;
       }
-      qDebug() << "fileoff:" << fileoff;
 
       // Amount to map from the file.
       quint64 filesize;
@@ -359,37 +330,29 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
         filesize = r.getUInt64(&ok);
         if (!ok) return false;
       }
-      qDebug() << "filesize:" << filesize;
 
       // Maximum VM protection.
-      quint32 maxprot = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "maxprot:" << maxprot;
 
       // Initial VM protection.
-      quint32 initprot = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "initprot:" << initprot;
 
       // Number of sections in segment.
       quint32 nsects = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nsects:" << nsects;
 
       // Flags.
-      quint32 segflags = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "segflags:" << segflags;
 
       // Read sections.
       if (nsects > 0) {
-        qDebug() << endl << "== SECTIONS ==";
         for (int j = 0; j < nsects; j++) {
           QString secname{r.read(16)};
-          qDebug() << "secname:" << secname;
 
           QString segname{r.read(16)};
-          qDebug() << "segname:" << segname;
 
           // Memory address of this section.
           quint64 addr;
@@ -401,7 +364,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
             addr = r.getUInt64(&ok);
             if (!ok) return false;
           }
-          qDebug() << "addr:" << addr;
 
           // Size in bytes of this section.
           quint64 secsize;
@@ -413,32 +375,26 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
             secsize = r.getUInt64(&ok);
             if (!ok) return false;
           }
-          qDebug() << "secsize:" << secsize;
 
           // File offset of this section.
           quint32 secfileoff = r.getUInt32(&ok);
           if (!ok) return false;
-          qDebug() << "secfileoff:" << secfileoff;
 
           // Section alignment (power of 2).
-          quint32 align = pow(2, r.getUInt32(&ok));
+          r.getUInt32(&ok);
           if (!ok) return false;
-          qDebug() << "align:" << align;
 
           // File offset of relocation entries.
-          quint32 reloff = r.getUInt32(&ok);
+          r.getUInt32(&ok);
           if (!ok) return false;
-          qDebug() << "reloff:" << reloff;
 
           // Number of relocation entries.
-          quint32 nreloc = r.getUInt32(&ok);
+          r.getUInt32(&ok);
           if (!ok) return false;
-          qDebug() << "nreloc:" << nreloc;
 
           // Flags.
-          quint32 secflags = r.getUInt32(&ok);
+          r.getUInt32(&ok);
           if (!ok) return false;
-          qDebug() << "secflags:" << secflags;
 
           // Reserved fields.
           r.getUInt32();
@@ -461,347 +417,253 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
             }
           }
 
-          qDebug();
         }
       }
     }
 
     // LC_DYLD_INFO or LC_DYLD_INFO_ONLY
     else if (type == 0x22 || type == (0x22 | 0x80000000)) {
-      qDebug() << "=== DYLD INFO ===";
-
       // File offset to rebase info.
-      quint32 rebase_off = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "rebase_off:" << rebase_off;
 
       // Size of rebase info.
-      quint32 rebase_size = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "rebase_size:" << rebase_size;
 
       // File offset to binding info.
-      quint32 bind_off = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "bind_off:" << bind_off;
 
       // Size of binding info.
-      quint32 bind_size = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "bind_size:" << bind_size;
 
       // File offset to weak binding info.
-      quint32 weak_bind_off = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "weak_bind_off:" << weak_bind_off;
 
       // Size of weak binding info.
-      quint32 weak_bind_size = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "weak_bind_size:" << weak_bind_size;
 
       // File offset to lazy binding info.
-      quint32 lazy_bind_off = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "lazy_bind_off:" << lazy_bind_off;
 
       // Size of lazy binding info.
-      quint32 lazy_bind_size = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "lazy_bind_size:" << lazy_bind_size;
 
       // File offset to export info.
-      quint32 export_off = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "export_off:" << export_off;
 
       // Size of export info.
-      quint32 export_size = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "export_size:" << export_size;
     }
 
     // LC_SYMTAB
     else if (type == 2) {
-      qDebug() << "=== SYMTAB ===";
-
       // Symbol table offset.
-      quint32 symoff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "symoff:" << symoff;
 
       // Number of symbol table entries.
-      quint32 nsyms = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nsyms:" << nsyms;
 
       // String table offset.
-      quint32 stroff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "stroff:" << stroff;
 
       // String table size in bytes.
-      quint32 strsize = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "strsize:" << strsize;
     }
 
     // LC_DYSYMTAB
     else if (type == 0xB) {
-      qDebug() << "=== DYSYMTAB ===";
-
       // Index to local symbols.
-      quint32 ilocalsym = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "ilocalsym:" << ilocalsym;
 
       // Number of local symbols.
-      quint32 nlocalsym = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nlocalsym:" << nlocalsym;
 
       // Index to externally defined symbols.
-      quint32 iextdefsym = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "iextdefsym:" << iextdefsym;
 
       // Number of externally defined symbols.
-      quint32 nextdefsym = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nextdefsym:" << nextdefsym;
 
       // Index to undefined defined symbols.
-      quint32 iundefsym = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "iundefsym:" << iundefsym;
 
       // Number of undefined defined symbols.
-      quint32 nundefsym = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nundefsym:" << nundefsym;
 
       // File offset to table of contents.
-      quint32 tocoff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "tocoff:" << tocoff;
 
       // Number of entries in the table of contents.
-      quint32 ntoc = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "ntoc:" << ntoc;
 
       // File offset to module table.
-      quint32 modtaboff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "modtaboff:" << modtaboff;
 
       // Number of module table entries.
-      quint32 nmodtab = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nmodtab:" << nmodtab;
 
       // File offset to referenced symbol table.
-      quint32 extrefsymoff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "extrefsymoff:" << extrefsymoff;
 
       // Number of referenced symbol table entries.
-      quint32 nextrefsyms = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nextrefsyms:" << nextrefsyms;
 
       // File offset to indirect symbol table.
-      quint32 indirectrefsymoff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "indirectrefsymoff:" << indirectrefsymoff;
 
       // Number of indirect symbol table entries.
-      quint32 nindirectrefsyms = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nindirectrefsyms:" << nindirectrefsyms;
 
       // File offset to external relocation entries.
-      quint32 extreloff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "extreloff:" << extreloff;
 
       // Number of external relocation entries.
-      quint32 nextrel = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nextrel:" << nextrel;
 
       // File offset to local relocation entries.
-      quint32 locreloff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "locreloff:" << locreloff;
 
       // Number of local relocation entries.
-      quint32 nlocrel = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "nlocrel:" << nlocrel;
     }
 
     // LC_LOAD_DYLIB or LC_ID_DYLIB
     else if (type == 0xC || type == 0xD) {
-      if (type == 0xC) {
-        qDebug() << "=== LOAD DYLIB ===";
-      }
-      else {
-        qDebug() << "=== ID DYLIB ===";
-      }
-
       // Library path name offset.
       quint32 liboffset = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "liboffset:" << liboffset;
 
-      quint32 timestamp = r.getUInt32(&ok);
+      // Time stamp.
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "timestamp:" << timestamp;
 
-      quint32 current_version = r.getUInt32(&ok);
+      // Current version.
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "current_version:" << current_version;
 
-      quint32 compatibility_version = r.getUInt32(&ok);
+      // Compatibility version.
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "compatibility_version:" << compatibility_version;
 
       // Library path name.
-      QString libname{r.read(cmdsize - liboffset)};
-      qDebug() << "lib name:" << libname;
+      r.read(cmdsize - liboffset);
     }
 
     // LC_LOAD_DYLINKER
     else if (type == 0xE) {
-      qDebug() << "=== LOAD DYLINKER ===";
-
       // Dynamic linker's path name.
       quint32 noffset = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "noffset:" << noffset;
 
       QString dyname{r.read(cmdsize - noffset)};
-      qDebug() << "dyld name:" << dyname;
     }
 
     // LC_UUID
     else if (type == 0x1B) {
-      qDebug() << "=== UUID ===";
-
       const QByteArray uuid{r.read(16)};
       QString uuidStr;
       for (int h = 0; h < uuid.size(); h++) {
         uuidStr += QString::number((unsigned char) uuid[h], 16);
       }
-      qDebug() << "uuid:" << uuidStr.toUpper();
     }
 
     // LC_VERSION_MIN_MACOSX
     else if (type == 0x24) {
-      qDebug() << "=== VERSION MIN MACOSX ===";
-
       // Version (X.Y.Z is encoded in nibbles xxxx.yy.zz)
-      quint32 version = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "version:" << version;
 
       // SDK version (X.Y.Z is encoded in nibbles xxxx.yy.zz)
-      quint32 sdk = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "sdk:" << sdk;
     }
 
     // LC_SOURCE_VERSION
     else if (type == 0x2A) {
-      qDebug() << "=== SOURCE VERSION ===";
-
       // Version (A.B.C.D.E packed as a24.b10.c10.d10.e10)
-      quint64 version = r.getUInt64(&ok);
+      r.getUInt64(&ok);
       if (!ok) return false;
-      qDebug() << "version:" << version;
     }
 
     // LC_MAIN
     else if (type == (0x28 | 0x80000000)) {
-      qDebug() << "=== MAIN ===";
-
       // File (__TEXT) offset of main()
-      quint64 entryoff = r.getUInt64(&ok);
+      r.getUInt64(&ok);
       if (!ok) return false;
-      qDebug() << "entryoff:" << entryoff;
 
       // Initial stack size if not zero.
-      quint64 stacksize = r.getUInt64(&ok);
+      r.getUInt64(&ok);
       if (!ok) return false;
-      qDebug() << "stacksize:" << stacksize;
     }
 
     // LC_FUNCTION_START, LC_DYLIB_CODE_SIGN_DRS,
     // LC_SEGMENT_SPLIT_INFO or LC_CODE_SIGNATURE
     else if (type == 0x26 || type == 0x2B || type == 0x1E || type == 0x1D) {
-      if (type == 0x26) {
-        qDebug() << "=== FUNCTION STARTS ===";
-      }
-      else if (type == 0x2B) {
-        qDebug() << "=== DYLIB CODE SIGN DRS ===";
-      }
-      else if (type == 0x1E) {
-        qDebug() << "=== SEGMENT SPLIT INFO ===";
-      }
-      else {
-        qDebug() << "=== CODE SIGNATURE ===";
-      }
-
       // File offset to data in __LINKEDIT segment.
-      quint32 dataoff = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "dataoff:" << dataoff;
 
       // File size of data in __LINKEDIT segment.
-      quint32 datasize = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "datasize:" << datasize;
     }
 
     // LC_DATA_IN_CODE
     else if (type == 0x29) {
-      qDebug() << "=== DATA IN CODE ===";
-
       // From mach_header to start of data range.
-      quint32 hoffset = r.getUInt32(&ok);
+      r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug() << "hoffset:" << hoffset;
 
       // Number of bytes in data range.
-      quint16 length = r.getUInt16(&ok);
+      r.getUInt16(&ok);
       if (!ok) return false;
-      qDebug() << "length:" << length;
 
       // Dice kind value.
-      quint16 kind = r.getUInt16(&ok);
+      r.getUInt16(&ok);
       if (!ok) return false;
-      qDebug() << "kind:" << kind;
     }
 
     // LC_THREAD or LC_UNIXTHREAD
     else if (type == 0x4 || type == 0x5) {
-      if (type == 0x4) {
-        qDebug() << "=== THREAD ===";
-      }
-      else {
-        qDebug() << "=== UNIX THREAD ===";
-      }
-
       quint32 flavor = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug()<< "flavor:" << flavor;
 
       quint32 count = r.getUInt32(&ok);
       if (!ok) return false;
-      qDebug()<< "count:" << count;
 
-      QByteArray data = r.read(flavor * count);
+      // Data.
+      r.read(flavor * count);
     }
 
     // Temporary: Fail if unknown!
@@ -809,8 +671,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       qDebug() << "what is type:" << type;
       exit(0);
     }
-
-    qDebug();
   }
 
   // Fill data of stored sections.
