@@ -78,8 +78,10 @@ void StringsPane::setup() {
                                        obj->getSystemBits() / 8));
 
       QString str = QString::fromUtf8(cur);
+      str = str.replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r");
+
       item->setText(1, str);
-      item->setText(2, QString::number(str.size())+ "+1");
+      item->setText(2, QString::number(str.size()));
 
       QString dataStr;
       for (int j = 0; j < cur.size(); j++) {
