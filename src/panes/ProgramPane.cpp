@@ -27,6 +27,7 @@ void ProgramPane::createLayout() {
   treeWidget->setFont(QFont("Courier"));
 
   auto *layout = new QVBoxLayout;
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(treeWidget);
   
   setLayout(layout);

@@ -21,8 +21,10 @@ void BinaryWidget::createLayout() {
           this, &BinaryWidget::onModeChanged);
 
   stackLayout = new QStackedLayout;
+  stackLayout->setContentsMargins(0, 0, 0, 0);
   
   auto *layout = new QHBoxLayout;
+  layout->setContentsMargins(5, 5, 5, 5);
   layout->addWidget(listWidget);
   layout->addLayout(stackLayout);
   
