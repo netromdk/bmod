@@ -12,7 +12,7 @@
 #include "../BinaryObject.h"
 
 class Format;
-typedef std::unique_ptr<Format> FormatPtr;
+typedef std::shared_ptr<Format> FormatPtr;
 
 class Format {
 public:
@@ -25,6 +25,7 @@ public:
   Kind getKind() const { return kind; }
 
   virtual QString getName() const =0;
+  virtual QString getFile() const =0;
 
   /**
    * Detect whether the magic code of the file corresponds to the

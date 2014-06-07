@@ -10,6 +10,7 @@ public:
   MachO(const QString &file);
 
   QString getName() const { return "Mach-O"; }
+  QString getFile() const { return file; }
 
   bool detect();
   bool parse();
