@@ -1,3 +1,7 @@
+#include <QWidget>
+#include <QApplication>
+#include <QDesktopWidget>
+
 #include "Util.h"
 
 QString Util::cpuTypeString(CpuType type) {
@@ -121,6 +125,11 @@ QString Util::sectionTypeString(SectionType type) {
   case SectionType::CString:
     return "CString";
   }
+}
+
+void Util::centerWidth(QWidget *widget) {
+  widget->move(QApplication::desktop()->screen()->rect().center()
+               - widget->rect().center());
 }
 
 QString Util::addrDataString(quint64 addr, QByteArray data) {

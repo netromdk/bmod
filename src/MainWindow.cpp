@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QProgressDialog>
 
+#include "Util.h"
 #include "MainWindow.h"
 #include "BinaryWidget.h"
 #include "formats/Format.h"
@@ -28,6 +29,8 @@ MainWindow::MainWindow(const QStringList &files) {
       loadBinary(file);
     }
   }
+
+  Util::centerWidth(this);
 }
 
 void MainWindow::openBinary() {

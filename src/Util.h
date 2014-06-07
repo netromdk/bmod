@@ -14,6 +14,8 @@ public:
   static QString fileTypeString(FileType type);
   static QString sectionTypeString(SectionType type);
 
+  static void centerWidth(QWidget *widget);
+
   /**
    * Generate string of format:
    *
