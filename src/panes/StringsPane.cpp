@@ -1,16 +1,16 @@
 #include <QVBoxLayout>
 
-#include "ProgramPane.h"
+#include "StringsPane.h"
 #include "../MachineCodeWidget.h"
 
-ProgramPane::ProgramPane(BinaryObjectPtr obj)
-  : Pane(Kind::Program), obj{obj}
+StringsPane::StringsPane(BinaryObjectPtr obj)
+  : Pane(Kind::Strings), obj{obj}
 {
   createLayout();
 }
 
-void ProgramPane::createLayout() {
-  auto *codeWidget = new MachineCodeWidget(obj, SectionType::Text);
+void StringsPane::createLayout() {
+  auto *codeWidget = new MachineCodeWidget(obj, SectionType::CString);
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);

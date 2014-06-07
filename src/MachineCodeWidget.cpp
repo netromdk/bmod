@@ -7,8 +7,8 @@
 #include "Util.h"
 #include "MachineCodeWidget.h"
 
-MachineCodeWidget::MachineCodeWidget(BinaryObjectPtr obj)
-  : obj{obj}, shown{false}
+MachineCodeWidget::MachineCodeWidget(BinaryObjectPtr obj, SectionType type)
+  : obj{obj}, type{type}, shown{false}
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   createLayout();
@@ -45,19 +45,19 @@ void MachineCodeWidget::createLayout() {
 }
 
 void MachineCodeWidget::setup() {
-  SectionPtr text = obj->getSection(SectionType::Text);
-  if (text == nullptr) {
-    label->setText(tr("No executable code section."));
+  SectionPtr sec = obj->getSection(type);
+  if (sec == nullptr) {
+    label->setText(tr("No section."));
     treeWidget->hide();
     return;
   }
 
-  quint64 addr = text->getAddress();
-  const QByteArray &data = text->getData();
+  quint64 addr = sec->getAddress();
+  const QByteArray &data = sec->getData();
   int len = data.size(), rows = len / 16;
 
   if (len == 0) {
-    label->setText(tr("No executable code."));
+    label->setText(tr("Defined but empty."));
     treeWidget->hide();
     return;
   }

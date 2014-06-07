@@ -8,6 +8,7 @@
 #include "panes/Pane.h"
 #include "panes/ArchPane.h"
 #include "panes/ProgramPane.h"
+#include "panes/StringsPane.h"
 
 BinaryWidget::BinaryWidget(FormatPtr fmt) : fmt{fmt} {
   createLayout();
@@ -44,6 +45,9 @@ void BinaryWidget::setup() {
 
     auto *progPane = new ProgramPane(obj);
     addPane(tr("Program"), progPane, 1);
+
+    auto *strPane = new StringsPane(obj);
+    addPane(tr("Strings"), strPane, 1);
   }
 
   if (listWidget->count() > 0) {

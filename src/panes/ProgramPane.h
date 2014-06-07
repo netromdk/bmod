@@ -10,7 +10,6 @@ public:
 
 private:
   void createLayout();
-  void setup();
 
   BinaryObjectPtr obj;
 };
