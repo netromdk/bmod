@@ -11,9 +11,11 @@ ProgramPane::ProgramPane(BinaryObjectPtr obj)
 }
 
 void ProgramPane::showEvent(QShowEvent *event) {
-  if (shown) return;
-  shown = true;
-  setup();
+  QWidget::showEvent(event);
+  if (!shown) {
+    shown = true;
+    setup();
+  }
 }
 
 void ProgramPane::createLayout() {
