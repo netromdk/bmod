@@ -4,6 +4,7 @@
 #include "Pane.h"
 #include "../BinaryObject.h"
 
+class QLabel;
 class QTreeWidget;
 
 class ProgramPane : public Pane {
@@ -20,6 +21,7 @@ private:
   BinaryObjectPtr obj;
 
   bool shown;
+  QLabel *label;
   QTreeWidget *treeWidget;
 };
 

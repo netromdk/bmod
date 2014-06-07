@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QLabel>
 #include <QVBoxLayout>
 #include <QTreeWidget>
 #include <QApplication>
@@ -22,6 +23,8 @@ void ProgramPane::showEvent(QShowEvent *event) {
 }
 
 void ProgramPane::createLayout() {
+  label = new QLabel;
+
   treeWidget = new QTreeWidget;
   treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data Low"),
         tr("Data High"), tr("ASCII")});
@@ -35,7 +38,9 @@ void ProgramPane::createLayout() {
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(label);
   layout->addWidget(treeWidget);
+  layout->addStretch();
   
   setLayout(layout);
 }
@@ -46,6 +51,13 @@ void ProgramPane::setup() {
     quint64 addr = text->getAddress();
     const QByteArray &data = text->getData();
     int len = data.size(), rows = len / 16;
+
+    if (len == 0) {
+      label->setText(tr("No executable code."));
+      treeWidget->hide();
+      return;
+    }
+
     if (len % 16 > 0) rows++;
 
     QProgressDialog progDiag(this);

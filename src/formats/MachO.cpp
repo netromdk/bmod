@@ -621,7 +621,7 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       if (!ok) return false;
     }
 
-    // LC_FUNCTION_START, LC_DYLIB_CODE_SIGN_DRS,
+    // LC_FUNCTION_STARTS, LC_DYLIB_CODE_SIGN_DRS,
     // LC_SEGMENT_SPLIT_INFO or LC_CODE_SIGNATURE
     else if (type == 0x26 || type == 0x2B || type == 0x1E || type == 0x1D) {
       // File offset to data in __LINKEDIT segment.
