@@ -275,7 +275,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   // Parse load commands sequentially. Each consists of the type, size
   // and data.
   for (int i = 0; i < ncmds; i++) {
-
     quint32 type = r.getUInt32(&ok);
     if (!ok) return false;
 
@@ -284,7 +283,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
 
     // LC_SEGMENT or LC_SEGMENT_64
     if (type == 1 || type == 25) {
-
       QString name{r.read(16)};
 
       // Memory address of this segment.
@@ -586,7 +584,7 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       quint32 noffset = r.getUInt32(&ok);
       if (!ok) return false;
 
-      QString dyname{r.read(cmdsize - noffset)};
+      r.read(cmdsize - noffset);
     }
 
     // LC_UUID
