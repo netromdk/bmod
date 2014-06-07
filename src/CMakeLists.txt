@@ -23,6 +23,9 @@ ADD_EXECUTABLE(
   BinaryWidget.h
   BinaryWidget.cpp
 
+  MachineCodeWidget.h
+  MachineCodeWidget.cpp
+
   panes/Pane.h
   panes/ArchPane.h
   panes/ArchPane.cpp
