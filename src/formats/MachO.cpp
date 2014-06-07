@@ -569,8 +569,8 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       if (!ok) return false;
     }
 
-    // LC_LOAD_DYLIB or LC_ID_DYLIB
-    else if (type == 0xC || type == 0xD) {
+    // LC_LOAD_DYLIB, LC_ID_DYLIB or LC_LOAD_WEAK_DYLIB
+    else if (type == 0xC || type == 0xD || type == 0x18 + 0x80000000) {
       // Library path name offset.
       quint32 liboffset = r.getUInt32(&ok);
       if (!ok) return false;
