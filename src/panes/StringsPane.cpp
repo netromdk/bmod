@@ -70,7 +70,7 @@ void StringsPane::setup() {
 
       QString str = QString::fromUtf8(cur);
       item->setText(1, str);
-      item->setText(2, QString::number(str.size()));
+      item->setText(2, QString::number(str.size())+ "+1");
 
       QString dataStr;
       for (int j = 0; j < cur.size(); j++) {
