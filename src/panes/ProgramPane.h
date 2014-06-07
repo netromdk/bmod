@@ -10,12 +10,16 @@ class ProgramPane : public Pane {
 public:
   ProgramPane(BinaryObjectPtr obj);
 
+protected:
+  void showEvent(QShowEvent *event);
+
 private:
   void createLayout();
   void setup();
 
   BinaryObjectPtr obj;
 
+  bool shown;
   QTreeWidget *treeWidget;
 };
 
