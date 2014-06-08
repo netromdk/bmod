@@ -22,6 +22,7 @@ private slots:
   void openBinary();
   void saveBinary();
   void closeBinary();
+  void showConversionHelper();
 
 private:
   void createLayout();

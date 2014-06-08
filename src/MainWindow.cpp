@@ -14,6 +14,7 @@
 #include "MainWindow.h"
 #include "BinaryWidget.h"
 #include "formats/Format.h"
+#include "ConversionHelper.h"
 
 MainWindow::MainWindow(const QStringList &files)
   : shown{false}, startupFiles{files}
@@ -118,6 +119,11 @@ void MainWindow::closeBinary() {
   }
 }
 
+void MainWindow::showConversionHelper() {
+  auto *helper = new ConversionHelper(this);
+  helper->show();
+}
+
 void MainWindow::createLayout() {
   tabWidget = new QTabWidget;
 
@@ -137,6 +143,10 @@ void MainWindow::createMenu() {
                       QKeySequence::Save);
   fileMenu->addAction(tr("Close binary"), this, SLOT(closeBinary()),
                       QKeySequence::Close);
+
+  QMenu *toolsMenu = menuBar()->addMenu(tr("Tools"));
+  toolsMenu->addAction(tr("Conversion helper"),
+                       this, SLOT(showConversionHelper()));
 }
 
 void MainWindow::loadBinary(const QString &file) {

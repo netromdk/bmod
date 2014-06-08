@@ -26,6 +26,9 @@ ADD_EXECUTABLE(
   MachineCodeWidget.h
   MachineCodeWidget.cpp
 
+  ConversionHelper.h
+  ConversionHelper.cpp
+
   panes/Pane.h
   panes/ArchPane.h
   panes/ArchPane.cpp
