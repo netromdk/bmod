@@ -58,6 +58,8 @@ namespace {
           font.setBold(true);
           item->setFont(col, font);
           item->setForeground(col, Qt::red);
+
+          item->setText(1, Util::hexToString(newStr));
         }
       }
     }

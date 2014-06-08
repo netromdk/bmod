@@ -27,6 +27,7 @@ public:
 
   static QString dataToAscii(const QByteArray &data, int offset, int size);
   static QString hexToAscii(const QString &data, int offset, int blocks);
+  static QString hexToString(const QString &str);
 
   /**
    * Generate string of format:
