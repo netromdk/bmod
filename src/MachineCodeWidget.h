@@ -10,6 +10,8 @@ class QLabel;
 class QTreeWidget;
 
 class MachineCodeWidget : public QWidget {
+  Q_OBJECT
+
 public:
   MachineCodeWidget(BinaryObjectPtr obj, SectionPtr sec);
 

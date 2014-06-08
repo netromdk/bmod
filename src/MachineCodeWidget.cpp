@@ -1,11 +1,66 @@
+#include <QDebug>
 #include <QLabel>
+#include <QLineEdit>
 #include <QVBoxLayout>
 #include <QTreeWidget>
 #include <QApplication>
 #include <QProgressDialog>
+#include <QStyledItemDelegate>
 
 #include "Util.h"
 #include "MachineCodeWidget.h"
+
+class ItemDelegate : public QStyledItemDelegate {
+public:
+  ItemDelegate(QTreeWidget *tree) : tree{tree} { }
+
+  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                        const QModelIndex &index) const {
+    int col = index.column();
+    if (col != 1 && col != 2) {
+      return nullptr;
+    }
+
+    QString text = index.data().toString().trimmed();
+    if (text.isEmpty()) {
+      return nullptr;
+    }
+
+    QString mask;
+    int blocks = text.split(" ").size();
+    for (int i = 0; i < blocks; i++) {
+      mask += "NN ";
+    }
+    if (mask.endsWith(" ")) {
+      mask.chop(1);
+    }
+
+    auto *edit = new QLineEdit(parent);
+    // TODO: use validator so only Hex is accepted
+    edit->setInputMask(mask);
+    edit->setText(text);
+    return edit;
+  }
+
+  void setModelData(QWidget *editor, QAbstractItemModel *model,
+                    const QModelIndex &index) const {
+    auto *edit = qobject_cast<QLineEdit*>(editor);
+    if (edit) {
+      model->setData(index, edit->text());
+      auto *item = tree->topLevelItem(index.row());
+      if (item) {
+        int col = index.column();
+        auto font = item->font(col);
+        font.setBold(true);
+        item->setFont(col, font);
+        item->setForeground(col, Qt::red);
+      }
+    }
+  }
+
+private:
+  QTreeWidget *tree;
+};
 
 MachineCodeWidget::MachineCodeWidget(BinaryObjectPtr obj, SectionPtr sec)
   : obj{obj}, sec{sec}, shown{false}
@@ -32,6 +87,10 @@ void MachineCodeWidget::createLayout() {
   treeWidget->setColumnWidth(1, 200);
   treeWidget->setColumnWidth(2, 200);
   treeWidget->setColumnWidth(3, 110);
+  treeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
+  treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+  treeWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
+  treeWidget->setItemDelegate(new ItemDelegate(treeWidget));
 
   // Set fixed-width font.
   treeWidget->setFont(QFont("Courier"));
@@ -73,6 +132,7 @@ void MachineCodeWidget::setup() {
 
   for (int row = 0, byte = 0; row < rows; row++) {
     auto *item = new QTreeWidgetItem;
+    item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     item->setText(0, Util::padString(QString::number(addr, 16).toUpper(),
                                      obj->getSystemBits() / 8));
 
