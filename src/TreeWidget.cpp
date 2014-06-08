@@ -78,12 +78,12 @@ void TreeWidget::selectSearchResult(int col, int item) {
 }
 
 void TreeWidget::nextSearchResult() {
-  auto list = searchResults[curCol];
+  const auto &list = searchResults[curCol];
   int pos = curItem;
   pos++;
   if (pos > list.size() - 1) {
     curItem = 0;
-    auto keys = searchResults.keys();
+    const auto &keys = searchResults.keys();
     int pos2 = keys.indexOf(curCol);
     pos2++;
     if (pos2 > keys.size() - 1) {
@@ -92,10 +92,9 @@ void TreeWidget::nextSearchResult() {
     else {
       curCol = keys[pos2];
     }
-    selectSearchResult(curCol, curItem);
   }
   else {
     curItem = pos;
-    selectSearchResult(curCol, curItem);
   }
+  selectSearchResult(curCol, curItem);
 }
