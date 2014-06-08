@@ -1,6 +1,8 @@
 #ifndef BMOD_SECTION_H
 #define BMOD_SECTION_H
 
+#include <QList>
+#include <QPair>
 #include <QString>
 #include <QByteArray>
 
@@ -26,6 +28,8 @@ public:
   void setData(const QByteArray &data) { this->data = data; }
 
   void setSubData(const QByteArray &subData, int pos);
+  bool isModified() const { return !modifiedRegions.isEmpty(); }
+  const QList<QPair<int, int>> &getModifiedRegions() const;
 
 private:
   SectionType type;
@@ -33,6 +37,7 @@ private:
   quint64 addr, size;
   quint32 offset;
   QByteArray data;
+  QList<QPair<int, int>> modifiedRegions;
 };
 
 #endif // BMOD_SECTION_H

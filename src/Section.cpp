@@ -11,5 +11,12 @@ void Section::setSubData(const QByteArray &subData, int pos) {
   }
   data.replace(pos, subData.size(), subData);
 
-  // TODO: remember this range that was changed.
+  QPair<int, int> region(pos, subData.size());
+  if (!modifiedRegions.contains(region)) {
+    modifiedRegions << region;
+  }
+}
+
+const QList<QPair<int, int>> &Section::getModifiedRegions() const {
+  return modifiedRegions;
 }
