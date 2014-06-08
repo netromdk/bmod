@@ -14,6 +14,7 @@
 ConversionHelper::ConversionHelper(QWidget *parent) : QDialog(parent) {
   setWindowTitle(tr("Conversion Helper"));
   createLayout();
+  resize(300, 550);
 }
 
 void ConversionHelper::onTextEdited(const QString &text) {
@@ -147,10 +148,8 @@ void ConversionHelper::createLayout() {
   numGroup->setLayout(numLayout);
 
   hexEdit = new QTextEdit;
-  hexEdit->setMaximumHeight(80);
 
   textEdit = new QTextEdit;
-  textEdit->setMaximumHeight(80);
 
   encBox = new QComboBox;
   encBox->addItem(tr("ASCII"), 0);
