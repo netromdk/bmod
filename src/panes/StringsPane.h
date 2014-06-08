@@ -5,6 +5,7 @@
 #include "../Section.h"
 #include "../BinaryObject.h"
 
+class QLabel;
 class QTreeWidget;
 
 class StringsPane : public Pane {
@@ -22,6 +23,7 @@ private:
   SectionPtr sec;
 
   bool shown;
+  QLabel *label;
   QTreeWidget *treeWidget;
 };
 

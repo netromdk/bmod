@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QLabel>
 #include <QSplitter>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -88,53 +89,60 @@ StringsPane::StringsPane(BinaryObjectPtr obj, SectionPtr sec)
 
 void StringsPane::showEvent(QShowEvent *event) {
   QWidget::showEvent(event);
-  if (!shown) {
+  if (!shown && sec->getType() == SectionType::CString) {
     shown = true;
     setup();
   }
 }
 
 void StringsPane::createLayout() {
-  auto *codeWidget = new MachineCodeWidget(obj, sec);
-
-  treeWidget = new QTreeWidget;
-  treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("String"),
-        tr("Length"), tr("Data")});
-  treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
-  treeWidget->setColumnWidth(1, 200);
-  treeWidget->setColumnWidth(2, 50);
-  treeWidget->setColumnWidth(3, 200);
-  treeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
-  treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-  treeWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
-  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
-
-  // Set fixed-width font.
-  treeWidget->setFont(QFont("Courier"));
-
-  auto *splitter = new QSplitter(Qt::Vertical);
-  splitter->addWidget(codeWidget);
-  splitter->addWidget(treeWidget);
-
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(splitter);
+
+  if (sec->getType() != SectionType::CString) {
+    auto *codeWidget = new MachineCodeWidget(obj, sec);
+    layout->addWidget(codeWidget);
+  }
+  else {
+    label = new QLabel;
+
+    treeWidget = new QTreeWidget;
+    treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("String"),
+          tr("Length"), tr("Data")});
+    treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
+    treeWidget->setColumnWidth(1, 200);
+    treeWidget->setColumnWidth(2, 50);
+    treeWidget->setColumnWidth(3, 200);
+    treeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
+    treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    treeWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
+    treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
+
+    // Set fixed-width font.
+    treeWidget->setFont(QFont("Courier"));
+
+    layout->addWidget(label);
+    layout->addWidget(treeWidget);
+  }
   
   setLayout(layout);
 }
 
 void StringsPane::setup() {
-  // This is only for CString!
-  if (sec->getType() != SectionType::CString) {
-    treeWidget->hide();
-    return;
-  }
-
   quint64 addr = sec->getAddress();
   const QByteArray &data = sec->getData();
   if (data.isEmpty()) {
     return;
   }
+
+  int len = data.size();
+  int padSize = obj->getSystemBits() / 8;
+  label->setText(tr("Section size: %1, address %2 to %3")
+                 .arg(Util::formatSize(len))
+                 .arg(Util::padString(QString::number(addr, 16).toUpper(),
+                                      padSize))
+                 .arg(Util::padString(QString::number(addr + len, 16).toUpper(),
+                                      padSize)));
 
   QProgressDialog progDiag(this);
   progDiag.setLabelText(tr("Processing strings.."));
@@ -144,7 +152,6 @@ void StringsPane::setup() {
   qApp->processEvents();
 
   QByteArray cur;
-  int len = data.size();
   for (int i = 0; i < len; i++) {
     char c = data[i];
     cur += c;
