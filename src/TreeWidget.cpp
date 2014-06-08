@@ -22,6 +22,9 @@ void TreeWidget::keyPressEvent(QKeyEvent *event) {
   if (ctrl && event->key() == Qt::Key_F) {
     doSearch();
   }
+  else if (event->key() == Qt::Key_Escape) {
+    endSearch();
+  }
 }
 
 void TreeWidget::endSearch() {
@@ -65,11 +68,13 @@ void TreeWidget::selectSearchResult(int col, int item) {
   if (!searchResults.contains(col)) {
     return;
   }
-  auto list = searchResults[col];
+
+  const auto &list = searchResults[col];
   if (item < 0 || item > list.size() - 1) {
     return;
   }
-  auto res = list[item];
+
+  const auto &res = list[item];
 
   // Select entry and not entire row.
   int row = indexOfTopLevelItem(res);
