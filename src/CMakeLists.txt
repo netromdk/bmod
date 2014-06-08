@@ -20,6 +20,12 @@ ADD_EXECUTABLE(
   MainWindow.h
   MainWindow.cpp
 
+  TreeWidget.h
+  TreeWidget.cpp
+
+  LineEdit.h
+  LineEdit.cpp
+
   BinaryWidget.h
   BinaryWidget.cpp
 

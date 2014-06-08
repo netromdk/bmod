@@ -8,6 +8,7 @@
 #include <QStyledItemDelegate>
 
 #include "Util.h"
+#include "TreeWidget.h"
 #include "MachineCodeWidget.h"
 
 namespace {
@@ -104,7 +105,7 @@ void MachineCodeWidget::showEvent(QShowEvent *event) {
 void MachineCodeWidget::createLayout() {
   label = new QLabel;
 
-  treeWidget = new QTreeWidget;
+  treeWidget = new TreeWidget;
   treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data Low"),
         tr("Data High"), tr("ASCII")});
   treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);

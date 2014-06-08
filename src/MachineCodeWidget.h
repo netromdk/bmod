@@ -7,7 +7,7 @@
 #include "BinaryObject.h"
 
 class QLabel;
-class QTreeWidget;
+class TreeWidget;
 
 class MachineCodeWidget : public QWidget {
   Q_OBJECT
@@ -27,7 +27,7 @@ private:
   
   bool shown;
   QLabel *label;
-  QTreeWidget *treeWidget;
+  TreeWidget *treeWidget;
 };
 
 #endif // BMOD_MACHINE_CODE_WIDGET_H
