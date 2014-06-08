@@ -172,6 +172,34 @@ QString Util::padString(const QString &str, int size, bool before, char pad) {
   return str;
 }
 
+QString Util::dataToAscii(const QByteArray &data, int offset, int size) {
+  QString res;
+  int len = data.size();
+  for (int i = offset; i - offset < size && i < len; i++) {
+    int ic = data[i];
+    res += (ic >= 32 && ic <= 126 ? (char) ic : '.');
+  }
+  return res;
+}
+
+QString Util::hexToAscii(const QString &data, int offset, int blocks) {
+  QString res;
+  int len = data.size();
+  int size = blocks * 2;
+  for (int i = offset; i - offset <= size && i < len; i += 2) {
+    if (data[i] == ' ') {
+      size++;
+      i--;
+      continue;
+    }
+    bool ok;
+    int ic = data.mid(i, 2).toInt(&ok, 16);
+    if (!ok) return QString();
+    res += (ic >= 32 && ic <= 126 ? (char) ic : '.');
+  }
+  return res;
+}
+
 QString Util::addrDataString(quint64 addr, QByteArray data) {
   // Pad data to a multiple of 16.
   quint64 rest = data.size() % 16;

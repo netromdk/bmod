@@ -59,6 +59,16 @@ namespace {
           font.setBold(true);
           item->setFont(col, font);
           item->setForeground(col, Qt::red);
+
+          QString oldAscii = item->text(3);
+          QString newAscii = Util::hexToAscii(newStr, 0, 8);
+          if (col == 1) {
+            newAscii += oldAscii.mid(8);
+          }
+          else {
+            newAscii = oldAscii.mid(0, 8) + newAscii;
+          }
+          item->setText(3, newAscii);
         }
       }
     }
@@ -148,8 +158,7 @@ void MachineCodeWidget::setup() {
         Util::padString(QString::number((unsigned char) data[byte], 16), 2);
       code += hex + " ";
 
-      int ic = data[byte];
-      ascii += (ic >= 32 && ic <= 126 ? (char) ic : '.');
+      ascii += Util::dataToAscii(data, byte, 1);
     }
     if (code.endsWith(" ")) {
       code.chop(1);
