@@ -14,7 +14,7 @@
 namespace {
   class ItemDelegate : public QStyledItemDelegate {
   public:
-    ItemDelegate(QTreeWidget *tree) : tree{tree} { }
+    ItemDelegate(QTreeWidget *tree, SectionPtr sec) : tree{tree}, sec{sec} { }
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const {
@@ -59,16 +59,24 @@ namespace {
           item->setFont(col, font);
           item->setForeground(col, Qt::red);
 
+          // Update string representation.
           item->setText(1, Util::hexToString(newStr)
                         .replace("\n", "\\n")
                         .replace("\t", "\\t")
                         .replace("\r", "\\r"));
+
+          // Change region.
+          quint64 addr = item->text(0).toULongLong(nullptr, 16);
+          quint64 pos = addr - sec->getAddress();
+          QByteArray data = Util::hexToData(newStr);
+          sec->setSubData(data, pos);
         }
       }
     }
 
   private:
     QTreeWidget *tree;
+    SectionPtr sec;
   };
 }
 
@@ -99,7 +107,7 @@ void StringsPane::createLayout() {
   treeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
   treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
   treeWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
-  treeWidget->setItemDelegate(new ItemDelegate(treeWidget));
+  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
 
   // Set fixed-width font.
   treeWidget->setFont(QFont("Courier"));
