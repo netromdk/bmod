@@ -1,7 +1,13 @@
+#include <QDebug>
 #include <QLabel>
 #include <QLineEdit>
+#include <QTextEdit>
+#include <QGroupBox>
+#include <QPushButton>
 #include <QGridLayout>
+#include <QMessageBox>
 
+#include "Util.h"
 #include "ConversionHelper.h"
 
 ConversionHelper::ConversionHelper(QWidget *parent) : QDialog(parent) {
@@ -75,13 +81,43 @@ void ConversionHelper::onTextEdited(const QString &text) {
   }
 }
 
+void ConversionHelper::onHexToText() {
+  QString hex = hexEdit->toPlainText().trimmed().replace(" ", "");
+  if (hex.isEmpty()) return;
+
+  QString text = Util::hexToAscii(hex, 0, hex.size() / 2);
+  if (text.isEmpty()) {
+    QMessageBox::information(this, "bmod",
+                             tr("Could not convert hex to text."));
+    return;
+  }
+  textEdit->setText(text);
+}
+
+void ConversionHelper::onTextToHex() {
+  QString text = textEdit->toPlainText().trimmed();
+  if (text.isEmpty()) return;
+
+  QString hex;
+  foreach (auto c, text) {
+    int ic = c.toLatin1();
+    hex += Util::padString(QString::number(ic, 16).toUpper(), 2) + " ";
+  }
+  if (hex.isEmpty()) {
+    QMessageBox::information(this, "bmod",
+                             tr("Could not convert text to hex."));
+    return;
+  }
+  hexEdit->setText(hex);
+}
+
 void ConversionHelper::createLayout() {
-  auto *layout = new QGridLayout;
-  layout->setContentsMargins(5, 5, 5, 5);
-  layout->addWidget(new QLabel(tr("Octal")), 0, 0);
-  layout->addWidget(new QLabel(tr("Decimal")), 1, 0);
-  layout->addWidget(new QLabel(tr("Hexadecimal")), 2, 0);
-  layout->addWidget(new QLabel(tr("ASCII")), 3, 0);
+  auto *numLayout = new QGridLayout;
+  numLayout->setContentsMargins(5, 5, 5, 5);
+  numLayout->addWidget(new QLabel(tr("Octal")), 0, 0);
+  numLayout->addWidget(new QLabel(tr("Decimal")), 1, 0);
+  numLayout->addWidget(new QLabel(tr("Hexadecimal")), 2, 0);
+  numLayout->addWidget(new QLabel(tr("ASCII")), 3, 0);
 
   for (int i = 0; i < 4; i++) {
     auto *edit = new QLineEdit;
@@ -92,9 +128,50 @@ void ConversionHelper::createLayout() {
       edit->setMaxLength(1);
     }
     
-    layout->addWidget(edit, i, 1);
+    numLayout->addWidget(edit, i, 1);
     edits << edit;
   }
+
+  auto *numGroup = new QGroupBox(tr("Numbers"));
+  numGroup->setLayout(numLayout);
+
+  hexEdit = new QTextEdit;
+  hexEdit->setMaximumHeight(80);
+
+  textEdit = new QTextEdit;
+  textEdit->setMaximumHeight(80);
+
+  auto *hexToText = new QPushButton(tr("Hex -> Text"));
+  connect(hexToText, &QPushButton::clicked,
+          this, &ConversionHelper::onHexToText);
+
+  auto *textToHex = new QPushButton(tr("Text -> Hex"));
+  connect(textToHex, &QPushButton::clicked,
+          this, &ConversionHelper::onTextToHex);
+
+  auto *buttonLayout = new QHBoxLayout;
+  buttonLayout->setContentsMargins(0, 0, 0, 0);
+  buttonLayout->addStretch();
+  buttonLayout->addWidget(hexToText);
+  buttonLayout->addWidget(textToHex);
+  buttonLayout->addStretch();
+
+  auto *textLayout = new QVBoxLayout;
+  textLayout->setContentsMargins(5, 5, 5, 5);
+  textLayout->addWidget(new QLabel(tr("Hex strings")));
+  textLayout->addWidget(hexEdit);
+
+  textLayout->addWidget(new QLabel(tr("Text")));
+  textLayout->addWidget(textEdit);
+
+  textLayout->addLayout(buttonLayout);
+
+  auto *textGroup = new QGroupBox(tr("Text"));
+  textGroup->setLayout(textLayout);
+
+  auto *layout = new QVBoxLayout;
+  layout->addWidget(numGroup);
+  layout->addWidget(textGroup);
   
   setLayout(layout);
 }

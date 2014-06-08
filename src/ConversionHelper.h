@@ -5,6 +5,7 @@
 #include <QDialog>
 
 class QLineEdit;
+class QTextEdit;
 
 class ConversionHelper : public QDialog {
   Q_OBJECT
@@ -14,11 +15,14 @@ public:
 
 private slots:
   void onTextEdited(const QString &text);
+  void onHexToText();
+  void onTextToHex();
 
 private:
   void createLayout();
 
   QList<QLineEdit*> edits;
+  QTextEdit *hexEdit, *textEdit;
 };
 
 #endif // BMOD_CONVERSION_HELPER_H
