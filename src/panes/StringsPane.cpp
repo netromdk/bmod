@@ -45,7 +45,12 @@ namespace {
                       const QModelIndex &index) const {
       auto *edit = qobject_cast<QLineEdit*>(editor);
       if (edit) {
-        model->setData(index, edit->text().toUpper() + "00");
+        QString oldStr = model->data(index).toString().trimmed();
+        QString newStr = edit->text().toUpper() + "00";
+        if (newStr == oldStr) {
+          return;
+        }
+        model->setData(index, newStr);
         auto *item = tree->topLevelItem(index.row());
         if (item) {
           int col = index.column();
