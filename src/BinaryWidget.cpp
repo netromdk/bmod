@@ -3,7 +3,9 @@
 #include <QListWidget>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QApplication>
 #include <QStackedLayout>
+#include <QProgressDialog>
 
 #include "Util.h"
 #include "BinaryWidget.h"
@@ -24,6 +26,13 @@ void BinaryWidget::commit() {
     QMessageBox::critical(this, "bmod", tr("Could not open file for writing!"));
     return;
   }
+
+  QProgressDialog progDiag(this);
+  progDiag.setLabelText(tr("Committing to file.."));
+  progDiag.setCancelButton(nullptr);
+  progDiag.setRange(0, 0);
+  progDiag.show();
+  qApp->processEvents();
 
   foreach (const auto obj, fmt->getObjects()) {
     foreach (const auto sec, obj->getSections()) {
