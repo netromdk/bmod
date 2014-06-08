@@ -13,7 +13,7 @@
 namespace {
   class ItemDelegate : public QStyledItemDelegate {
   public:
-    ItemDelegate(QTreeWidget *tree) : tree{tree} { }
+    ItemDelegate(QTreeWidget *tree, SectionPtr sec) : tree{tree}, sec{sec} { }
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const {
@@ -60,6 +60,7 @@ namespace {
           item->setFont(col, font);
           item->setForeground(col, Qt::red);
 
+          // Generate new ASCII representation.
           QString oldAscii = item->text(3);
           QString newAscii = Util::hexToAscii(newStr, 0, 8);
           if (col == 1) {
@@ -69,12 +70,19 @@ namespace {
             newAscii = oldAscii.mid(0, 8) + newAscii;
           }
           item->setText(3, newAscii);
+
+          // Change region.
+          quint64 addr = item->text(0).toULongLong(nullptr, 16);
+          quint64 pos = (addr - sec->getAddress()) + (col - 1) * 8;
+          QByteArray data = Util::hexToData(newStr.replace(" ", ""));
+          sec->setSubData(data, pos);
         }
       }
     }
 
   private:
     QTreeWidget *tree;
+    SectionPtr sec;
   };
 }
 
@@ -106,7 +114,7 @@ void MachineCodeWidget::createLayout() {
   treeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
   treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
   treeWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
-  treeWidget->setItemDelegate(new ItemDelegate(treeWidget));
+  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
 
   // Set fixed-width font.
   treeWidget->setFont(QFont("Courier"));

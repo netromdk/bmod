@@ -182,18 +182,18 @@ QString Util::dataToAscii(const QByteArray &data, int offset, int size) {
   return res;
 }
 
-QString Util::hexToAscii(const QString &data, int offset, int blocks) {
+QString Util::hexToAscii(const QString &str, int offset, int blocks) {
   QString res;
-  int len = data.size();
+  int len = str.size();
   int size = blocks * 2;
   bool ok;
   for (int i = offset; i - offset <= size && i < len; i += 2) {
-    if (data[i] == ' ') {
+    if (str[i] == ' ') {
       size++;
       i--;
       continue;
     }
-    int ic = data.mid(i, 2).toInt(&ok, 16);
+    int ic = str.mid(i, 2).toInt(&ok, 16);
     if (!ok) return QString();
     res += (ic >= 32 && ic <= 126 ? (char) ic : '.');
   }
@@ -201,6 +201,10 @@ QString Util::hexToAscii(const QString &data, int offset, int blocks) {
 }
 
 QString Util::hexToString(const QString &str) {
+  return QString::fromUtf8(hexToData(str));
+}
+
+QByteArray Util::hexToData(const QString &str) {
   QByteArray data;
   int size = str.size();
   bool ok;
@@ -208,7 +212,7 @@ QString Util::hexToString(const QString &str) {
     data += str.mid(i, 2).toInt(&ok, 16);
     if (!ok) return QByteArray();
   }
-  return QString::fromUtf8(data);
+  return data;
 }
 
 QString Util::addrDataString(quint64 addr, QByteArray data) {

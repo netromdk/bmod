@@ -25,6 +25,8 @@ public:
   const QByteArray &getData() const { return data; }
   void setData(const QByteArray &data) { this->data = data; }
 
+  void setSubData(const QByteArray &subData, int pos);
+
 private:
   SectionType type;
   QString name;
