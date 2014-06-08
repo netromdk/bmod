@@ -10,56 +10,58 @@
 #include "Util.h"
 #include "MachineCodeWidget.h"
 
-class ItemDelegate : public QStyledItemDelegate {
-public:
-  ItemDelegate(QTreeWidget *tree) : tree{tree} { }
+namespace {
+  class ItemDelegate : public QStyledItemDelegate {
+  public:
+    ItemDelegate(QTreeWidget *tree) : tree{tree} { }
 
-  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                        const QModelIndex &index) const {
-    int col = index.column();
-    if (col != 1 && col != 2) {
-      return nullptr;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const {
+      int col = index.column();
+      if (col != 1 && col != 2) {
+        return nullptr;
+      }
+
+      QString text = index.data().toString().trimmed();
+      if (text.isEmpty()) {
+        return nullptr;
+      }
+
+      QString mask;
+      int blocks = text.split(" ").size();
+      for (int i = 0; i < blocks; i++) {
+        mask += "HH ";
+      }
+      if (mask.endsWith(" ")) {
+        mask.chop(1);
+      }
+
+      auto *edit = new QLineEdit(parent);
+      edit->setInputMask(mask);
+      edit->setText(text);
+      return edit;
     }
 
-    QString text = index.data().toString().trimmed();
-    if (text.isEmpty()) {
-      return nullptr;
-    }
-
-    QString mask;
-    int blocks = text.split(" ").size();
-    for (int i = 0; i < blocks; i++) {
-      mask += "HH ";
-    }
-    if (mask.endsWith(" ")) {
-      mask.chop(1);
-    }
-
-    auto *edit = new QLineEdit(parent);
-    edit->setInputMask(mask);
-    edit->setText(text);
-    return edit;
-  }
-
-  void setModelData(QWidget *editor, QAbstractItemModel *model,
-                    const QModelIndex &index) const {
-    auto *edit = qobject_cast<QLineEdit*>(editor);
-    if (edit) {
-      model->setData(index, edit->text().toUpper());
-      auto *item = tree->topLevelItem(index.row());
-      if (item) {
-        int col = index.column();
-        auto font = item->font(col);
-        font.setBold(true);
-        item->setFont(col, font);
-        item->setForeground(col, Qt::red);
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const {
+      auto *edit = qobject_cast<QLineEdit*>(editor);
+      if (edit) {
+        model->setData(index, edit->text().toUpper());
+        auto *item = tree->topLevelItem(index.row());
+        if (item) {
+          int col = index.column();
+          auto font = item->font(col);
+          font.setBold(true);
+          item->setFont(col, font);
+          item->setForeground(col, Qt::red);
+        }
       }
     }
-  }
 
-private:
-  QTreeWidget *tree;
-};
+  private:
+    QTreeWidget *tree;
+  };
+}
 
 MachineCodeWidget::MachineCodeWidget(BinaryObjectPtr obj, SectionPtr sec)
   : obj{obj}, sec{sec}, shown{false}

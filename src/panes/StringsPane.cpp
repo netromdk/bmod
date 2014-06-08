@@ -1,13 +1,66 @@
 #include <QDebug>
 #include <QSplitter>
+#include <QLineEdit>
 #include <QVBoxLayout>
 #include <QTreeWidget>
 #include <QApplication>
 #include <QProgressDialog>
+#include <QStyledItemDelegate>
 
 #include "../Util.h"
 #include "StringsPane.h"
 #include "../MachineCodeWidget.h"
+
+namespace {
+  class ItemDelegate : public QStyledItemDelegate {
+  public:
+    ItemDelegate(QTreeWidget *tree) : tree{tree} { }
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const {
+      int col = index.column();
+      // TODO: Also make it possible to edit the strings directly
+      if (col != 3) {
+        return nullptr;
+      }
+
+      QString text = index.data().toString().trimmed();
+      if (text.isEmpty()) {
+        return nullptr;
+      }
+
+      QString mask;
+      int blocks = text.size() / 2 - 1;
+      for (int i = 0; i < blocks; i++) {
+        mask += "HH";
+      }
+
+      auto *edit = new QLineEdit(parent);
+      edit->setInputMask(mask);
+      edit->setText(text);
+      return edit;
+    }
+
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const {
+      auto *edit = qobject_cast<QLineEdit*>(editor);
+      if (edit) {
+        model->setData(index, edit->text().toUpper() + "00");
+        auto *item = tree->topLevelItem(index.row());
+        if (item) {
+          int col = index.column();
+          auto font = item->font(col);
+          font.setBold(true);
+          item->setFont(col, font);
+          item->setForeground(col, Qt::red);
+        }
+      }
+    }
+
+  private:
+    QTreeWidget *tree;
+  };
+}
 
 StringsPane::StringsPane(BinaryObjectPtr obj, SectionPtr sec)
   : Pane(Kind::Strings), obj{obj}, sec{sec}, shown{false}
@@ -36,6 +89,7 @@ void StringsPane::createLayout() {
   treeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
   treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
   treeWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
+  treeWidget->setItemDelegate(new ItemDelegate(treeWidget));
 
   // Set fixed-width font.
   treeWidget->setFont(QFont("Courier"));
@@ -78,6 +132,7 @@ void StringsPane::setup() {
     cur += c;
     if (c == 0) {
       auto *item = new QTreeWidgetItem;
+      item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
       item->setText(0, Util::padString(QString::number(addr, 16).toUpper(),
                                        obj->getSystemBits() / 8));
 
