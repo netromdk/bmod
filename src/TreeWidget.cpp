@@ -13,6 +13,8 @@ TreeWidget::TreeWidget(QWidget *parent) : QTreeWidget(parent) {
 }
 
 void TreeWidget::keyPressEvent(QKeyEvent *event) {
+  QTreeWidget::keyPressEvent(event);
+
   bool ctrl{false};
 #ifdef MAC
   ctrl = event->modifiers() | Qt::MetaModifier;
@@ -29,6 +31,7 @@ void TreeWidget::keyPressEvent(QKeyEvent *event) {
 
 void TreeWidget::endSearch() {
   searchEdit->hide();
+  setFocus();
 }
 
 void TreeWidget::doSearch() {
