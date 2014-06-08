@@ -1,5 +1,8 @@
+#include <QFile>
+#include <QDebug>
 #include <QListWidget>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QStackedLayout>
 
 #include "Util.h"
@@ -13,6 +16,27 @@
 BinaryWidget::BinaryWidget(FormatPtr fmt) : fmt{fmt} {
   createLayout();
   setup();
+}
+
+void BinaryWidget::commit() {
+  QFile f(getFile());
+  if (!f.open(QIODevice::ReadWrite)) {
+    QMessageBox::critical(this, "bmod", tr("Could not open file for writing!"));
+    return;
+  }
+
+  foreach (const auto obj, fmt->getObjects()) {
+    foreach (const auto sec, obj->getSections()) {
+      if (!sec->isModified()) {
+        continue;
+      }
+      const QByteArray &data = sec->getData();
+      foreach (const auto &region, sec->getModifiedRegions()) {
+        f.seek(sec->getOffset() + region.first);
+        f.write(data.mid(region.first, region.second));
+      }
+    }
+  }
 }
 
 void BinaryWidget::createLayout() {

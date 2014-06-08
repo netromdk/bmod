@@ -80,6 +80,25 @@ void MainWindow::openBinary() {
   loadBinary(file);
 }
 
+void MainWindow::saveBinary() {
+  if (binaryWidgets.isEmpty()) {
+    return;
+  }
+
+  int idx = tabWidget->currentIndex();
+  auto *binary = binaryWidgets[idx];
+
+  auto answer =
+    QMessageBox::question(this, "bmod",
+                          tr("Are you sure you want to commit changes to file \"%1\"?")
+                          .arg(binary->getFile()));
+  if (answer == QMessageBox::No) {
+    return;
+  }
+
+  binary->commit();
+}
+
 void MainWindow::closeBinary() {
   int idx = tabWidget->currentIndex();
   if (idx != -1) {
@@ -114,6 +133,8 @@ void MainWindow::createMenu() {
   QMenu *fileMenu = menuBar()->addMenu(tr("File"));
   fileMenu->addAction(tr("Open binary"), this, SLOT(openBinary()),
                       QKeySequence::Open);
+  fileMenu->addAction(tr("Save binary"), this, SLOT(saveBinary()),
+                      QKeySequence::Save);
   fileMenu->addAction(tr("Close binary"), this, SLOT(closeBinary()),
                       QKeySequence::Close);
 }

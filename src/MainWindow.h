@@ -20,6 +20,7 @@ protected:
 
 private slots:
   void openBinary();
+  void saveBinary();
   void closeBinary();
 
 private:

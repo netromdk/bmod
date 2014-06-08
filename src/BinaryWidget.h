@@ -18,6 +18,8 @@ public:
 
   QString getFile() const { return fmt->getFile(); }
 
+  void commit();
+
 private slots:
   void onModeChanged(int row);
 
