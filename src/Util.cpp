@@ -182,7 +182,8 @@ QString Util::dataToAscii(const QByteArray &data, int offset, int size) {
   return res;
 }
 
-QString Util::hexToAscii(const QString &str, int offset, int blocks) {
+QString Util::hexToAscii(const QString &str, int offset, int blocks,
+                         bool unicode) {
   QString res;
   int len = str.size();
   int size = blocks * 2;
@@ -195,7 +196,12 @@ QString Util::hexToAscii(const QString &str, int offset, int blocks) {
     }
     int ic = str.mid(i, 2).toInt(&ok, 16);
     if (!ok) return QString();
-    res += (ic >= 32 && ic <= 126 ? (char) ic : '.');
+    if (!unicode) {
+      res += (ic >= 32 && ic <= 126 ? (char) ic : '.');
+    }
+    else {
+      res += QString::fromUtf16((ushort*) &ic, 1);
+    }
   }
   return res;
 }

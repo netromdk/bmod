@@ -26,7 +26,8 @@ public:
                            char pad = 48);
 
   static QString dataToAscii(const QByteArray &data, int offset, int size);
-  static QString hexToAscii(const QString &data, int offset, int blocks);
+  static QString hexToAscii(const QString &data, int offset, int blocks,
+                            bool unicode = false);
   static QString hexToString(const QString &str);
   static QByteArray hexToData(const QString &str);
 

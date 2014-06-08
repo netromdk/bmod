@@ -3,6 +3,7 @@
 #include <QLineEdit>
 #include <QTextEdit>
 #include <QGroupBox>
+#include <QComboBox>
 #include <QPushButton>
 #include <QGridLayout>
 #include <QMessageBox>
@@ -85,7 +86,9 @@ void ConversionHelper::onHexToText() {
   QString hex = hexEdit->toPlainText().trimmed().replace(" ", "");
   if (hex.isEmpty()) return;
 
-  QString text = Util::hexToAscii(hex, 0, hex.size() / 2);
+  bool unicode = (encBox->currentIndex() == 1);
+
+  QString text = Util::hexToAscii(hex, 0, hex.size() / 2, unicode);
   if (text.isEmpty()) {
     QMessageBox::information(this, "bmod",
                              tr("Could not convert hex to text."));
@@ -98,9 +101,17 @@ void ConversionHelper::onTextToHex() {
   QString text = textEdit->toPlainText().trimmed();
   if (text.isEmpty()) return;
 
+  bool unicode = (encBox->currentIndex() == 1);
+
   QString hex;
   foreach (auto c, text) {
-    int ic = c.toLatin1();
+    int ic;
+    if (unicode) {
+      ic = c.unicode();
+    }
+    else {
+      ic = c.toLatin1();
+    }
     hex += Util::padString(QString::number(ic, 16).toUpper(), 2) + " ";
   }
   if (hex.isEmpty()) {
@@ -141,6 +152,15 @@ void ConversionHelper::createLayout() {
   textEdit = new QTextEdit;
   textEdit->setMaximumHeight(80);
 
+  encBox = new QComboBox;
+  encBox->addItem(tr("ASCII"), 0);
+  encBox->addItem(tr("Unicode"), 1);
+
+  auto *encLayout = new QHBoxLayout;
+  encLayout->addWidget(new QLabel(tr("Encoding:")));
+  encLayout->addWidget(encBox);
+  encLayout->addStretch();
+
   auto *hexToText = new QPushButton(tr("Hex -> Text"));
   connect(hexToText, &QPushButton::clicked,
           this, &ConversionHelper::onHexToText);
@@ -160,10 +180,9 @@ void ConversionHelper::createLayout() {
   textLayout->setContentsMargins(5, 5, 5, 5);
   textLayout->addWidget(new QLabel(tr("Hex strings")));
   textLayout->addWidget(hexEdit);
-
   textLayout->addWidget(new QLabel(tr("Text")));
   textLayout->addWidget(textEdit);
-
+  textLayout->addLayout(encLayout);
   textLayout->addLayout(buttonLayout);
 
   auto *textGroup = new QGroupBox(tr("Text"));

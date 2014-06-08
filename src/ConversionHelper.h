@@ -6,6 +6,7 @@
 
 class QLineEdit;
 class QTextEdit;
+class QComboBox;
 
 class ConversionHelper : public QDialog {
   Q_OBJECT
@@ -23,6 +24,7 @@ private:
 
   QList<QLineEdit*> edits;
   QTextEdit *hexEdit, *textEdit;
+  QComboBox *encBox;
 };
 
 #endif // BMOD_CONVERSION_HELPER_H
