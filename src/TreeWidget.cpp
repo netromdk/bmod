@@ -1,15 +1,23 @@
+#include <QDebug>
+#include <QLabel>
 #include <QKeyEvent>
 
 #include "LineEdit.h"
 #include "TreeWidget.h"
 
-TreeWidget::TreeWidget(QWidget *parent) : QTreeWidget(parent) {
+TreeWidget::TreeWidget(QWidget *parent)
+  : QTreeWidget(parent), curCol{0}, curItem{0}, cur{0}, total{0}
+{
   searchEdit = new LineEdit(this);
   searchEdit->setVisible(false);
   searchEdit->setFixedWidth(200);
   connect(searchEdit, &LineEdit::focusLost, this, &TreeWidget::endSearch);
   connect(searchEdit, &LineEdit::returnPressed,
           this, &TreeWidget::onSearchReturnPressed);
+
+  searchLabel = new QLabel(this);
+  searchLabel->setVisible(false);
+  searchLabel->setFixedWidth(70);
 }
 
 void TreeWidget::keyPressEvent(QKeyEvent *event) {
@@ -31,7 +39,9 @@ void TreeWidget::keyPressEvent(QKeyEvent *event) {
 
 void TreeWidget::endSearch() {
   searchEdit->hide();
+  searchLabel->hide();
   searchEdit->clear();
+  searchLabel->clear();
   setFocus();
 }
 
@@ -51,10 +61,12 @@ void TreeWidget::onSearchReturnPressed() {
 
   int cols = columnCount();
   searchResults.clear();
+  total = 0;
   for (int col = 0; col < cols; col++) {
     auto res = findItems(query, Qt::MatchContains, col);
     if (!res.isEmpty()) {
       searchResults[col] = res;
+      total += res.size();
     }
   }
 
@@ -63,6 +75,7 @@ void TreeWidget::onSearchReturnPressed() {
   }
 
   lastQuery = query;
+  cur = 0;
   curCol = searchResults.keys().first();
   curItem = 0;
   selectSearchResult(curCol, curItem);
@@ -79,6 +92,10 @@ void TreeWidget::selectSearchResult(int col, int item) {
   }
 
   const auto &res = list[item];
+  searchLabel->setText(tr("%1 of %2").arg(cur + 1).arg(total));
+  searchLabel->move(searchEdit->pos().x() - searchLabel->width() - 10,
+                    searchEdit->pos().y());
+  searchLabel->show();
 
   // Select entry and not entire row.
   int row = indexOfTopLevelItem(res);
@@ -105,5 +122,11 @@ void TreeWidget::nextSearchResult() {
   else {
     curItem = pos;
   }
+
+  cur++;
+  if (cur > total - 1) {
+    cur = 0;
+  }
+
   selectSearchResult(curCol, curItem);
 }

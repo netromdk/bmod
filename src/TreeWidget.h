@@ -5,6 +5,7 @@
 #include <QList>
 #include <QTreeWidget>
 
+class QLabel;
 class LineEdit;
 
 class TreeWidget : public QTreeWidget {
@@ -24,10 +25,11 @@ private:
   void nextSearchResult();
 
   QMap<int, QList<QTreeWidgetItem*>> searchResults;
-  int curCol, curItem;
+  int curCol, curItem, cur, total;
   QString lastQuery;
 
   LineEdit *searchEdit;
+  QLabel *searchLabel;
 };
 
 #endif // BMOD_TREE_WIDGET_H
