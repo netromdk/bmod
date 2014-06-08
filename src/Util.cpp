@@ -163,10 +163,11 @@ QString Util::formatSize(qint64 bytes, int digits) {
   return QString("%1 %2").arg(QString::number(size, 'f', digits)).arg(unit);
 }
 
-QString Util::padString(const QString &str, int size, char pad) {
+QString Util::padString(const QString &str, int size, bool before, char pad) {
   int addrLen = str.size();
   if (addrLen < size) {
-    return QString(size - addrLen, pad) + str;
+    QString res{str}, padStr{QString(size - addrLen, pad)};
+    return (before ? padStr + res : res + padStr);
   }
   return str;
 }
