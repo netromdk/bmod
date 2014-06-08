@@ -31,6 +31,7 @@ void TreeWidget::keyPressEvent(QKeyEvent *event) {
 
 void TreeWidget::endSearch() {
   searchEdit->hide();
+  searchEdit->clear();
   setFocus();
 }
 
