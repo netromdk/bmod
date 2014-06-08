@@ -29,14 +29,13 @@ public:
     QString mask;
     int blocks = text.split(" ").size();
     for (int i = 0; i < blocks; i++) {
-      mask += "NN ";
+      mask += "HH ";
     }
     if (mask.endsWith(" ")) {
       mask.chop(1);
     }
 
     auto *edit = new QLineEdit(parent);
-    // TODO: use validator so only Hex is accepted
     edit->setInputMask(mask);
     edit->setText(text);
     return edit;
@@ -46,7 +45,7 @@ public:
                     const QModelIndex &index) const {
     auto *edit = qobject_cast<QLineEdit*>(editor);
     if (edit) {
-      model->setData(index, edit->text());
+      model->setData(index, edit->text().toUpper());
       auto *item = tree->topLevelItem(index.row());
       if (item) {
         int col = index.column();
