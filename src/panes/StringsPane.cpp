@@ -59,7 +59,10 @@ namespace {
           item->setFont(col, font);
           item->setForeground(col, Qt::red);
 
-          item->setText(1, Util::hexToString(newStr));
+          item->setText(1, Util::hexToString(newStr)
+                        .replace("\n", "\\n")
+                        .replace("\t", "\\t")
+                        .replace("\r", "\\r"));
         }
       }
     }
