@@ -148,8 +148,10 @@ void ConversionHelper::createLayout() {
   numGroup->setLayout(numLayout);
 
   hexEdit = new QTextEdit;
+  hexEdit->setTabChangesFocus(true);
 
   textEdit = new QTextEdit;
+  textEdit->setTabChangesFocus(true);
 
   encBox = new QComboBox;
   encBox->addItem(tr("ASCII"), 0);
