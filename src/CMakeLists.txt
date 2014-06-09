@@ -17,23 +17,18 @@ ADD_EXECUTABLE(
   BinaryObject.h
   BinaryObject.cpp
 
-  MainWindow.h
-  MainWindow.cpp
-
-  TreeWidget.h
-  TreeWidget.cpp
-
-  LineEdit.h
-  LineEdit.cpp
-
-  BinaryWidget.h
-  BinaryWidget.cpp
-
-  MachineCodeWidget.h
-  MachineCodeWidget.cpp
-
-  ConversionHelper.h
-  ConversionHelper.cpp
+  widgets/MainWindow.h
+  widgets/MainWindow.cpp
+  widgets/TreeWidget.h
+  widgets/TreeWidget.cpp
+  widgets/LineEdit.h
+  widgets/LineEdit.cpp
+  widgets/BinaryWidget.h
+  widgets/BinaryWidget.cpp
+  widgets/MachineCodeWidget.h
+  widgets/MachineCodeWidget.cpp
+  widgets/ConversionHelper.h
+  widgets/ConversionHelper.cpp
 
   panes/Pane.h
   panes/ArchPane.h

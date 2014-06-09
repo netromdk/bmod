@@ -3,8 +3,8 @@
 
 #include <QWidget>
 
-#include "Section.h"
-#include "BinaryObject.h"
+#include "../Section.h"
+#include "../BinaryObject.h"
 
 class QLabel;
 class TreeWidget;

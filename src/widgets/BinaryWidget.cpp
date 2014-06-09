@@ -10,11 +10,11 @@
 #include "Util.h"
 #include "BinaryWidget.h"
 
-#include "panes/Pane.h"
-#include "panes/ArchPane.h"
-#include "panes/ProgramPane.h"
-#include "panes/StringsPane.h"
-#include "panes/GenericPane.h"
+#include "../panes/Pane.h"
+#include "../panes/ArchPane.h"
+#include "../panes/ProgramPane.h"
+#include "../panes/StringsPane.h"
+#include "../panes/GenericPane.h"
 
 BinaryWidget::BinaryWidget(FormatPtr fmt) : fmt{fmt} {
   createLayout();

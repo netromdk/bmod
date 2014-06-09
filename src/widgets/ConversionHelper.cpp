@@ -8,7 +8,7 @@
 #include <QGridLayout>
 #include <QMessageBox>
 
-#include "Util.h"
+#include "../Util.h"
 #include "ConversionHelper.h"
 
 ConversionHelper::ConversionHelper(QWidget *parent) : QDialog(parent) {

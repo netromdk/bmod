@@ -7,7 +7,7 @@
 #include <QProgressDialog>
 #include <QStyledItemDelegate>
 
-#include "Util.h"
+#include "../Util.h"
 #include "TreeWidget.h"
 #include "MachineCodeWidget.h"
 

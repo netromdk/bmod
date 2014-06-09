@@ -10,10 +10,10 @@
 #include <QApplication>
 #include <QProgressDialog>
 
-#include "Util.h"
+#include "../Util.h"
 #include "MainWindow.h"
 #include "BinaryWidget.h"
-#include "formats/Format.h"
+#include "../formats/Format.h"
 #include "ConversionHelper.h"
 
 MainWindow::MainWindow(const QStringList &files)

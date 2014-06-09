@@ -9,7 +9,7 @@
 
 #include "../Util.h"
 #include "StringsPane.h"
-#include "../TreeWidget.h"
+#include "../widgets/TreeWidget.h"
 
 namespace {
   class ItemDelegate : public QStyledItemDelegate {

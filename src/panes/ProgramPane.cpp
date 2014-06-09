@@ -1,7 +1,7 @@
 #include <QVBoxLayout>
 
 #include "ProgramPane.h"
-#include "../MachineCodeWidget.h"
+#include "../widgets/MachineCodeWidget.h"
 
 ProgramPane::ProgramPane(BinaryObjectPtr obj, SectionPtr sec)
   : Pane(Kind::Program), obj{obj}, sec{sec}

@@ -1,7 +1,7 @@
 #include <QVBoxLayout>
 
 #include "GenericPane.h"
-#include "../MachineCodeWidget.h"
+#include "../widgets/MachineCodeWidget.h"
 
 GenericPane::GenericPane(BinaryObjectPtr obj, SectionPtr sec)
   : Pane(Kind::Generic), obj{obj}, sec{sec}
