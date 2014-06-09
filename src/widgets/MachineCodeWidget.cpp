@@ -189,6 +189,39 @@ void MachineCodeWidget::setup() {
     }
   }
 
+  // Mark items as modified if a region states it.
+  const auto &modRegs = sec->getModifiedRegions();
+  for (int row = 0, byte = 0; row < rows; row++, byte += 16) {
+    foreach (const auto &reg, modRegs) {
+      if (reg.first >= byte && reg.first < byte + 16) {
+        auto *item = treeWidget->topLevelItem(row);
+        int col1 = 1, col2 = 2;
+        if (reg.first < byte + 8) {
+          setItemMarked(item, col1);
+        }
+        if (reg.first + reg.second >= byte + 8) {
+          setItemMarked(item, col2);
+        }
+        if (reg.first + reg.second > byte + 16) {
+          // Number of additional rows to mark.
+          int num = ((reg.first + reg.second) - (byte + 16)) / 16;
+          for (int j = 0; j < num + 1; j++) {
+            item = treeWidget->topLevelItem(row + j + 1);
+            if (item) {
+              setItemMarked(item, col1);
+
+              // If intermediate rows or if the data actually spans
+              // the last column.
+              if (j < num || (reg.first + reg.second) % 16 > 8) {
+                setItemMarked(item, col2);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   int padSize = obj->getSystemBits() / 8;
   addr = sec->getAddress();
   label->setText(tr("Section size: %1, address %2 to %3, %4 rows")
@@ -200,4 +233,11 @@ void MachineCodeWidget::setup() {
                  .arg(treeWidget->topLevelItemCount()));
 
   treeWidget->setFocus();
+}
+
+void MachineCodeWidget::setItemMarked(QTreeWidgetItem *item, int column) {
+  auto font = item->font(column);
+  font.setBold(true);
+  item->setFont(column, font);
+  item->setForeground(column, Qt::red);
 }

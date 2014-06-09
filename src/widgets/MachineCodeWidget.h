@@ -9,6 +9,7 @@
 
 class QLabel;
 class TreeWidget;
+class QTreeWidgetItem;
 
 class MachineCodeWidget : public QWidget {
   Q_OBJECT
@@ -22,6 +23,7 @@ protected:
 private:
   void createLayout();
   void setup();
+  void setItemMarked(QTreeWidgetItem *item, int column);
 
   BinaryObjectPtr obj;
   SectionPtr sec;
