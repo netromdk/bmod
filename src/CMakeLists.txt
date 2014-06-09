@@ -35,6 +35,8 @@ ADD_EXECUTABLE(
   panes/ArchPane.cpp
   panes/ProgramPane.h
   panes/ProgramPane.cpp
+  panes/AssemblyPane.h
+  panes/AssemblyPane.cpp
   panes/StringsPane.h
   panes/StringsPane.cpp
   panes/GenericPane.h

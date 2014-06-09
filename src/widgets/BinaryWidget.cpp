@@ -15,6 +15,7 @@
 #include "../panes/ProgramPane.h"
 #include "../panes/StringsPane.h"
 #include "../panes/GenericPane.h"
+#include "../panes/AssemblyPane.h"
 
 BinaryWidget::BinaryWidget(FormatPtr fmt) : fmt{fmt} {
   createLayout();
@@ -79,7 +80,8 @@ void BinaryWidget::setup() {
 
     SectionPtr sec = obj->getSection(SectionType::Text);
     if (sec) {
-      addPane(sec->getName(), new ProgramPane(obj, sec), 1);
+      addPane(tr("Executable Code"), new ProgramPane(obj, sec), 1);
+      addPane(tr("Assembly"), new AssemblyPane(obj, sec), 2);
     }
 
     sec = obj->getSection(SectionType::String);
