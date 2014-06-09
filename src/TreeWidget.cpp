@@ -8,6 +8,13 @@
 TreeWidget::TreeWidget(QWidget *parent)
   : QTreeWidget(parent), curCol{0}, curItem{0}, cur{0}, total{0}
 {
+  setSelectionBehavior(QAbstractItemView::SelectItems);
+  setSelectionMode(QAbstractItemView::SingleSelection);
+  setEditTriggers(QAbstractItemView::DoubleClicked);
+
+  // Set fixed-width font.
+  setFont(QFont("Courier"));
+
   searchEdit = new LineEdit(this);
   searchEdit->setVisible(false);
   searchEdit->setFixedWidth(150);

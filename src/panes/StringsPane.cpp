@@ -114,13 +114,7 @@ void StringsPane::createLayout() {
     treeWidget->setColumnWidth(1, 200);
     treeWidget->setColumnWidth(2, 50);
     treeWidget->setColumnWidth(3, 200);
-    treeWidget->setSelectionBehavior(QAbstractItemView::SelectItems);
-    treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    treeWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
     treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
-
-    // Set fixed-width font.
-    treeWidget->setFont(QFont("Courier"));
 
     layout->addWidget(label);
     layout->addWidget(treeWidget);
