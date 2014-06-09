@@ -181,6 +181,35 @@ void StringsPane::setup() {
     }
   }
 
+  // Mark items as modified if a region states it.
+  const auto &modRegs = sec->getModifiedRegions();
+  int rows = treeWidget->topLevelItemCount();
+  quint64 offset =
+    treeWidget->topLevelItem(0)->text(0).toULongLong(nullptr, 16);
+  for (int row = 0; row < rows; row++) {
+    auto *item = treeWidget->topLevelItem(row);
+    addr = item->text(0).toULongLong(nullptr, 16) - offset;
+    int size = item->text(2).toInt() + 1; // account for \0
+    foreach (const auto &reg, modRegs) {
+      if (reg.first >= addr && reg.first < addr + size) {
+        setItemMarked(item, 3);
+        int excess = (reg.first + reg.second) - (addr + size);
+        if (excess > 0) {
+          for (int row2 = row + 1; row2 < rows; row2++) {
+            auto *item2 = treeWidget->topLevelItem(row2);
+            if (item2) {
+              int size2 = item2->text(2).toInt() + 1; // account for \0
+              setItemMarked(item2, 3);
+              excess -= size2;
+              if (excess <= 0) break;
+            }
+            else break;
+          }
+        }
+      }
+    }
+  }
+
   int padSize = obj->getSystemBits() / 8;
   addr = sec->getAddress();
   label->setText(tr("Section size: %1, address %2 to %3, %4 rows")
@@ -192,4 +221,11 @@ void StringsPane::setup() {
                  .arg(treeWidget->topLevelItemCount()));
 
   treeWidget->setFocus();
+}
+
+void StringsPane::setItemMarked(QTreeWidgetItem *item, int column) {
+  auto font = item->font(column);
+  font.setBold(true);
+  item->setFont(column, font);
+  item->setForeground(column, Qt::red);
 }

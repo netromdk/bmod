@@ -192,9 +192,9 @@ void MachineCodeWidget::setup() {
   // Mark items as modified if a region states it.
   const auto &modRegs = sec->getModifiedRegions();
   for (int row = 0, byte = 0; row < rows; row++, byte += 16) {
+    auto *item = treeWidget->topLevelItem(row);
     foreach (const auto &reg, modRegs) {
       if (reg.first >= byte && reg.first < byte + 16) {
-        auto *item = treeWidget->topLevelItem(row);
         int col1 = 1, col2 = 2;
         if (reg.first < byte + 8) {
           setItemMarked(item, col1);
