@@ -99,7 +99,13 @@ void MachineCodeWidget::showEvent(QShowEvent *event) {
   if (!shown) {
     shown = true;
     setup();
-    treeWidget->setFocus();
+  }
+  else if (sec->isModified()) {
+    QDateTime mod = sec->modifiedWhen();
+    if (secModified.isNull() || mod != secModified) {
+      secModified = mod;
+      setup();
+    }
   }
 }
 
@@ -124,6 +130,8 @@ void MachineCodeWidget::createLayout() {
 }
 
 void MachineCodeWidget::setup() {
+  treeWidget->clear();
+
   quint64 addr = sec->getAddress();
   const QByteArray &data = sec->getData();
   int len = data.size(), rows = len / 16;
@@ -190,4 +198,6 @@ void MachineCodeWidget::setup() {
                  .arg(Util::padString(QString::number(addr + len, 16).toUpper(),
                                       padSize))
                  .arg(treeWidget->topLevelItemCount()));
+
+  treeWidget->setFocus();
 }

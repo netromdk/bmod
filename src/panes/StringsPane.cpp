@@ -91,7 +91,13 @@ void StringsPane::showEvent(QShowEvent *event) {
   if (!shown) {
     shown = true;
     setup();
-    treeWidget->setFocus();
+  }
+  else if (sec->isModified()) {
+    QDateTime mod = sec->modifiedWhen();
+    if (secModified.isNull() || mod != secModified) {
+      secModified = mod;
+      setup();
+    }
   }
 }
 
@@ -116,6 +122,8 @@ void StringsPane::createLayout() {
 }
 
 void StringsPane::setup() {
+  treeWidget->clear();
+
   quint64 addr = sec->getAddress();
   const QByteArray &data = sec->getData();
   if (data.isEmpty()) {
@@ -182,4 +190,6 @@ void StringsPane::setup() {
                  .arg(Util::padString(QString::number(addr + len, 16).toUpper(),
                                       padSize))
                  .arg(treeWidget->topLevelItemCount()));
+
+  treeWidget->setFocus();
 }

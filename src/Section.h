@@ -4,6 +4,7 @@
 #include <QList>
 #include <QPair>
 #include <QString>
+#include <QDateTime>
 #include <QByteArray>
 
 #include <memory>
@@ -29,6 +30,7 @@ public:
 
   void setSubData(const QByteArray &subData, int pos);
   bool isModified() const { return !modifiedRegions.isEmpty(); }
+  QDateTime modifiedWhen() const { return modified; }
   const QList<QPair<int, int>> &getModifiedRegions() const;
 
 private:
@@ -38,6 +40,7 @@ private:
   quint32 offset;
   QByteArray data;
   QList<QPair<int, int>> modifiedRegions;
+  QDateTime modified;
 };
 
 #endif // BMOD_SECTION_H

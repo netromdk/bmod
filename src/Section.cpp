@@ -10,6 +10,7 @@ void Section::setSubData(const QByteArray &subData, int pos) {
     return;
   }
   data.replace(pos, subData.size(), subData);
+  modified = QDateTime::currentDateTime();
 
   QPair<int, int> region(pos, subData.size());
   if (!modifiedRegions.contains(region)) {

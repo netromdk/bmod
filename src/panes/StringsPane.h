@@ -1,6 +1,8 @@
 #ifndef BMOD_STRINGS_PANE_H
 #define BMOD_STRINGS_PANE_H
 
+#include <QDateTime>
+
 #include "Pane.h"
 #include "../Section.h"
 #include "../BinaryObject.h"
@@ -21,6 +23,7 @@ private:
 
   BinaryObjectPtr obj;
   SectionPtr sec;
+  QDateTime secModified;
 
   bool shown;
   QLabel *label;

@@ -2,6 +2,7 @@
 #define BMOD_MACHINE_CODE_WIDGET_H
 
 #include <QWidget>
+#include <QDateTime>
 
 #include "../Section.h"
 #include "../BinaryObject.h"
@@ -24,7 +25,8 @@ private:
 
   BinaryObjectPtr obj;
   SectionPtr sec;
-  
+  QDateTime secModified;
+
   bool shown;
   QLabel *label;
   TreeWidget *treeWidget;
