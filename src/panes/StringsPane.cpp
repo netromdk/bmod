@@ -3,13 +3,13 @@
 #include <QSplitter>
 #include <QLineEdit>
 #include <QVBoxLayout>
-#include <QTreeWidget>
 #include <QApplication>
 #include <QProgressDialog>
 #include <QStyledItemDelegate>
 
 #include "../Util.h"
 #include "StringsPane.h"
+#include "../TreeWidget.h"
 #include "../MachineCodeWidget.h"
 
 namespace {
@@ -107,7 +107,7 @@ void StringsPane::createLayout() {
   else {
     label = new QLabel;
 
-    treeWidget = new QTreeWidget;
+    treeWidget = new TreeWidget;
     treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("String"),
           tr("Length"), tr("Data")});
     treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);

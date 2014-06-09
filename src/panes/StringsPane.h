@@ -6,7 +6,7 @@
 #include "../BinaryObject.h"
 
 class QLabel;
-class QTreeWidget;
+class TreeWidget;
 
 class StringsPane : public Pane {
 public:
@@ -24,7 +24,7 @@ private:
 
   bool shown;
   QLabel *label;
-  QTreeWidget *treeWidget;
+  TreeWidget *treeWidget;
 };
 
 #endif // BMOD_STRINGS_PANE_H
