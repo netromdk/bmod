@@ -18,11 +18,12 @@ protected:
 private slots:
   void endSearch();
   void onSearchReturnPressed();
+  void nextSearchResult();
+  void prevSearchResult();
 
 private:
   void doSearch();
   void selectSearchResult(int col, int item);
-  void nextSearchResult();
 
   QMap<int, QList<QTreeWidgetItem*>> searchResults;
   int curCol, curItem, cur, total;

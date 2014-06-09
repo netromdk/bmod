@@ -11,9 +11,12 @@ public:
 
 signals:
   void focusLost();
+  void keyUp();
+  void keyDown();
 
 protected:
-  void focusOutEvent(QFocusEvent *event);  
+  void focusOutEvent(QFocusEvent *event);
+  void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // BMOD_LINE_EDIT_H
