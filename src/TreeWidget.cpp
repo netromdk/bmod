@@ -21,7 +21,10 @@ TreeWidget::TreeWidget(QWidget *parent)
   searchLabel->setVisible(false);
   searchLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   searchLabel->setFixedHeight(searchEdit->height());
-  searchLabel->setStyleSheet("QLabel { background-color: #FFFFFF; }");
+  searchLabel->setStyleSheet("QLabel { "
+                               "background-color: #EEEEEE; "
+                               "border-top: 1px solid #CCCCCC; "
+                             "}");
 }
 
 void TreeWidget::keyPressEvent(QKeyEvent *event) {
