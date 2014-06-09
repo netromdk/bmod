@@ -134,13 +134,6 @@ void MachineCodeWidget::setup() {
     return;
   }
 
-  int padSize = obj->getSystemBits() / 8;
-  label->setText(tr("Section size: %1, address %2 to %3")
-                 .arg(Util::formatSize(len))
-                 .arg(Util::padString(QString::number(addr, 16).toUpper(),
-                                      padSize))
-                 .arg(Util::padString(QString::number(addr + len, 16).toUpper(),
-                                      padSize)));
   if (len % 16 > 0) rows++;
 
   QProgressDialog progDiag(this);
@@ -187,4 +180,14 @@ void MachineCodeWidget::setup() {
       qApp->processEvents();
     }
   }
+
+  int padSize = obj->getSystemBits() / 8;
+  addr = sec->getAddress();
+  label->setText(tr("Section size: %1, address %2 to %3, %4 rows")
+                 .arg(Util::formatSize(len))
+                 .arg(Util::padString(QString::number(addr, 16).toUpper(),
+                                      padSize))
+                 .arg(Util::padString(QString::number(addr + len, 16).toUpper(),
+                                      padSize))
+                 .arg(treeWidget->topLevelItemCount()));
 }
