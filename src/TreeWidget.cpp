@@ -12,6 +12,7 @@ TreeWidget::TreeWidget(QWidget *parent)
   searchEdit->setVisible(false);
   searchEdit->setFixedWidth(150);
   searchEdit->setFixedHeight(21);
+  searchEdit->setPlaceholderText(tr("Search query"));
   connect(searchEdit, &LineEdit::focusLost, this, &TreeWidget::endSearch);
   connect(searchEdit, &LineEdit::returnPressed,
           this, &TreeWidget::onSearchReturnPressed);
@@ -95,7 +96,8 @@ void TreeWidget::selectSearchResult(int col, int item) {
   }
 
   const auto &res = list[item];
-  searchLabel->setText(tr("%1 of %2 matches  ").arg(cur + 1).arg(total));
+  searchLabel->setText(tr("%1 of %2 matches    ")
+                       .arg(cur + 1).arg(total));
   searchLabel->setFixedWidth(width() - searchEdit->width());
   searchLabel->move(1, searchEdit->pos().y());
   searchLabel->show();
