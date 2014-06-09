@@ -18,6 +18,7 @@ protected:
 
 private slots:
   void endSearch();
+  void onSearchLostFocus();
   void onSearchReturnPressed();
   void nextSearchResult();
   void prevSearchResult();

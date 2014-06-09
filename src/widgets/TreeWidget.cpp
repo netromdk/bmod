@@ -20,7 +20,8 @@ TreeWidget::TreeWidget(QWidget *parent)
   searchEdit->setFixedWidth(150);
   searchEdit->setFixedHeight(21);
   searchEdit->setPlaceholderText(tr("Search query"));
-  connect(searchEdit, &LineEdit::focusLost, this, &TreeWidget::endSearch);
+  connect(searchEdit, &LineEdit::focusLost,
+          this, &TreeWidget::onSearchLostFocus);
   connect(searchEdit, &LineEdit::keyDown, this, &TreeWidget::nextSearchResult);
   connect(searchEdit, &LineEdit::keyUp, this, &TreeWidget::prevSearchResult);
   connect(searchEdit, &LineEdit::returnPressed,
@@ -86,6 +87,12 @@ void TreeWidget::resetSearch() {
   searchResults.clear();
   lastQuery.clear();
   curCol = curItem = cur = total = 0;
+}
+
+void TreeWidget::onSearchLostFocus() {
+  if (searchEdit.isVisible() && searchEdit->text().isEmpty()) {
+    endSearch();
+  }
 }
 
 void TreeWidget::onSearchReturnPressed() {
