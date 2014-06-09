@@ -10,7 +10,6 @@
 #include "../Util.h"
 #include "StringsPane.h"
 #include "../TreeWidget.h"
-#include "../MachineCodeWidget.h"
 
 namespace {
   class ItemDelegate : public QStyledItemDelegate {
@@ -89,7 +88,7 @@ StringsPane::StringsPane(BinaryObjectPtr obj, SectionPtr sec)
 
 void StringsPane::showEvent(QShowEvent *event) {
   QWidget::showEvent(event);
-  if (!shown && sec->getType() == SectionType::CString) {
+  if (!shown) {
     shown = true;
     setup();
     treeWidget->setFocus();
@@ -97,28 +96,21 @@ void StringsPane::showEvent(QShowEvent *event) {
 }
 
 void StringsPane::createLayout() {
+  label = new QLabel;
+
+  treeWidget = new TreeWidget;
+  treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("String"),
+        tr("Length"), tr("Data")});
+  treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
+  treeWidget->setColumnWidth(1, 200);
+  treeWidget->setColumnWidth(2, 50);
+  treeWidget->setColumnWidth(3, 200);
+  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
+
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);
-
-  if (sec->getType() != SectionType::CString) {
-    auto *codeWidget = new MachineCodeWidget(obj, sec);
-    layout->addWidget(codeWidget);
-  }
-  else {
-    label = new QLabel;
-
-    treeWidget = new TreeWidget;
-    treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("String"),
-          tr("Length"), tr("Data")});
-    treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
-    treeWidget->setColumnWidth(1, 200);
-    treeWidget->setColumnWidth(2, 50);
-    treeWidget->setColumnWidth(3, 200);
-    treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
-
-    layout->addWidget(label);
-    layout->addWidget(treeWidget);
-  }
+  layout->addWidget(label);
+  layout->addWidget(treeWidget);
   
   setLayout(layout);
 }

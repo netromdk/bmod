@@ -42,6 +42,8 @@ ADD_EXECUTABLE(
   panes/ProgramPane.cpp
   panes/StringsPane.h
   panes/StringsPane.cpp
+  panes/GenericPane.h
+  panes/GenericPane.cpp
 
   formats/Format.h
   formats/Format.cpp

@@ -8,7 +8,8 @@ public:
   enum class Kind {
     Arch,
     Program,
-    Strings
+    Strings,
+    Generic
   };
 
 protected:

@@ -14,6 +14,7 @@
 #include "panes/ArchPane.h"
 #include "panes/ProgramPane.h"
 #include "panes/StringsPane.h"
+#include "panes/GenericPane.h"
 
 BinaryWidget::BinaryWidget(FormatPtr fmt) : fmt{fmt} {
   createLayout();
@@ -91,6 +92,12 @@ void BinaryWidget::setup() {
     foreach (auto sec, obj->getSectionsByType(SectionType::CString)) {
       auto *cstrPane = new StringsPane(obj, sec);
       addPane(sec->getName(), cstrPane, 1);
+    }
+
+    sec = obj->getSection(SectionType::CodeSig);
+    if (sec) {
+      auto *codePane = new GenericPane(obj, sec);
+      addPane(sec->getName(), codePane, 1);
     }
   }
 
