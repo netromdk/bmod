@@ -6,7 +6,7 @@
 #include "../widgets/MachineCodeWidget.h"
 
 AssemblyPane::AssemblyPane(BinaryObjectPtr obj, SectionPtr sec)
-  : Pane(Kind::Assembly), obj{obj}, sec{sec}
+  : Pane(Kind::Assembly), obj{obj}, sec{sec}, shown{false}
 {
   createLayout();
 }
