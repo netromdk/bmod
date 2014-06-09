@@ -92,6 +92,7 @@ void StringsPane::showEvent(QShowEvent *event) {
   if (!shown && sec->getType() == SectionType::CString) {
     shown = true;
     setup();
+    treeWidget->setFocus();
   }
 }
 

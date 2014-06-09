@@ -99,6 +99,7 @@ void MachineCodeWidget::showEvent(QShowEvent *event) {
   if (!shown) {
     shown = true;
     setup();
+    treeWidget->setFocus();
   }
 }
 

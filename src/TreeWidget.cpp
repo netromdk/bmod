@@ -10,14 +10,17 @@ TreeWidget::TreeWidget(QWidget *parent)
 {
   searchEdit = new LineEdit(this);
   searchEdit->setVisible(false);
-  searchEdit->setFixedWidth(200);
+  searchEdit->setFixedWidth(150);
+  searchEdit->setFixedHeight(21);
   connect(searchEdit, &LineEdit::focusLost, this, &TreeWidget::endSearch);
   connect(searchEdit, &LineEdit::returnPressed,
           this, &TreeWidget::onSearchReturnPressed);
 
   searchLabel = new QLabel(this);
   searchLabel->setVisible(false);
-  searchLabel->setFixedWidth(70);
+  searchLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  searchLabel->setFixedHeight(searchEdit->height());
+  searchLabel->setStyleSheet("QLabel { background-color: #FFFFFF; }");
 }
 
 void TreeWidget::keyPressEvent(QKeyEvent *event) {
@@ -46,8 +49,8 @@ void TreeWidget::endSearch() {
 }
 
 void TreeWidget::doSearch() {
-  searchEdit->move(width() - searchEdit->width() - 5,
-                   height() - searchEdit->height() - 3);
+  searchEdit->move(width() - searchEdit->width() - 1,
+                   height() - searchEdit->height() - 1);
   searchEdit->show();
   searchEdit->setFocus();
 }
@@ -92,9 +95,9 @@ void TreeWidget::selectSearchResult(int col, int item) {
   }
 
   const auto &res = list[item];
-  searchLabel->setText(tr("%1 of %2").arg(cur + 1).arg(total));
-  searchLabel->move(searchEdit->pos().x() - searchLabel->width() - 10,
-                    searchEdit->pos().y());
+  searchLabel->setText(tr("%1 of %2 matches  ").arg(cur + 1).arg(total));
+  searchLabel->setFixedWidth(width() - searchEdit->width());
+  searchLabel->move(1, searchEdit->pos().y());
   searchLabel->show();
 
   // Select entry and not entire row.
