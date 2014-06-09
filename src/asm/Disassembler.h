@@ -13,7 +13,7 @@ public:
   Disassembler(CpuType type);
   ~Disassembler();
 
-  QString disassemble(const QByteArray &code);
+  bool disassemble(const QByteArray &code, QString &result);
 
 private:
   Asm *asm_;

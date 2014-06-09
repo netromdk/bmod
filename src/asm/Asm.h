@@ -7,7 +7,7 @@
 class Asm {
 public:
   virtual ~Asm() { }
-  virtual QString disassemble(const QByteArray &code) =0;
+  virtual bool disassemble(const QByteArray &code, QString &result) =0;
 };
 
 #endif // BMOD_ASM_H

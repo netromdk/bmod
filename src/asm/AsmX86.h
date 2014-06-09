@@ -5,7 +5,7 @@
 
 class AsmX86 : public Asm {
 public:
-  QString disassemble(const QByteArray &code);
+  bool disassemble(const QByteArray &code, QString &result);
 };
 
 #endif // BMOD_ASM_X86_H

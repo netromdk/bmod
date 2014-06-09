@@ -1,5 +1,5 @@
 #include "AsmX86.h"
 
-QString AsmX86::disassemble(const QByteArray &code) {
-  return "";
+bool AsmX86::disassemble(const QByteArray &code, QString &result) {
+  return false;
 }

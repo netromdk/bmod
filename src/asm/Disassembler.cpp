@@ -6,10 +6,11 @@
 
 Disassembler::Disassembler(CpuType type) : asm_{nullptr} {
   switch (type) {
-  default:
   case CpuType::X86:
     asm_ = new AsmX86;
     break;
+
+  default: break;
   }
 }
 
@@ -20,6 +21,7 @@ Disassembler::~Disassembler() {
   }
 }
 
-QString Disassembler::disassemble(const QByteArray &code) {
-  return asm_->disassemble(code);
+bool Disassembler::disassemble(const QByteArray &code, QString &result) {
+  if (!asm_) return false;
+  return asm_->disassemble(code, result);
 }
