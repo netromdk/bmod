@@ -4,7 +4,8 @@
 enum class SectionType {
   Text, // Executable code (__text, .text).
   CString, // Constant C strings (__cstring).
-  String // String table constants.
+  String, // String table constants.
+  CodeSig, // Code signature.
 };
 
 #endif // BMOD_SECTION_TYPE_H

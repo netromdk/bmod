@@ -638,12 +638,20 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     // LC_SEGMENT_SPLIT_INFO or LC_CODE_SIGNATURE
     else if (type == 0x26 || type == 0x2B || type == 0x1E || type == 0x1D) {
       // File offset to data in __LINKEDIT segment.
-      r.getUInt32(&ok);
+      quint32 off = r.getUInt32(&ok);
       if (!ok) return false;
 
       // File size of data in __LINKEDIT segment.
-      r.getUInt32(&ok);
+      quint32 siz = r.getUInt32(&ok);
       if (!ok) return false;
+
+      // LC_CODE_SIGNATURE
+      if (type == 0x1D) {
+        SectionPtr sec(new Section(SectionType::CodeSig,
+                                   QObject::tr("Code Signature"),
+                                   off, siz, offset + off));
+        binaryObject->addSection(sec);
+      }
     }
 
     // LC_DATA_IN_CODE
