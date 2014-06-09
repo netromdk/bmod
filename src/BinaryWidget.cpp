@@ -79,25 +79,21 @@ void BinaryWidget::setup() {
 
     SectionPtr sec = obj->getSection(SectionType::Text);
     if (sec) {
-      auto *progPane = new ProgramPane(obj, sec);
-      addPane(sec->getName(), progPane, 1);
+      addPane(sec->getName(), new ProgramPane(obj, sec), 1);
     }
 
     sec = obj->getSection(SectionType::String);
     if (sec) {
-      auto *strPane = new StringsPane(obj, sec);
-      addPane(sec->getName(), strPane, 1);
+      addPane(sec->getName(), new StringsPane(obj, sec), 1);
     }
 
     foreach (auto sec, obj->getSectionsByType(SectionType::CString)) {
-      auto *cstrPane = new StringsPane(obj, sec);
-      addPane(sec->getName(), cstrPane, 1);
+      addPane(sec->getName(), new StringsPane(obj, sec), 1);
     }
 
     sec = obj->getSection(SectionType::CodeSig);
     if (sec) {
-      auto *codePane = new GenericPane(obj, sec);
-      addPane(sec->getName(), codePane, 1);
+      addPane(sec->getName(), new GenericPane(obj, sec), 1);
     }
   }
 
@@ -107,7 +103,6 @@ void BinaryWidget::setup() {
 }
 
 void BinaryWidget::addPane(const QString &title, Pane *pane, int level) {
-  panes << pane;
   listWidget->addItem(QString(level * 4, ' ') + title);
   stackLayout->addWidget(pane); 
 }

@@ -1,7 +1,6 @@
 #ifndef BMOD_BINARY_WIDGET_H
 #define BMOD_BINARY_WIDGET_H
 
-#include <QList>
 #include <QWidget>
 
 #include "formats/Format.h"
@@ -32,7 +31,6 @@ private:
 
   QListWidget *listWidget;
   QStackedLayout *stackLayout;
-  QList<Pane*> panes;
 };
 
 #endif // BMOD_BINARY_WIDGET_H
