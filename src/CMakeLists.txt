@@ -46,6 +46,12 @@ ADD_EXECUTABLE(
   formats/Format.cpp
   formats/MachO.h
   formats/MachO.cpp
+
+  asm/Asm.h
+  asm/AsmX86.h
+  asm/AsmX86.cpp
+  asm/Disassembler.h
+  asm/Disassembler.cpp
   )
 
 QT5_USE_MODULES(${NAME} Core Gui Widgets)
