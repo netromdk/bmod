@@ -645,8 +645,17 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       quint32 siz = r.getUInt32(&ok);
       if (!ok) return false;
 
+
+      // LC_FUNCTION_STARTS
+      if (type == 0x26) {
+        SectionPtr sec(new Section(SectionType::FuncStarts,
+                                   QObject::tr("Function Starts"),
+                                   off, siz, offset + off));
+        binaryObject->addSection(sec);
+      }
+
       // LC_CODE_SIGNATURE
-      if (type == 0x1D) {
+      else if (type == 0x1D) {
         SectionPtr sec(new Section(SectionType::CodeSig,
                                    QObject::tr("Code Signature"),
                                    off, siz, offset + off));

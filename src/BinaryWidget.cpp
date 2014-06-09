@@ -91,6 +91,11 @@ void BinaryWidget::setup() {
       addPane(sec->getName(), new StringsPane(obj, sec), 1);
     }
 
+    sec = obj->getSection(SectionType::FuncStarts);
+    if (sec) {
+      addPane(sec->getName(), new GenericPane(obj, sec), 1);
+    }
+
     sec = obj->getSection(SectionType::CodeSig);
     if (sec) {
       addPane(sec->getName(), new GenericPane(obj, sec), 1);

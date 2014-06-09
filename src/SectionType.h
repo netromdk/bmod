@@ -5,6 +5,7 @@ enum class SectionType {
   Text, // Executable code (__text, .text).
   CString, // Constant C strings (__cstring).
   String, // String table constants.
+  FuncStarts, // Function starts.
   CodeSig, // Code signature.
 };
 
