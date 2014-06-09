@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include "formats/Format.h"
+#include "../formats/Format.h"
 
 class Pane;
 class QListWidget;

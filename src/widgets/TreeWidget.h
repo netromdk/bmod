@@ -24,7 +24,9 @@ private slots:
 
 private:
   void doSearch();
+  void resetSearch();
   void selectSearchResult(int col, int item);
+  void showSearchText(const QString &text);
 
   QMap<int, QList<QTreeWidgetItem*>> searchResults;
   int curCol, curItem, cur, total;

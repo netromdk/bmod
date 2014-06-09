@@ -79,8 +79,22 @@ void TreeWidget::doSearch() {
   searchEdit->setFocus();
 }
 
+void TreeWidget::resetSearch() {
+  searchEdit->clear();
+  searchLabel->clear();
+  searchLabel->hide();
+  searchResults.clear();
+  lastQuery.clear();
+  curCol = curItem = cur = total = 0;
+}
+
 void TreeWidget::onSearchReturnPressed() {
   QString query = searchEdit->text().trimmed();
+  if (query.isEmpty()) {
+    resetSearch();
+    return;
+  }
+
   if (query == lastQuery) {
     nextSearchResult();
     return;
@@ -98,6 +112,7 @@ void TreeWidget::onSearchReturnPressed() {
   }
 
   if (searchResults.isEmpty()) {
+    showSearchText(tr("No matches found"));
     return;
   }
 
@@ -119,11 +134,8 @@ void TreeWidget::selectSearchResult(int col, int item) {
   }
 
   const auto &res = list[item];
-  searchLabel->setText(tr("%1 of %2 matches    ")
-                       .arg(cur + 1).arg(total));
-  searchLabel->setFixedWidth(width() - searchEdit->width());
-  searchLabel->move(1, searchEdit->pos().y());
-  searchLabel->show();
+
+  showSearchText(tr("%1 of %2 matches").arg(cur + 1).arg(total));
 
   // Select entry and not entire row.
   scrollToItem(res, QAbstractItemView::PositionAtCenter);
@@ -185,4 +197,11 @@ void TreeWidget::prevSearchResult() {
   }
 
   selectSearchResult(curCol, curItem);
+}
+
+void TreeWidget::showSearchText(const QString &text) {
+  searchLabel->setText(text + "    ");
+  searchLabel->setFixedWidth(width() - searchEdit->width());
+  searchLabel->move(1, searchEdit->pos().y());
+  searchLabel->show();
 }
