@@ -85,10 +85,12 @@ void BinaryWidget::setup() {
     sec = obj->getSection(SectionType::String);
     if (sec) {
       addPane(sec->getName(), new StringsPane(obj, sec), 1);
+      addPane(tr("Raw View"), new GenericPane(obj, sec), 2);
     }
 
     foreach (auto sec, obj->getSectionsByType(SectionType::CString)) {
       addPane(sec->getName(), new StringsPane(obj, sec), 1);
+      addPane(tr("Raw View"), new GenericPane(obj, sec), 2);
     }
 
     sec = obj->getSection(SectionType::FuncStarts);
