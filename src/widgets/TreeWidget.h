@@ -22,6 +22,7 @@ private slots:
   void onSearchReturnPressed();
   void nextSearchResult();
   void prevSearchResult();
+  void onSearchEdited(const QString &text);
 
 private:
   void doSearch();

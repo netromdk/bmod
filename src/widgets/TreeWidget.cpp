@@ -26,6 +26,7 @@ TreeWidget::TreeWidget(QWidget *parent)
   connect(searchEdit, &LineEdit::keyUp, this, &TreeWidget::prevSearchResult);
   connect(searchEdit, &LineEdit::returnPressed,
           this, &TreeWidget::onSearchReturnPressed);
+  connect(searchEdit, &LineEdit::textEdited, this, &TreeWidget::onSearchEdited);
 
   searchLabel = new QLabel(this);
   searchLabel->setVisible(false);
@@ -90,7 +91,7 @@ void TreeWidget::resetSearch() {
 }
 
 void TreeWidget::onSearchLostFocus() {
-  if (searchEdit.isVisible() && searchEdit->text().isEmpty()) {
+  if (searchEdit->isVisible() && searchEdit->text().isEmpty()) {
     endSearch();
   }
 }
@@ -204,6 +205,15 @@ void TreeWidget::prevSearchResult() {
   }
 
   selectSearchResult(curCol, curItem);
+}
+
+void TreeWidget::onSearchEdited(const QString &text) {
+  // If search was performed or no results were found then hide search
+  // label when editing the field.
+  if (!lastQuery.isEmpty() || searchResults.isEmpty()) {
+    searchLabel->clear();
+    searchLabel->hide();
+  }
 }
 
 void TreeWidget::showSearchText(const QString &text) {
