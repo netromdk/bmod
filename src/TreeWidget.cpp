@@ -46,6 +46,17 @@ void TreeWidget::keyPressEvent(QKeyEvent *event) {
   }
 }
 
+void TreeWidget::resizeEvent(QResizeEvent *event) {
+  QTreeWidget::resizeEvent(event);
+
+  if (searchEdit->isVisible()) {
+    searchEdit->move(width() - searchEdit->width() - 1,
+                     height() - searchEdit->height() - 1);
+    searchLabel->setFixedWidth(width() - searchEdit->width());
+    searchLabel->move(1, searchEdit->pos().y());
+  }
+}
+
 void TreeWidget::endSearch() {
   searchEdit->hide();
   searchLabel->hide();
