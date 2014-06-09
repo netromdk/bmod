@@ -101,6 +101,7 @@ void TreeWidget::selectSearchResult(int col, int item) {
   searchLabel->show();
 
   // Select entry and not entire row.
+  scrollToItem(res, QAbstractItemView::PositionAtCenter);
   int row = indexOfTopLevelItem(res);
   auto index = model()->index(row, col);
   selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);  
