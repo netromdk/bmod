@@ -31,6 +31,8 @@ public:
   static QString hexToString(const QString &str);
   static QByteArray hexToData(const QString &str);
 
+  static QString resolveAppBinary(const QString &path);
+
   /**
    * Generate string of format:
    *

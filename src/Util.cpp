@@ -1,4 +1,6 @@
+#include <QDir>
 #include <QWidget>
+#include <QFileInfo>
 #include <QApplication>
 #include <QDesktopWidget>
 
@@ -219,6 +221,19 @@ QByteArray Util::hexToData(const QString &str) {
     if (!ok) return QByteArray();
   }
   return data;
+}
+
+QString Util::resolveAppBinary(const QString &path) {
+  if (path.toLower().endsWith(".app")) {
+    QDir dir(path);
+    if (dir.exists() && dir.cd("Contents") && dir.cd("MacOS")) {
+      QFileInfo fi(path);
+      if (dir.exists(fi.baseName())) {
+        return dir.absoluteFilePath(fi.baseName());
+      }
+    }
+  }
+  return QString();
 }
 
 QString Util::addrDataString(quint64 addr, QByteArray data) {

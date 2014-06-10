@@ -31,7 +31,7 @@ private:
   void createLayout();
   void createMenu();
 
-  void loadBinary(const QString &file);
+  void loadBinary(QString file);
 
   bool shown;
   QStringList recentFiles, startupFiles;

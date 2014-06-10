@@ -1,8 +1,6 @@
-#include <QDir>
 #include <QDebug>
 #include <QMenuBar>
 #include <QSettings>
-#include <QFileInfo>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QFileDialog>
@@ -22,8 +20,8 @@ MainWindow::MainWindow(const QStringList &files)
   // Remove possible duplicates.
   startupFiles = startupFiles.toSet().toList();
 
-  readSettings();
   setWindowTitle("bmod");
+  readSettings();
   createLayout();
   createMenu();
 }
@@ -183,7 +181,13 @@ void MainWindow::createMenu() {
                        this, SLOT(showConversionHelper()));
 }
 
-void MainWindow::loadBinary(const QString &file) {
+void MainWindow::loadBinary(QString file) {
+  // If .app then resolve the internal binary file.
+  QString appBin = Util::resolveAppBinary(file);
+  if (!appBin.isEmpty()) {
+    file = appBin;
+  }
+
   QProgressDialog progDiag(this);
   progDiag.setLabelText(tr("Detecting format.."));
   progDiag.setCancelButton(nullptr);
@@ -193,7 +197,7 @@ void MainWindow::loadBinary(const QString &file) {
 
   auto fmt = Format::detect(file);
   if (fmt == nullptr) {
-    QMessageBox::critical(this, tr("bmod"), tr("Unknown file - could not open!"));
+    QMessageBox::critical(this, "bmod", tr("Unknown file - could not open!"));
     return;
   }
   
@@ -202,7 +206,7 @@ void MainWindow::loadBinary(const QString &file) {
   progDiag.setLabelText(tr("Reading and parsing binary.."));
   qApp->processEvents();
   if (!fmt->parse()) {
-    QMessageBox::warning(this, tr("bmod"), tr("Could not parse file!"));
+    QMessageBox::warning(this, "bmod", tr("Could not parse file!"));
     return;
   }
 
