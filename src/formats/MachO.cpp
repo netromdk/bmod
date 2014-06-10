@@ -591,8 +591,8 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       r.read(cmdsize - liboffset);
     }
 
-    // LC_LOAD_DYLINKER
-    else if (type == 0xE) {
+    // LC_LOAD_DYLINKER or LC_DYLD_ENVIRONMENT
+    else if (type == 0xE || type == 0x27) {
       // Dynamic linker's path name.
       quint32 noffset = r.getUInt32(&ok);
       if (!ok) return false;
