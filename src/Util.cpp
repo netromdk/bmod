@@ -224,13 +224,14 @@ QByteArray Util::hexToData(const QString &str) {
 }
 
 QString Util::resolveAppBinary(const QString &path) {
-  if (path.toLower().endsWith(".app")) {
-    QDir dir(path);
-    if (dir.exists() && dir.cd("Contents") && dir.cd("MacOS")) {
-      QFileInfo fi(path);
-      if (dir.exists(fi.baseName())) {
-        return dir.absoluteFilePath(fi.baseName());
-      }
+  if (!path.toLower().endsWith(".app")) {
+    return QString();
+  }
+  QDir dir(path);
+  if (dir.exists() && dir.cd("Contents") && dir.cd("MacOS")) {
+    QFileInfo fi(path);
+    if (dir.exists(fi.baseName())) {
+      return dir.absoluteFilePath(fi.baseName());
     }
   }
   return QString();
