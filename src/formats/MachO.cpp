@@ -645,7 +645,6 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       quint32 siz = r.getUInt32(&ok);
       if (!ok) return false;
 
-
       // LC_FUNCTION_STARTS
       if (type == 0x26) {
         SectionPtr sec(new Section(SectionType::FuncStarts,
@@ -688,6 +687,16 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
 
       // Data.
       r.read(flavor * count);
+    }
+
+    // LC_RPATH
+    else if (type == 0x1C + 0x80000000) {
+      // Name offset.
+      quint32 off = r.getUInt32(&ok);
+      if (!ok) return false;
+
+      // Name.
+      r.read(cmdsize - off);
     }
 
     // Temporary: Fail if unknown!
