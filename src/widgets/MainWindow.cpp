@@ -22,14 +22,14 @@ MainWindow::MainWindow(const QStringList &files)
   // Remove possible duplicates.
   startupFiles = startupFiles.toSet().toList();
 
+  readSettings();
   setWindowTitle("bmod");
   createLayout();
   createMenu();
 }
 
 MainWindow::~MainWindow() {
-  QSettings settings;
-  settings.setValue("MainWindow_geometry", saveGeometry());
+  writeSettings();
 }
 
 void MainWindow::showEvent(QShowEvent *event) {
@@ -38,14 +38,12 @@ void MainWindow::showEvent(QShowEvent *event) {
   if (shown) return;
   shown = true;
 
-  QSettings settings;
-  QVariant val = settings.value("MainWindow_geometry");
-  if (val.isNull()) {
+  if (geometry.isEmpty()) {
     resize(900, 500);
     Util::centerWidget(this);
   }
   else {
-    restoreGeometry(val.toByteArray());
+    restoreGeometry(geometry);
   }
 
   // Load specified files or open file dialog.
@@ -124,6 +122,28 @@ void MainWindow::showConversionHelper() {
   helper->show();
 }
 
+void MainWindow::readSettings() {
+  QSettings settings;
+  geometry = settings.value("MainWindow_geometry", QByteArray()).toByteArray();
+
+  recentFiles =
+    settings.value("MainWindow_recent_files", QStringList()).toStringList();
+  for (int i = recentFiles.size() - 1; i >= 0; i--) {
+    if (!QFile::exists(recentFiles[i])) {
+      recentFiles.removeAt(i);
+    }
+  }
+  if (recentFiles.size() > 10) {
+    recentFiles = recentFiles.mid(recentFiles.size() - 10);
+  }
+}
+
+void MainWindow::writeSettings() {
+  QSettings settings;
+  settings.setValue("MainWindow_geometry", saveGeometry());
+  settings.setValue("MainWindow_recent_files", recentFiles);
+}
+
 void MainWindow::createLayout() {
   tabWidget = new QTabWidget;
 
@@ -170,6 +190,14 @@ void MainWindow::loadBinary(const QString &file) {
   if (!fmt->parse()) {
     QMessageBox::warning(this, tr("bmod"), tr("Could not parse file!"));
     return;
+  }
+
+  // Add recent file.
+  if (!recentFiles.contains(file)) {
+    recentFiles << file;
+  }
+  if (recentFiles.size() > 10) {
+    recentFiles.removeFirst();
   }
 
   auto *binWidget = new BinaryWidget(fmt);

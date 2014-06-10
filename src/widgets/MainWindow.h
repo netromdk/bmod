@@ -25,13 +25,16 @@ private slots:
   void showConversionHelper();
 
 private:
+  void readSettings();
+  void writeSettings();
   void createLayout();
   void createMenu();
 
   void loadBinary(const QString &file);
 
   bool shown;
-  QStringList startupFiles;
+  QStringList recentFiles, startupFiles;
+  QByteArray geometry;
 
   QTabWidget *tabWidget;
   QList<BinaryWidget*> binaryWidgets;
