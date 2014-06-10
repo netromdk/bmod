@@ -122,6 +122,12 @@ void MainWindow::showConversionHelper() {
   helper->show();
 }
 
+void MainWindow::onRecentFile() {
+  auto *action = qobject_cast<QAction*>(sender());
+  if (!action) return;
+  loadBinary(action->text());
+}
+
 void MainWindow::readSettings() {
   QSettings settings;
   geometry = settings.value("MainWindow_geometry", QByteArray()).toByteArray();
@@ -159,6 +165,14 @@ void MainWindow::createMenu() {
   QMenu *fileMenu = menuBar()->addMenu(tr("File"));
   fileMenu->addAction(tr("Open binary"), this, SLOT(openBinary()),
                       QKeySequence::Open);
+
+  if (!recentFiles.isEmpty()) {
+    QMenu *recentMenu = fileMenu->addMenu(tr("Open recent files"));
+    foreach (const auto &file, recentFiles) {
+      recentMenu->addAction(file, this, SLOT(onRecentFile()));
+    }
+  }
+
   fileMenu->addAction(tr("Save binary"), this, SLOT(saveBinary()),
                       QKeySequence::Save);
   fileMenu->addAction(tr("Close binary"), this, SLOT(closeBinary()),
