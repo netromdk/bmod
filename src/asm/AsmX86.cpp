@@ -156,15 +156,15 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type) {
   // [reg]+disp8
   else if (mod == 1) {
     unsigned char num = reader->getUChar();
-    return "%" + getReg(type, first) + ",(" + formatHex(num, 2) + ")%" +
-      getReg(type, second);
+    return "%" + getReg(type, first) + "," + formatHex(num, 2) + "(%" +
+      getReg(type, second) + ")";
   }
 
   // [reg]+disp32
   else if (mod == 2) {
     quint32 num = reader->getUInt32();
-    return "%" + getReg(type, first) + ",(" + formatHex(num, 8) + ")%" +
-      getReg(type, second);
+    return "%" + getReg(type, first) + "," + formatHex(num, 8) + "(%" +
+      getReg(type, second) + ")";
   }
 
   else if (mod == 3) {
