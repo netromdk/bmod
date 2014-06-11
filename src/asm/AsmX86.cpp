@@ -92,6 +92,11 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
         getModRMByte(second, RegType::R32) + "\n";
     }
 
+    // RETN
+    else if (ch == 0xC3) {
+      result += "ret\n";
+    }
+
     // MOV (r/m16/32	imm16/32)
     else if (ch == 0xC7 && peek) {
       reader.getUChar(); // eat
