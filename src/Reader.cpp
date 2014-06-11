@@ -19,12 +19,31 @@ quint64 Reader::getUInt64(bool *ok) {
   return getUInt<quint64>(ok);
 }
 
-QByteArray Reader::read(quint64 max) {
+char Reader::getChar(bool *ok) {
+  char c;
+  bool res = dev.getChar(&c);
+  if (ok) *ok = res;
+  return c;
+}
+
+unsigned char Reader::getUChar(bool *ok) {
+  return (unsigned char) getChar(ok);
+}
+
+QByteArray Reader::read(qint64 max) {
   return dev.read(max);
 }
 
-bool Reader::seek(quint64 pos) {
+qint64 Reader::pos() const {
+  return dev.pos();
+}
+
+bool Reader::seek(qint64 pos) {
   return dev.seek(pos);
+}
+
+bool Reader::atEnd() const {
+  return dev.atEnd();
 }
 
 template <typename T>

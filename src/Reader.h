@@ -16,9 +16,14 @@ public:
   quint32 getUInt32(bool *ok = nullptr);
   quint64 getUInt64(bool *ok = nullptr);
 
-  QByteArray read(quint64 max);
+  char getChar(bool *ok = nullptr);
+  unsigned char getUChar(bool *ok = nullptr);
 
-  bool seek(quint64 pos);
+  QByteArray read(qint64 max);
+
+  qint64 pos() const;
+  bool seek(qint64 pos);
+  bool atEnd() const;
 
 private:
   template <typename T>
