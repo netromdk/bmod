@@ -53,21 +53,33 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       ch2 = reader->getUChar(&ok);
       if (!ok) return false;
 
-      // ADD
       if (first == 0) {
-        result += "addl $" + formatHex(ch2, 2) + "," +
-          getModRMByte(second, RegType::R32) + "\n";
+        result += "addl";
       }
-
-      // SUB
+      else if (first == 1) {
+        result += "orl";
+      }
+      else if (first == 2) {
+        result += "adcl"; // Add with carry
+      }
+      else if (first == 3) {
+        result += "sbbl"; // Integer subtraction with borrow
+      }
+      else if (first == 4) {
+        result += "andl";
+      }
       else if (first == 5) {
-        result += "subl $" + formatHex(ch2, 2) + "," +
-          getModRMByte(second, RegType::R32) + "\n";
+        result += "subl";
+      }
+      else if (first == 6) {
+        result += "xorl";
+      }
+      else if (first == 7) {
+        result += "cmpl";
       }
 
-      else {
-        qDebug() << "0x83: unsupported:" << first;
-      }
+      result += " $" + formatHex(ch2, 2) + "," +
+        getModRMByte(second, RegType::R32) + "\n";
     }
 
     // MOV (r/m16/32	r16/32)
