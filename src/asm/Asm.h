@@ -2,12 +2,13 @@
 #define BMOD_ASM_H
 
 #include <QString>
-#include <QByteArray>
+
+#include "../Section.h"
 
 class Asm {
 public:
   virtual ~Asm() { }
-  virtual bool disassemble(const QByteArray &code, QString &result) =0;
+  virtual bool disassemble(SectionPtr sec, QString &result) =0;
 };
 
 #endif // BMOD_ASM_H

@@ -30,9 +30,9 @@ void AssemblyPane::createLayout() {
 }
 
 void AssemblyPane::setup() {
-  Disassembler dis(obj->getCpuType());
+  Disassembler dis(obj);
   QString asm_;
-  if (dis.disassemble(sec->getData(), asm_)) {
+  if (dis.disassemble(sec, asm_)) {
     asmLabel->setText(asm_);
   }
   else {

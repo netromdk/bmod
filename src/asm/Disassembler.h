@@ -3,17 +3,17 @@
 
 #include <QString>
 
-#include "../CpuType.h"
+#include "../BinaryObject.h"
 
 class Asm;
 class QByteArray;
 
 class Disassembler {
 public:
-  Disassembler(CpuType type);
+  Disassembler(BinaryObjectPtr obj);
   ~Disassembler();
 
-  bool disassemble(const QByteArray &code, QString &result);
+  bool disassemble(SectionPtr sec, QString &result);
 
 private:
   Asm *asm_;

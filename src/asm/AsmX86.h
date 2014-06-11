@@ -2,6 +2,7 @@
 #define BMOD_ASM_X86_H
 
 #include "Asm.h"
+#include "../BinaryObject.h"
 
 namespace {
   enum RegType {
@@ -16,7 +17,8 @@ namespace {
 
 class AsmX86 : public Asm {
 public:
-  bool disassemble(const QByteArray &code, QString &result);
+  AsmX86(BinaryObjectPtr obj);
+  bool disassemble(SectionPtr sec, QString &result);
 
 private:
   // Split byte into [2][3][3] bits.
@@ -34,6 +36,8 @@ private:
 
   // Format num as "$0x.."
   QString formatHex(quint32 num, int len = 2);
+
+  BinaryObjectPtr obj;
 };
 
 #endif // BMOD_ASM_X86_H

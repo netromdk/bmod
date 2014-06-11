@@ -4,10 +4,10 @@
 #include "AsmX86.h"
 #include "Disassembler.h"
 
-Disassembler::Disassembler(CpuType type) : asm_{nullptr} {
-  switch (type) {
+Disassembler::Disassembler(BinaryObjectPtr obj) : asm_{nullptr} {
+  switch (obj->getCpuType()) {
   case CpuType::X86:
-    asm_ = new AsmX86;
+    asm_ = new AsmX86(obj);
     break;
 
   default: break;
@@ -21,7 +21,7 @@ Disassembler::~Disassembler() {
   }
 }
 
-bool Disassembler::disassemble(const QByteArray &code, QString &result) {
+bool Disassembler::disassemble(SectionPtr sec, QString &result) {
   if (!asm_) return false;
-  return asm_->disassemble(code, result);
+  return asm_->disassemble(sec, result);
 }

@@ -10,17 +10,22 @@
 #include "AsmX86.h"
 #include "../Util.h"
 #include "../Reader.h"
+#include "../Section.h"
 
-bool AsmX86::disassemble(const QByteArray &code, QString &result) {
+AsmX86::AsmX86(BinaryObjectPtr obj) : obj{obj} { }
+
+bool AsmX86::disassemble(SectionPtr sec, QString &result) {
   QBuffer buf;
-  buf.setData(code);
+  buf.setData(sec->getData());
   buf.open(QIODevice::ReadOnly);
   Reader reader(buf);
+
+  // Address of main()
+  quint64 funcAddr = sec->getAddress();
 
   bool ok{true}, peek{false};
   unsigned char ch, nch, ch2, r, mod, first, second;
   quint32 num;
-  quint64 funcAddr{0x1F80};
   while (!reader.atEnd()) {
     ch = reader.getUChar(&ok);
     if (!ok) return false;
