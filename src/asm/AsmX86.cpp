@@ -53,10 +53,20 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       ch2 = reader->getUChar(&ok);
       if (!ok) return false;
 
-      // SUB
-      if (first == 5) {
-        result += "subl $" + formatHex(ch2) + "," +
+      // ADD
+      if (first == 0) {
+        result += "addl $" + formatHex(ch2, 2) + "," +
           getModRMByte(second, RegType::R32) + "\n";
+      }
+
+      // SUB
+      else if (first == 5) {
+        result += "subl $" + formatHex(ch2, 2) + "," +
+          getModRMByte(second, RegType::R32) + "\n";
+      }
+
+      else {
+        qDebug() << "0x83: unsupported:" << first;
       }
     }
 
