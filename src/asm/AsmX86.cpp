@@ -45,6 +45,7 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
     }
 
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
+    // (r/m16/32	imm8)
     else if (ch == 0x83 && peek) {
       reader.getUChar(); // eat
       splitByteModRM(nch, mod, first, second);
@@ -59,7 +60,7 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       }
     }
 
-    // MOV
+    // MOV (r/m16/32	r16/32)
     else if (ch >= 0x89 && ch <= 0x8A) {
       if (peek) {
         r = nch;
@@ -71,6 +72,15 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
         qDebug() << "peek r" << QString::number(r, 16);
       }
       result += "movl " + getModRMByte(r, RegType::R32) + "\n";
+    }
+
+    // MOV (r16/32	imm16/32)
+    else if (ch >= 0xB8 && ch <= 0xBF) {
+      splitByteModRM(ch, mod, first, second);
+      num = reader.getUInt32(&ok);
+      if (!ok) return false;
+      result += "movl $" + formatHex(num, 8) + "," +
+        getModRMByte(second, RegType::R32) + "\n";
     }
 
     // Call (relative function address)
