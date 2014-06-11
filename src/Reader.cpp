@@ -20,7 +20,7 @@ quint64 Reader::getUInt64(bool *ok) {
 }
 
 char Reader::getChar(bool *ok) {
-  char c;
+  char c{0};
   bool res = dev.getChar(&c);
   if (ok) *ok = res;
   return c;
