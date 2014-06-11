@@ -92,6 +92,18 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
         getModRMByte(second, RegType::R32) + "\n";
     }
 
+    // MOV (r/m16/32	imm16/32)
+    else if (ch == 0xC7 && peek) {
+      reader.getUChar(); // eat
+      splitByteModRM(nch, mod, first, second);
+      ch2 = reader.getUChar(&ok);
+      if (!ok) return false;
+      num = reader.getUInt32(&ok);
+      if (!ok) return false;
+      result += "movl $" + formatHex(num, 8) + "," + formatHex(ch2, 2) + "(" +
+        getModRMByte(second, RegType::R32) + ")\n";
+    }
+
     // Call (relative function address)
     else if (ch == 0xE8) {
       num = reader.getUInt32(&ok);
