@@ -30,6 +30,17 @@ unsigned char Reader::getUChar(bool *ok) {
   return (unsigned char) getChar(ok);
 }
 
+char Reader::peekChar(bool *ok) {
+  char c{0};
+  qint64 num = dev.peek(&c, 1);
+  if (ok) *ok = (num == 1);
+  return c;
+}
+
+unsigned char Reader::peekUChar(bool *ok) {
+  return (unsigned char) peekChar(ok);
+}
+
 QByteArray Reader::read(qint64 max) {
   return dev.read(max);
 }

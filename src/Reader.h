@@ -18,6 +18,8 @@ public:
 
   char getChar(bool *ok = nullptr);
   unsigned char getUChar(bool *ok = nullptr);
+  char peekChar(bool *ok = nullptr);
+  unsigned char peekUChar(bool *ok = nullptr);
 
   QByteArray read(qint64 max);
 
