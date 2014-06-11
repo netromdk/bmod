@@ -2,6 +2,7 @@
 #define BMOD_ASM_X86_H
 
 #include "Asm.h"
+#include "../Reader.h"
 #include "../BinaryObject.h"
 
 namespace {
@@ -38,6 +39,7 @@ private:
   QString formatHex(quint32 num, int len = 2);
 
   BinaryObjectPtr obj;
+  ReaderPtr reader;
 };
 
 #endif // BMOD_ASM_X86_H

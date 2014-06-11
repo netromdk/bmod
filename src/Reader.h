@@ -3,7 +3,12 @@
 
 #include <QByteArray>
 
+#include <memory>
+
 class QIODevice;
+
+class Reader;
+typedef std::unique_ptr<Reader> ReaderPtr;
 
 class Reader {
 public:

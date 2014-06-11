@@ -12,13 +12,13 @@
 #include "../Reader.h"
 #include "../Section.h"
 
-AsmX86::AsmX86(BinaryObjectPtr obj) : obj{obj} { }
+AsmX86::AsmX86(BinaryObjectPtr obj) : obj{obj}, reader{nullptr} { }
 
 bool AsmX86::disassemble(SectionPtr sec, QString &result) {
   QBuffer buf;
   buf.setData(sec->getData());
   buf.open(QIODevice::ReadOnly);
-  Reader reader(buf);
+  reader.reset(new Reader(buf));
 
   // Address of main()
   quint64 funcAddr = sec->getAddress();
@@ -26,11 +26,11 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
   bool ok{true}, peek{false};
   unsigned char ch, nch, ch2, r, mod, first, second;
   quint32 num;
-  while (!reader.atEnd()) {
-    ch = reader.getUChar(&ok);
+  while (!reader->atEnd()) {
+    ch = reader->getUChar(&ok);
     if (!ok) return false;
 
-    nch = reader.peekUChar(&peek);
+    nch = reader->peekUChar(&peek);
 
     // PUSH
     if (ch >= 0x50 && ch <= 0x57) {
@@ -47,10 +47,10 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m16/32	imm8)
     else if (ch == 0x83 && peek) {
-      reader.getUChar(); // eat
+      reader->getUChar(); // eat
       splitByteModRM(nch, mod, first, second);
 
-      ch2 = reader.getUChar(&ok);
+      ch2 = reader->getUChar(&ok);
       if (!ok) return false;
 
       // SUB
@@ -61,21 +61,16 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
     }
 
     // MOV (r/m16/32	r16/32)
-    else if (ch >= 0x89 && ch <= 0x8A) {
-      if (peek) {
-        r = nch;
-        reader.getUChar(); // Eat next.
-      }
-      else {
-        r = ch - 0x89;
-      }
-      result += "movl " + getModRMByte(r, RegType::R32) + "\n";
+    else if (ch == 0x89 && peek) {
+      reader->getUChar(); // eat
+      splitByteModRM(nch, mod, first, second);
+      result += "movl " + getModRMByte(nch, RegType::R32) + "\n";
     }
 
     // MOV (r16/32	imm16/32)
     else if (ch >= 0xB8 && ch <= 0xBF) {
       splitByteModRM(ch, mod, first, second);
-      num = reader.getUInt32(&ok);
+      num = reader->getUInt32(&ok);
       if (!ok) return false;
       result += "movl $" + formatHex(num, 8) + "," +
         getModRMByte(second, RegType::R32) + "\n";
@@ -83,9 +78,9 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
 
     // LEA (r16/32	m) Load Effective Address
     else if (ch == 0x8D && peek) {
-      reader.getUChar(); // eat
+      reader->getUChar(); // eat
       splitByteModRM(nch, mod, first, second);
-      num = reader.getUInt32(&ok);
+      num = reader->getUInt32(&ok);
       if (!ok) return false;
       result += "leal " + formatHex(num, 8) + "(" +
         getModRMByte(first, RegType::R32) + ")," +
@@ -99,11 +94,11 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
 
     // MOV (r/m16/32	imm16/32)
     else if (ch == 0xC7 && peek) {
-      reader.getUChar(); // eat
+      reader->getUChar(); // eat
       splitByteModRM(nch, mod, first, second);
-      ch2 = reader.getUChar(&ok);
+      ch2 = reader->getUChar(&ok);
       if (!ok) return false;
-      num = reader.getUInt32(&ok);
+      num = reader->getUInt32(&ok);
       if (!ok) return false;
       result += "movl $" + formatHex(num, 8) + "," + formatHex(ch2, 2) + "(" +
         getModRMByte(second, RegType::R32) + ")\n";
@@ -111,9 +106,9 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
 
     // Call (relative function address)
     else if (ch == 0xE8) {
-      num = reader.getUInt32(&ok);
+      num = reader->getUInt32(&ok);
       if (!ok) return false;
-      result += "calll " + formatHex(funcAddr + reader.pos() + num, 8) + "\n";
+      result += "calll " + formatHex(funcAddr + reader->pos() + num, 8) + "\n";
     }
 
     // Unsupported
@@ -153,11 +148,29 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type) {
   unsigned char mod, first, second;
   splitByteModRM(num, mod, first, second);
 
-  if (mod == 3) {
+  if (mod == 0) {
+    // TODO!
+    qDebug() << "unsupported mod=0";
+  }
+
+  // [reg]+disp8
+  else if (mod == 1) {
+    unsigned char num = reader->getUChar();
+    return "%" + getReg(type, first) + ",(" + formatHex(num, 2) + ")%" +
+      getReg(type, second);
+  }
+
+  // [reg]+disp32
+  else if (mod == 2) {
+    quint32 num = reader->getUInt32();
+    return "%" + getReg(type, first) + ",(" + formatHex(num, 8) + ")%" +
+      getReg(type, second);
+  }
+
+  else if (mod == 3) {
     return "%" + getReg(type, first) + ",%" + getReg(type, second);
   }
 
-  // TODO
   return QString();
 }
 
