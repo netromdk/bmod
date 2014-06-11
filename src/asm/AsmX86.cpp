@@ -65,11 +65,9 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       if (peek) {
         r = nch;
         reader.getUChar(); // Eat next.
-        qDebug() << "peek" << QString::number(r, 16);
       }
       else {
         r = ch - 0x89;
-        qDebug() << "peek r" << QString::number(r, 16);
       }
       result += "movl " + getModRMByte(r, RegType::R32) + "\n";
     }
@@ -80,6 +78,17 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       num = reader.getUInt32(&ok);
       if (!ok) return false;
       result += "movl $" + formatHex(num, 8) + "," +
+        getModRMByte(second, RegType::R32) + "\n";
+    }
+
+    // LEA (r16/32	m) Load Effective Address
+    else if (ch == 0x8D && peek) {
+      reader.getUChar(); // eat
+      splitByteModRM(nch, mod, first, second);
+      num = reader.getUInt32(&ok);
+      if (!ok) return false;
+      result += "leal " + formatHex(num, 8) + "(" +
+        getModRMByte(first, RegType::R32) + ")," +
         getModRMByte(second, RegType::R32) + "\n";
     }
 
@@ -124,10 +133,9 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type) {
     return "%" + getReg(type, num);
   }
 
-  qDebug() << num;
   unsigned char mod, first, second;
   splitByteModRM(num, mod, first, second);
-  qDebug() << mod << first << second;
+
   if (mod == 3) {
     return "%" + getReg(type, first) + ",%" + getReg(type, second);
   }
