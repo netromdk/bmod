@@ -1,11 +1,14 @@
 #ifndef BMOD_ASSEMBLY_PANE_H
 #define BMOD_ASSEMBLY_PANE_H
 
+#include <QDateTime>
+
 #include "Pane.h"
 #include "../Section.h"
 #include "../BinaryObject.h"
 
 class QLabel;
+class TreeWidget;
 
 class AssemblyPane : public Pane {
 public:
@@ -20,9 +23,11 @@ private:
 
   BinaryObjectPtr obj;
   SectionPtr sec;
+  QDateTime secModified;
 
   bool shown;
-  QLabel *asmLabel;
+  QLabel *label;
+  TreeWidget *treeWidget;
 };
 
 #endif // BMOD_ASSEMBLY_PANE_H
