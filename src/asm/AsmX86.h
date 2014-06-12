@@ -19,9 +19,11 @@ namespace {
 class AsmX86 : public Asm {
 public:
   AsmX86(BinaryObjectPtr obj);
-  bool disassemble(SectionPtr sec, QString &result);
+  bool disassemble(SectionPtr sec, Disassembly &result);
 
 private:
+  void addResult(const QString &line, qint64 pos, Disassembly &result);
+
   // Split byte into [2][3][3] bits.
   void splitByteModRM(unsigned char num, unsigned char &mod,
                       unsigned char &first, unsigned char &second);

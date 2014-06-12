@@ -31,9 +31,10 @@ void AssemblyPane::createLayout() {
 
 void AssemblyPane::setup() {
   Disassembler dis(obj);
-  QString asm_;
-  if (dis.disassemble(sec, asm_)) {
-    asmLabel->setText(asm_);
+  Disassembly result;
+  if (dis.disassemble(sec, result)) {
+    // Present stuff in treeview
+    //asmLabel->setText(asm_);
   }
   else {
     asmLabel->setText(tr("Could not disassemble machine code!"));

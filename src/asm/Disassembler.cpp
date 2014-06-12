@@ -21,7 +21,7 @@ Disassembler::~Disassembler() {
   }
 }
 
-bool Disassembler::disassemble(SectionPtr sec, QString &result) {
+bool Disassembler::disassemble(SectionPtr sec, Disassembly &result) {
   if (!asm_) return false;
   return asm_->disassemble(sec, result);
 }

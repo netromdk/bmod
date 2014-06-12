@@ -14,7 +14,7 @@
 
 AsmX86::AsmX86(BinaryObjectPtr obj) : obj{obj}, reader{nullptr} { }
 
-bool AsmX86::disassemble(SectionPtr sec, QString &result) {
+bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
   QBuffer buf;
   buf.setData(sec->getData());
   buf.open(QIODevice::ReadOnly);
@@ -25,8 +25,10 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
 
   bool ok{true}, peek{false};
   unsigned char ch, nch, ch2, r, mod, first, second;
-  quint32 num;
+  quint32 num{0};
+  qint64 pos{0};
   while (!reader->atEnd()) {
+    pos = reader->pos();
     ch = reader->getUChar(&ok);
     if (!ok) return false;
 
@@ -35,13 +37,13 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
     // PUSH
     if (ch >= 0x50 && ch <= 0x57) {
       r = ch - 0x50;
-      result += "pushl " + getModRMByte(r, RegType::R32) + "\n";
+      addResult("pushl " + getModRMByte(r, RegType::R32), pos, result);
     }
 
     // POP
     else if (ch >= 0x58 && ch <= 0x60) {
       r = ch - 0x58;
-      result += "popl " + getModRMByte(r, RegType::R32) + "\n";
+      addResult("popl " + getModRMByte(r, RegType::R32), pos, result);
     }
 
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
@@ -53,40 +55,41 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       ch2 = reader->getUChar(&ok);
       if (!ok) return false;
 
+      QString inst;
       if (first == 0) {
-        result += "addl";
+        inst = "addl";
       }
       else if (first == 1) {
-        result += "orl";
+        inst = "orl";
       }
       else if (first == 2) {
-        result += "adcl"; // Add with carry
+        inst = "adcl"; // Add with carry
       }
       else if (first == 3) {
-        result += "sbbl"; // Integer subtraction with borrow
+        inst = "sbbl"; // Integer subtraction with borrow
       }
       else if (first == 4) {
-        result += "andl";
+        inst = "andl";
       }
       else if (first == 5) {
-        result += "subl";
+        inst = "subl";
       }
       else if (first == 6) {
-        result += "xorl";
+        inst = "xorl";
       }
       else if (first == 7) {
-        result += "cmpl";
+        inst = "cmpl";
       }
 
-      result += " $" + formatHex(ch2, 2) + "," +
-        getModRMByte(second, RegType::R32) + "\n";
+      addResult(inst + " $" + formatHex(ch2, 2) + "," +
+                getModRMByte(second, RegType::R32), pos, result);
     }
 
     // MOV (r/m16/32	r16/32)
     else if (ch == 0x89 && peek) {
       reader->getUChar(); // eat
       splitByteModRM(nch, mod, first, second);
-      result += "movl " + getModRMByte(nch, RegType::R32) + "\n";
+      addResult("movl " + getModRMByte(nch, RegType::R32), pos, result);
     }
 
     // MOV (r16/32	imm16/32)
@@ -94,32 +97,32 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       splitByteModRM(ch, mod, first, second);
       num = reader->getUInt32(&ok);
       if (!ok) return false;
-      result += "movl $" + formatHex(num, 8) + "," +
-        getModRMByte(second, RegType::R32) + "\n";
+      addResult("movl $" + formatHex(num, 8) + "," +
+                getModRMByte(second, RegType::R32), pos, result);
     }
 
     // MOV (r16/32	r/m16/32) (reverse of 0x89)
     else if (ch == 0x8B) {
       reader->getUChar(); // eat
       splitByteModRM(nch, mod, first, second);
-      result += "movl " + getModRMByte(nch, RegType::R32, true) + "\n";
+      addResult("movl " + getModRMByte(nch, RegType::R32, true), pos, result);
     }
 
     // LEA (r16/32	m) Load Effective Address
     else if (ch == 0x8D && peek) {
       reader->getUChar(); // eat
       if (!ok) return false;
-      result += "leal " + getModRMByte(nch, RegType::R32, true) + "\n";
+      addResult("leal " + getModRMByte(nch, RegType::R32, true), pos, result);
     }
 
     // NOP
     else if (ch == 0x90) {
-      result += "nop\n";
+      addResult("nop", pos, result);
     }
 
     // RETN
     else if (ch == 0xC3) {
-      result += "ret\n";
+      addResult("ret", pos, result);
     }
 
     // MOV (r/m16/32	imm16/32)
@@ -130,24 +133,31 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
       if (!ok) return false;
       num = reader->getUInt32(&ok);
       if (!ok) return false;
-      result += "movl $" + formatHex(num, 8) + "," + formatHex(ch2, 2) + "(" +
-        getModRMByte(second, RegType::R32) + ")\n";
+      addResult("movl $" + formatHex(num, 8) + "," + formatHex(ch2, 2) + "(" +
+                getModRMByte(second, RegType::R32), pos, result);
     }
 
     // Call (relative function address)
     else if (ch == 0xE8) {
       num = reader->getUInt32(&ok);
       if (!ok) return false;
-      result += "calll " + formatHex(funcAddr + reader->pos() + num, 8) + "\n";
+      addResult("calll " + formatHex(funcAddr + reader->pos() + num, 8),
+                pos, result);
     }
 
     // Unsupported
     else {
-      result += "Unsupported: " + QString::number(ch, 16).toUpper() + "\n";
+      addResult("Unsupported: " + QString::number(ch, 16).toUpper(),
+                pos, result);
     }
   }
 
-  return !result.isEmpty();
+  return !result.asmLines.isEmpty();
+}
+
+void AsmX86::addResult(const QString &line, qint64 pos, Disassembly &result) {
+  result.asmLines << line;
+  result.bytesConsumed << reader->pos() - pos;
 }
 
 void AsmX86::splitByteModRM(unsigned char num, unsigned char &mod,
