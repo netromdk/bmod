@@ -145,6 +145,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
                 pos, result);
     }
 
+    // JMP (rel16/32) (relative address)
+    else if (ch == 0xE9) {
+      num = reader->getUInt32(&ok);
+      if (!ok) return false;
+      addResult("jmp " + formatHex(funcAddr + reader->pos() + num, 8), pos, result);
+    }
+
     // Unsupported
     else {
       addResult("Unsupported: " + QString::number(ch, 16).toUpper(),
