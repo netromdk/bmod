@@ -88,7 +88,6 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     // MOV (r/m16/32	r16/32)
     else if (ch == 0x89 && peek) {
       reader->getUChar(); // eat
-      splitByteModRM(nch, mod, first, second);
       addResult("movl " + getModRMByte(nch, RegType::R32), pos, result);
     }
 
@@ -134,7 +133,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       num = reader->getUInt32(&ok);
       if (!ok) return false;
       addResult("movl $" + formatHex(num, 8) + "," + formatHex(ch2, 2) + "(" +
-                getModRMByte(second, RegType::R32), pos, result);
+                getModRMByte(second, RegType::R32) + ")", pos, result);
     }
 
     // Call (relative function address)
