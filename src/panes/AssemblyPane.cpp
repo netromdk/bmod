@@ -64,7 +64,7 @@ void AssemblyPane::setup() {
   Disassembly result;
   if (dis.disassemble(sec, result)) {
     int len = result.asmLines.size();
-    label->setText(tr("%1 code lines").arg(len));
+    label->setText(tr("%1 instructions").arg(len));
     for (int i = 0; i < len; i++) {
       const QString &line = result.asmLines[i];
       short bytes = result.bytesConsumed[i];

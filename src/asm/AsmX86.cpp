@@ -188,9 +188,16 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
   unsigned char mod, first, second;
   splitByteModRM(num, mod, first, second);
 
+  // [reg]
   if (mod == 0) {
-    // TODO!
-    qDebug() << "unsupported mod=0";
+    if (first != 4 && first != 5 && second != 4 && second != 5) {
+      return (!swap
+              ? "%" + getReg(type, first) + ",(%" + getReg(type, second) + ")"
+              : "(%" + getReg(type, second) + "),%" + getReg(type, first));
+    }
+    else {
+      qDebug() << "unsupported mod=0 first/second = 4/5" << first << second;
+    }
   }
 
   // [reg]+disp8
