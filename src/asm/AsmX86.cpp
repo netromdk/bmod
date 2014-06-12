@@ -149,7 +149,39 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0xE9) {
       num = reader->getUInt32(&ok);
       if (!ok) return false;
-      addResult("jmp " + formatHex(funcAddr + reader->pos() + num, 8), pos, result);
+      addResult("jmp " + formatHex(funcAddr + reader->pos() + num, 8),
+                pos, result);
+    }
+
+    // INC, DEC, CALL, CALLF, JMP, JMPF, PUSH
+    else if (ch == 0xFF && peek) {
+      reader->getUChar(); // eat
+      splitByteModRM(nch, mod, first, second);
+
+      QString inst;
+      if (first == 0) {
+        inst = "inc ";
+      }
+      else if (first == 1) {
+        inst = "dec ";
+      }
+      else if (first == 2) {
+        inst = "call *";
+      }
+      else if (first == 3) {
+        inst = "callf ";
+      }
+      else if (first == 4) {
+        inst = "jmp ";
+      }
+      else if (first == 5) {
+        inst = "jmpf ";
+      }
+      else if (first == 6) {
+        inst = "pushl ";
+      }
+
+      addResult(inst + getModRMByte(second, RegType::R32), pos, result);
     }
 
     // Unsupported
