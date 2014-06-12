@@ -98,15 +98,23 @@ bool AsmX86::disassemble(SectionPtr sec, QString &result) {
         getModRMByte(second, RegType::R32) + "\n";
     }
 
+    // MOV (r16/32	r/m16/32) (reverse of 0x89)
+    else if (ch == 0x8B) {
+      reader->getUChar(); // eat
+      splitByteModRM(nch, mod, first, second);
+      result += "movl " + getModRMByte(nch, RegType::R32, true) + "\n";
+    }
+
     // LEA (r16/32	m) Load Effective Address
     else if (ch == 0x8D && peek) {
       reader->getUChar(); // eat
-      splitByteModRM(nch, mod, first, second);
-      num = reader->getUInt32(&ok);
       if (!ok) return false;
-      result += "leal " + formatHex(num, 8) + "(" +
-        getModRMByte(first, RegType::R32) + ")," +
-        getModRMByte(second, RegType::R32) + "\n";
+      result += "leal " + getModRMByte(nch, RegType::R32, true) + "\n";
+    }
+
+    // NOP
+    else if (ch == 0x90) {
+      result += "nop\n";
     }
 
     // RETN
@@ -162,7 +170,7 @@ QString AsmX86::getReg(RegType type, int num) {
   return regs[type][num];
 }
 
-QString AsmX86::getModRMByte(unsigned char num, RegType type) {
+QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
   if (num >= 0 && num <= 7) {
     return "%" + getReg(type, num);
   }
@@ -178,15 +186,21 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type) {
   // [reg]+disp8
   else if (mod == 1) {
     unsigned char num = reader->getUChar();
-    return "%" + getReg(type, first) + "," + formatHex(num, 2) + "(%" +
-      getReg(type, second) + ")";
+    return (!swap
+            ? "%" + getReg(type, first) + "," + formatHex(num, 2) + "(%" +
+            getReg(type, second) + ")"
+            : formatHex(num, 2) + "(%" + getReg(type, second) + "),%" +
+            getReg(type, first));
   }
 
   // [reg]+disp32
   else if (mod == 2) {
     quint32 num = reader->getUInt32();
-    return "%" + getReg(type, first) + "," + formatHex(num, 8) + "(%" +
-      getReg(type, second) + ")";
+    return (!swap
+            ? "%" + getReg(type, first) + "," + formatHex(num, 8) + "(%" +
+            getReg(type, second) + ")"
+            : formatHex(num, 8) + "(%" + getReg(type, second) + "),%" +
+            getReg(type, first));
   }
 
   else if (mod == 3) {

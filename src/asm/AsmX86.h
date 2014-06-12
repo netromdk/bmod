@@ -31,11 +31,12 @@ private:
 
   /**
    * num is either a general-purpose register (r) or a memory address
-   * (m).
+   * (m). swap means to swap the order of the [first] and [second]
+   * part of num and any displacement.
    */
-  QString getModRMByte(unsigned char num, RegType type);
+  QString getModRMByte(unsigned char num, RegType type, bool swap = false);
 
-  // Format num as "$0x.."
+  // Format and pad num as "0x.."
   QString formatHex(quint32 num, int len = 2);
 
   BinaryObjectPtr obj;
