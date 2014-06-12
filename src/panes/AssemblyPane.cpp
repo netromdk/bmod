@@ -103,6 +103,8 @@ void AssemblyPane::setup() {
         qApp->processEvents();
       }
     }
+
+    treeWidget->setFocus();
   }
   else {
     label->setText(tr("Could not disassemble machine code!"));
