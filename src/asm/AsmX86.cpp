@@ -103,7 +103,6 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     // MOV (r16/32	r/m16/32) (reverse of 0x89)
     else if (ch == 0x8B) {
       reader->getUChar(); // eat
-      splitByteModRM(nch, mod, first, second);
       addResult("movl " + getModRMByte(nch, RegType::R32, true), pos, result);
     }
 
