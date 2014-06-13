@@ -5,6 +5,7 @@ IF (NOT WIN32)
     ${CMAKE_PREFIX_PATH}
     "/usr/local/opt"
     "/usr/local/opt/qt5"
+    "/usr/local/Qt-5.3.0"
     "/usr/local/Qt-5.2.1"
     )
 ENDIF()
