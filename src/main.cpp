@@ -1,4 +1,4 @@
-#include <QTImer>
+#include <QTimer>
 #include <QStringList>
 #include <QApplication>
 
