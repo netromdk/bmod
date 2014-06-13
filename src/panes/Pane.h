@@ -8,7 +8,7 @@ public:
   enum class Kind {
     Arch,
     Program,
-    Assembly,
+    Disassembly,
     Strings,
     Generic
   };

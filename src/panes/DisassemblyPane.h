@@ -1,5 +1,5 @@
-#ifndef BMOD_ASSEMBLY_PANE_H
-#define BMOD_ASSEMBLY_PANE_H
+#ifndef BMOD_DISASSEMBLY_PANE_H
+#define BMOD_DISASSEMBLY_PANE_H
 
 #include <QDateTime>
 
@@ -10,9 +10,9 @@
 class QLabel;
 class TreeWidget;
 
-class AssemblyPane : public Pane {
+class DisassemblyPane : public Pane {
 public:
-  AssemblyPane(BinaryObjectPtr obj, SectionPtr sec);
+  DisassemblyPane(BinaryObjectPtr obj, SectionPtr sec);
 
 protected:
   void showEvent(QShowEvent *event);
@@ -30,4 +30,4 @@ private:
   TreeWidget *treeWidget;
 };
 
-#endif // BMOD_ASSEMBLY_PANE_H
+#endif // BMOD_DISASSEMBLY_PANE_H

@@ -4,17 +4,17 @@
 #include <QProgressDialog>
 
 #include "../Util.h"
-#include "AssemblyPane.h"
+#include "DisassemblyPane.h"
 #include "../asm/Disassembler.h"
 #include "../widgets/TreeWidget.h"
 
-AssemblyPane::AssemblyPane(BinaryObjectPtr obj, SectionPtr sec)
-  : Pane(Kind::Assembly), obj{obj}, sec{sec}, shown{false}
+DisassemblyPane::DisassemblyPane(BinaryObjectPtr obj, SectionPtr sec)
+  : Pane(Kind::Disassembly), obj{obj}, sec{sec}, shown{false}
 {
   createLayout();
 }
 
-void AssemblyPane::showEvent(QShowEvent *event) {
+void DisassemblyPane::showEvent(QShowEvent *event) {
   QWidget::showEvent(event);
   if (!shown) {
     shown = true;
@@ -29,11 +29,11 @@ void AssemblyPane::showEvent(QShowEvent *event) {
   }
 }
 
-void AssemblyPane::createLayout() {
+void DisassemblyPane::createLayout() {
   label = new QLabel;
 
   treeWidget = new TreeWidget;
-  treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data"), tr("Assembly")});
+  treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data"), tr("Disassembly")});
   treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
   treeWidget->setColumnWidth(1, 200);
   treeWidget->setColumnWidth(2, 200);
@@ -46,7 +46,7 @@ void AssemblyPane::createLayout() {
   setLayout(layout);
 }
 
-void AssemblyPane::setup() {
+void DisassemblyPane::setup() {
   treeWidget->clear();
 
   QProgressDialog progDiag(this);
