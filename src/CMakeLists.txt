@@ -29,6 +29,8 @@ ADD_EXECUTABLE(
   widgets/MachineCodeWidget.cpp
   widgets/ConversionHelper.h
   widgets/ConversionHelper.cpp
+  widgets/DisassemblerDialog.h
+  widgets/DisassemblerDialog.cpp
 
   panes/Pane.h
   panes/ArchPane.h

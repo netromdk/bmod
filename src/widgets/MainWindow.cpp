@@ -13,6 +13,7 @@
 #include "BinaryWidget.h"
 #include "../formats/Format.h"
 #include "ConversionHelper.h"
+#include "DisassemblerDialog.h"
 
 MainWindow::MainWindow(const QStringList &files)
   : shown{false}, startupFiles{files}
@@ -120,6 +121,11 @@ void MainWindow::showConversionHelper() {
   helper->show();
 }
 
+void MainWindow::showDisassembler() {
+  auto *disass = new DisassemblerDialog(this);
+  disass->show();
+}
+
 void MainWindow::onRecentFile() {
   auto *action = qobject_cast<QAction*>(sender());
   if (!action) return;
@@ -178,7 +184,11 @@ void MainWindow::createMenu() {
 
   QMenu *toolsMenu = menuBar()->addMenu(tr("Tools"));
   toolsMenu->addAction(tr("Conversion helper"),
-                       this, SLOT(showConversionHelper()));
+                       this, SLOT(showConversionHelper()),
+                       QKeySequence(Qt::SHIFT + Qt::CTRL + Qt::Key_C));
+  toolsMenu->addAction(tr("Disassembler"),
+                       this, SLOT(showDisassembler()),
+                       QKeySequence(Qt::SHIFT + Qt::CTRL + Qt::Key_D));
 }
 
 void MainWindow::loadBinary(QString file) {

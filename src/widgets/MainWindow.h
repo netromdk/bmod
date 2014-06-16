@@ -23,6 +23,7 @@ private slots:
   void saveBinary();
   void closeBinary();
   void showConversionHelper();
+  void showDisassembler();
   void onRecentFile();
 
 private:
