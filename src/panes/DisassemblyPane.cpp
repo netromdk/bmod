@@ -1,7 +1,10 @@
 #include <QDebug>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <QApplication>
 #include <QProgressDialog>
 #include <QStyledItemDelegate>
@@ -14,8 +17,9 @@
 namespace {
   class ItemDelegate : public QStyledItemDelegate {
   public:
-    ItemDelegate(QTreeWidget *tree, BinaryObjectPtr obj, SectionPtr sec)
-      : tree{tree}, obj{obj}, sec{sec}
+    ItemDelegate(DisassemblyPane *pane, QTreeWidget *tree, BinaryObjectPtr obj,
+                 SectionPtr sec)
+      : pane{pane}, tree{tree}, obj{obj}, sec{sec}
     { }
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
@@ -74,6 +78,12 @@ namespace {
           Disassembly result;
           if (dis.disassemble(tmpSec, result)) {
             item->setText(2, result.asmLines.join("   "));
+            if (result.asmLines.size() > 1) {
+              pane->showUpdateButton();
+              QMessageBox::information(nullptr, "bmod",
+                                       tr("Changes implied new code lines.") + "\n" +
+                                       tr("Disassemble again for clear representation."));
+            }
           }
           else {
             item->setText(2, tr("Could not disassemble!"));
@@ -83,6 +93,7 @@ namespace {
     }
 
   private:
+    DisassemblyPane *pane;
     QTreeWidget *tree;
     BinaryObjectPtr obj;
     SectionPtr sec;
@@ -93,6 +104,10 @@ DisassemblyPane::DisassemblyPane(BinaryObjectPtr obj, SectionPtr sec)
   : Pane(Kind::Disassembly), obj{obj}, sec{sec}, shown{false}
 {
   createLayout();
+}
+
+void DisassemblyPane::showUpdateButton() {
+  updateBtn->show();
 }
 
 void DisassemblyPane::showEvent(QShowEvent *event) {
@@ -110,25 +125,41 @@ void DisassemblyPane::showEvent(QShowEvent *event) {
   }
 }
 
+void DisassemblyPane::onUpdateClicked() {
+  setup();
+}
+
 void DisassemblyPane::createLayout() {
   label = new QLabel;
+
+  updateBtn = new QPushButton(tr("Update disassembly"));
+  updateBtn->hide();
+  connect(updateBtn, &QPushButton::clicked,
+          this, &DisassemblyPane::onUpdateClicked);
+
+  auto *topLayout = new QHBoxLayout;
+  topLayout->setContentsMargins(0, 0, 0, 0);
+  topLayout->addWidget(label);
+  topLayout->addStretch();
+  topLayout->addWidget(updateBtn);
 
   treeWidget = new TreeWidget;
   treeWidget->setHeaderLabels(QStringList{tr("Address"), tr("Data"), tr("Disassembly")});
   treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
   treeWidget->setColumnWidth(1, 200);
   treeWidget->setColumnWidth(2, 200);
-  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, obj, sec));
+  treeWidget->setItemDelegate(new ItemDelegate(this, treeWidget, obj, sec));
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(label);
+  layout->addLayout(topLayout);
   layout->addWidget(treeWidget);
   
   setLayout(layout);
 }
 
 void DisassemblyPane::setup() {
+  updateBtn->hide();
   treeWidget->clear();
 
   QProgressDialog progDiag(this);

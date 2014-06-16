@@ -10,13 +10,21 @@
 
 class QLabel;
 class TreeWidget;
+class QPushButton;
 
 class DisassemblyPane : public Pane {
+  Q_OBJECT
+
 public:
   DisassemblyPane(BinaryObjectPtr obj, SectionPtr sec);
 
+  void showUpdateButton();
+
 protected:
   void showEvent(QShowEvent *event);
+
+private slots:
+  void onUpdateClicked();
 
 private:
   void createLayout();
@@ -29,6 +37,7 @@ private:
 
   bool shown;
   QLabel *label;
+  QPushButton *updateBtn;
   TreeWidget *treeWidget;
 };
 
