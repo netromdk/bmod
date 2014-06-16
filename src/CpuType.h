@@ -1,7 +1,7 @@
 #ifndef BMOD_CPU_TYPE_H
 #define BMOD_CPU_TYPE_H
 
-enum class CpuType {
+enum class CpuType : int {
   X86, // Same as i386
   X86_64,
   HPPA,

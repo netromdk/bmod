@@ -1,7 +1,7 @@
 #ifndef BMOD_FILE_TYPE_H
 #define BMOD_FILE_TYPE_H
 
-enum class FileType {
+enum class FileType : int {
   Object, // Intermediate object file (.o).
   Execute, // Executable file.
   Core, // Crash report.
