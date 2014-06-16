@@ -1,4 +1,3 @@
-#include <QDebug>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -24,7 +23,6 @@ namespace {
       }
 
       QString text = index.data().toString().trimmed();
-      qDebug() << text;
       if (text.isEmpty()) {
         return nullptr;
       }
@@ -69,6 +67,14 @@ namespace {
           sec->setSubData(data, pos);
 
           // TODO: update the disassembly
+          // 1. parse BinaryObjectPtr to ItemDelegate
+          //
+          // 2. create temporary SectionPtr that points to the new
+          // short QByteArray 'data' above, with the address and size.
+          //
+          // 3. then disassemble it, and if it yields a single line
+          // then just update it. otherwise, show a button for
+          // updating the entire tree widget.
         }
       }
     }
@@ -177,9 +183,45 @@ void DisassemblyPane::setup() {
       }
     }
 
+    // Mark items as modified if a region states it.
+    const auto &modRegs = sec->getModifiedRegions();
+    int rows = treeWidget->topLevelItemCount();
+    quint64 offset =
+      treeWidget->topLevelItem(0)->text(0).toULongLong(nullptr, 16);
+    for (int row = 0; row < rows; row++) {
+      auto *item = treeWidget->topLevelItem(row);
+      addr = item->text(0).toULongLong(nullptr, 16) - offset;
+      int size = item->text(1).split(" ", QString::SkipEmptyParts).size();
+      foreach (const auto &reg, modRegs) {
+        if (reg.first >= addr && reg.first < addr + size) {
+          setItemMarked(item, 1);
+          int excess = (reg.first + reg.second) - (addr + size);
+          if (excess > 0) {
+            for (int row2 = row + 1; row2 < rows; row2++) {
+              auto *item2 = treeWidget->topLevelItem(row2);
+              if (item2) {
+                int size2 = item2->text(1).split(" ", QString::SkipEmptyParts).size();
+                setItemMarked(item2, 1);
+                excess -= size2;
+                if (excess <= 0) break;
+              }
+              else break;
+            }
+          }
+        }
+      }
+    }
+
     treeWidget->setFocus();
   }
   else {
     label->setText(tr("Could not disassemble machine code!"));
   }
+}
+
+void DisassemblyPane::setItemMarked(QTreeWidgetItem *item, int column) {
+  auto font = item->font(column);
+  font.setBold(true);
+  item->setFont(column, font);
+  item->setForeground(column, Qt::red);
 }

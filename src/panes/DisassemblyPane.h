@@ -2,6 +2,7 @@
 #define BMOD_DISASSEMBLY_PANE_H
 
 #include <QDateTime>
+#include <QTreeWidgetItem>
 
 #include "Pane.h"
 #include "../Section.h"
@@ -20,6 +21,7 @@ protected:
 private:
   void createLayout();
   void setup();
+  void setItemMarked(QTreeWidgetItem *item, int column);
 
   BinaryObjectPtr obj;
   SectionPtr sec;
