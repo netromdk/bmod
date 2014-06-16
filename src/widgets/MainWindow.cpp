@@ -56,17 +56,17 @@ void MainWindow::showEvent(QShowEvent *event) {
 }
 
 void MainWindow::openBinary() {
-  QString file =
-    QFileDialog::getOpenFileName(this, tr("Open Binary"),
-                                 QDir::homePath(),
-                                 tr("Mach-O (* *.dylib *.bundle *.o)"));
-  if (file.isEmpty()) {
+  QFileDialog diag(this, tr("Open Binary"), QDir::homePath());
+  diag.setNameFilters(QStringList{"Mach-O binary (*.o *.dylib *.bundle *)",
+                                  "Any file (*)"});
+  if (!diag.exec()) {
     if (binaryWidgets.isEmpty()) {
       qApp->quit();
     }
     return;
   }
 
+  QString file = diag.selectedFiles().first();
   foreach (const auto *binary, binaryWidgets) {
     if (binary->getFile() == file) {
       QMessageBox::warning(this, "bmod", tr("Can't open same binary twice!"));
