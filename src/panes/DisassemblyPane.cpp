@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -13,7 +14,9 @@
 namespace {
   class ItemDelegate : public QStyledItemDelegate {
   public:
-    ItemDelegate(QTreeWidget *tree, SectionPtr sec) : tree{tree}, sec{sec} { }
+    ItemDelegate(QTreeWidget *tree, BinaryObjectPtr obj, SectionPtr sec)
+      : tree{tree}, obj{obj}, sec{sec}
+    { }
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const {
@@ -62,21 +65,26 @@ namespace {
           QByteArray data = Util::hexToData(newStr.replace(" ", ""));
           sec->setSubData(data, pos);
 
-          // TODO: update the disassembly
-          // 1. parse BinaryObjectPtr to ItemDelegate
-          //
-          // 2. create temporary SectionPtr that points to the new
-          // short QByteArray 'data' above, with the address and size.
-          //
-          // 3. then disassemble it, and if it yields a single line
-          // then just update it. otherwise, show a button for
-          // updating the entire tree widget.
+          // Update disassembly.
+          auto tmpSec =
+            SectionPtr(new Section(SectionType::Text, QString(), addr, pos));
+          tmpSec->setData(data);
+
+          Disassembler dis(obj);
+          Disassembly result;
+          if (dis.disassemble(tmpSec, result)) {
+            item->setText(2, result.asmLines.join("   "));
+          }
+          else {
+            item->setText(2, tr("Could not disassemble!"));
+          }
         }
       }
     }
 
   private:
     QTreeWidget *tree;
+    BinaryObjectPtr obj;
     SectionPtr sec;
   };
 }
@@ -110,7 +118,7 @@ void DisassemblyPane::createLayout() {
   treeWidget->setColumnWidth(0, obj->getSystemBits() == 64 ? 110 : 70);
   treeWidget->setColumnWidth(1, 200);
   treeWidget->setColumnWidth(2, 200);
-  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
+  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, obj, sec));
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);

@@ -17,7 +17,7 @@ typedef std::shared_ptr<Section> SectionPtr;
 class Section {
 public:
   Section(SectionType type, const QString &name, quint64 addr, quint64 size,
-          quint32 offset);
+          quint32 offset = 0);
 
   SectionType getType() const { return type; }
   QString getName() const { return name; }
