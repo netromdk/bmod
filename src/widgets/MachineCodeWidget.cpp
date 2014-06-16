@@ -56,10 +56,7 @@ namespace {
         auto *item = tree->topLevelItem(index.row());
         if (item) {
           int col = index.column();
-          auto font = item->font(col);
-          font.setBold(true);
-          item->setFont(col, font);
-          item->setForeground(col, Qt::red);
+          Util::setTreeItemMarked(item, col);
 
           // Generate new ASCII representation.
           QString oldAscii = item->text(3);
@@ -197,10 +194,10 @@ void MachineCodeWidget::setup() {
       if (reg.first >= byte && reg.first < byte + 16) {
         int col1 = 1, col2 = 2;
         if (reg.first < byte + 8) {
-          setItemMarked(item, col1);
+          Util::setTreeItemMarked(item, col1);
         }
         if (reg.first + reg.second >= byte + 8) {
-          setItemMarked(item, col2);
+          Util::setTreeItemMarked(item, col2);
         }
         if (reg.first + reg.second > byte + 16) {
           // Number of additional rows to mark.
@@ -208,12 +205,12 @@ void MachineCodeWidget::setup() {
           for (int j = 0; j < num + 1; j++) {
             item = treeWidget->topLevelItem(row + j + 1);
             if (item) {
-              setItemMarked(item, col1);
+              Util::setTreeItemMarked(item, col1);
 
               // If intermediate rows or if the data actually spans
               // the last column.
               if (j < num || (reg.first + reg.second) % 16 > 8) {
-                setItemMarked(item, col2);
+                Util::setTreeItemMarked(item, col2);
               }
             }
           }
@@ -233,11 +230,4 @@ void MachineCodeWidget::setup() {
                  .arg(treeWidget->topLevelItemCount()));
 
   treeWidget->setFocus();
-}
-
-void MachineCodeWidget::setItemMarked(QTreeWidgetItem *item, int column) {
-  auto font = item->font(column);
-  font.setBold(true);
-  item->setFont(column, font);
-  item->setForeground(column, Qt::red);
 }

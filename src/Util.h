@@ -10,6 +10,7 @@
 #include "formats/FormatType.h"
 
 class QWidget;
+class QTreeWidgetItem;
 
 class Util {
 public:
@@ -32,6 +33,8 @@ public:
   static QByteArray hexToData(const QString &str);
 
   static QString resolveAppBinary(const QString &path);
+
+  static void setTreeItemMarked(QTreeWidgetItem *item, int column);
 
   /**
    * Generate string of format:

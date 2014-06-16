@@ -54,11 +54,7 @@ namespace {
         model->setData(index, newStr);
         auto *item = tree->topLevelItem(index.row());
         if (item) {
-          int col = index.column();
-          auto font = item->font(col);
-          font.setBold(true);
-          item->setFont(col, font);
-          item->setForeground(col, Qt::red);
+          Util::setTreeItemMarked(item, index.column());
 
           // Change region.
           quint64 addr = item->text(0).toULongLong(nullptr, 16);
@@ -194,14 +190,14 @@ void DisassemblyPane::setup() {
       int size = item->text(1).split(" ", QString::SkipEmptyParts).size();
       foreach (const auto &reg, modRegs) {
         if (reg.first >= addr && reg.first < addr + size) {
-          setItemMarked(item, 1);
+          Util::setTreeItemMarked(item, 1);
           int excess = (reg.first + reg.second) - (addr + size);
           if (excess > 0) {
             for (int row2 = row + 1; row2 < rows; row2++) {
               auto *item2 = treeWidget->topLevelItem(row2);
               if (item2) {
                 int size2 = item2->text(1).split(" ", QString::SkipEmptyParts).size();
-                setItemMarked(item2, 1);
+                Util::setTreeItemMarked(item2, 1);
                 excess -= size2;
                 if (excess <= 0) break;
               }
@@ -217,11 +213,4 @@ void DisassemblyPane::setup() {
   else {
     label->setText(tr("Could not disassemble machine code!"));
   }
-}
-
-void DisassemblyPane::setItemMarked(QTreeWidgetItem *item, int column) {
-  auto font = item->font(column);
-  font.setBold(true);
-  item->setFont(column, font);
-  item->setForeground(column, Qt::red);
 }

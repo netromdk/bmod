@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QTreeWidgetItem>
 
 #include "Util.h"
 
@@ -235,6 +236,13 @@ QString Util::resolveAppBinary(const QString &path) {
     }
   }
   return QString();
+}
+
+void Util::setTreeItemMarked(QTreeWidgetItem *item, int column) {
+  auto font = item->font(column);
+  font.setBold(true);
+  item->setFont(column, font);
+  item->setForeground(column, Qt::red);
 }
 
 QString Util::addrDataString(quint64 addr, QByteArray data) {
