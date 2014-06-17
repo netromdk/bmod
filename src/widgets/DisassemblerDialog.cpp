@@ -14,6 +14,7 @@
 DisassemblerDialog::DisassemblerDialog(QWidget *parent, CpuType cpuType)
   : QDialog{parent}, cpuType{cpuType}
 {
+  setWindowTitle(tr("Disassembler"));
   createLayout();
   resize(400, 400);
   Util::centerWidget(this);
@@ -67,7 +68,7 @@ void DisassemblerDialog::createLayout() {
     cpuTypeBox->setCurrentIndex(idx);
   }
 
-  auto *convertBtn = new QPushButton(tr("Convert"));
+  auto *convertBtn = new QPushButton(tr("Disassemble"));
   connect(convertBtn, &QPushButton::clicked,
           this, &DisassemblerDialog::onConvert);
 
