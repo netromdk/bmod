@@ -8,8 +8,8 @@
 #include "DisassemblerDialog.h"
 
 TreeWidget::TreeWidget(QWidget *parent)
-  : QTreeWidget(parent), ctxItem{nullptr}, ctxCol{-1}, curCol{0}, curItem{0},
-  cur{0}, total{0}
+  : QTreeWidget(parent), cpuType{CpuType::X86}, ctxItem{nullptr}, ctxCol{-1},
+  curCol{0}, curItem{0}, cur{0}, total{0}
 {
   setSelectionBehavior(QAbstractItemView::SelectItems);
   setSelectionMode(QAbstractItemView::SingleSelection);
@@ -142,7 +142,7 @@ void TreeWidget::disassemble() {
   if (!ctxItem) return;
 
   QString text = ctxItem->text(ctxCol);
-  DisassemblerDialog diag(this, CpuType::X86, text);
+  DisassemblerDialog diag(this, cpuType, text);
   diag.exec();
 }
 

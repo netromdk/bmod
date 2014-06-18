@@ -5,6 +5,8 @@
 #include <QList>
 #include <QTreeWidget>
 
+#include "../CpuType.h"
+
 class QLabel;
 class LineEdit;
 
@@ -14,6 +16,7 @@ class TreeWidget : public QTreeWidget {
 public:
   TreeWidget(QWidget *parent = nullptr);
 
+  void setCpuType(CpuType type) { cpuType = type; }
   void setMachineCodeColumns(const QList<int> columns);
 
 protected:
@@ -37,6 +40,7 @@ private:
   void showSearchText(const QString &text);
 
   QList<int> machineCodeColumns;
+  CpuType cpuType;
   QTreeWidgetItem *ctxItem;
   int ctxCol;
 

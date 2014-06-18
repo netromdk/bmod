@@ -109,6 +109,7 @@ void StringsPane::createLayout() {
   treeWidget->setColumnWidth(3, 200);
   treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
   treeWidget->setMachineCodeColumns(QList<int>{3});
+  treeWidget->setCpuType(obj->getCpuType());
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);
