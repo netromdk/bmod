@@ -73,7 +73,7 @@ void BinaryWidget::onModeChanged(int row) {
 
 void BinaryWidget::setup() {
   foreach (const auto obj, fmt->getObjects()) {
-    auto *archPane = new ArchPane(obj);
+    auto *archPane = new ArchPane(fmt->getType(), obj);
     QString cpuStr = Util::cpuTypeString(obj->getCpuType()),
       cpuSubStr = Util::cpuTypeString(obj->getCpuSubType());
     addPane(tr("%1 (%2)").arg(cpuStr).arg(cpuSubStr), archPane);

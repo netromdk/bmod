@@ -5,7 +5,9 @@
 #include "../Util.h"
 #include "ArchPane.h"
 
-ArchPane::ArchPane(BinaryObjectPtr obj) : Pane(Kind::Arch), obj{obj} {
+ArchPane::ArchPane(FormatType type, BinaryObjectPtr obj)
+  : Pane(Kind::Arch), type{type}, obj{obj}
+{
   createLayout();
 }
 
@@ -14,8 +16,7 @@ void ArchPane::createLayout() {
   gridLayout->setContentsMargins(0, 0, 0, 0);
 
   gridLayout->addWidget(new QLabel(tr("Format type:")), 0, 0);
-  gridLayout->addWidget(new QLabel(Util::formatTypeString(obj->getFormatType())),
-                        0, 1);
+  gridLayout->addWidget(new QLabel(Util::formatTypeString(type)), 0, 1);
 
   gridLayout->addWidget(new QLabel(tr("System bits:")), 1, 0);
   gridLayout->addWidget(new QLabel(QString::number(obj->getSystemBits())),

@@ -3,14 +3,16 @@
 
 #include "Pane.h"
 #include "../BinaryObject.h"
+#include "../formats/FormatType.h"
 
 class ArchPane : public Pane {
 public:
-  ArchPane(BinaryObjectPtr obj);
+  ArchPane(FormatType type, BinaryObjectPtr obj);
 
 private:
   void createLayout();
 
+  FormatType type;
   BinaryObjectPtr obj;
 };
 
