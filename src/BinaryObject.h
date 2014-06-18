@@ -14,22 +14,24 @@ typedef std::shared_ptr<BinaryObject> BinaryObjectPtr;
 
 class BinaryObject {
 public:
-  BinaryObject()
-    : littleEndian{true}, systemBits{32}, cpuType{CpuType::X86},
-    fileType{FileType::Execute}
+  BinaryObject(CpuType cpuType = CpuType::X86, CpuType cpuSubType = CpuType::I386,
+               bool littleEndian = true, int systemBits = 32,
+               FileType fileType = FileType::Execute)
+    : cpuType{cpuType}, cpuSubType{cpuSubType}, littleEndian{littleEndian},
+    systemBits{systemBits}, fileType{fileType}
   { }
-  
-  bool isLittleEndian() const { return littleEndian; }
-  void setLittleEndian(bool little) { littleEndian = little; }
-
-  int getSystemBits() const { return systemBits; }
-  void setSystemBits(int bits) { systemBits = bits; }
   
   CpuType getCpuType() const { return cpuType; }
   void setCpuType(CpuType type) { cpuType = type; }
   
   CpuType getCpuSubType() const { return cpuSubType; }
   void setCpuSubType(CpuType type) { cpuSubType = type; }
+
+  bool isLittleEndian() const { return littleEndian; }
+  void setLittleEndian(bool little) { littleEndian = little; }
+
+  int getSystemBits() const { return systemBits; }
+  void setSystemBits(int bits) { systemBits = bits; }
   
   FileType getFileType() const { return fileType; }
   void setFileType(FileType type) { fileType = type; }
@@ -40,9 +42,9 @@ public:
   void addSection(SectionPtr ptr) { sections << ptr; }
 
 private:
+  CpuType cpuType, cpuSubType;
   bool littleEndian;
   int systemBits;
-  CpuType cpuType, cpuSubType;
   FileType fileType;
   QList<SectionPtr> sections;
 };
