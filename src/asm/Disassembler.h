@@ -23,6 +23,7 @@ public:
   ~Disassembler();
 
   bool disassemble(SectionPtr sec, Disassembly &result);
+  bool disassemble(const QByteArray &data, Disassembly &result);
 
 private:
   Asm *asm_;

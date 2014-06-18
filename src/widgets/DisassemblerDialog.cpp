@@ -28,18 +28,13 @@ void DisassemblerDialog::onConvert() {
     return;
   }
 
-  auto obj = BinaryObjectPtr(new BinaryObject);
-  obj->setCpuType(cpuType);
-
+  auto obj = BinaryObjectPtr(new BinaryObject(cpuType));
   QByteArray data =
     Util::hexToData(text.simplified().trimmed().replace(" ", ""));
-  int size = data.size();
-  auto sec = SectionPtr(new Section(SectionType::Text, "", 0, size));
-  sec->setData(data);
 
   Disassembler dis(obj);
   Disassembly result;
-  if (dis.disassemble(sec, result)) {
+  if (dis.disassemble(data, result)) {
     asmText->setText(result.asmLines.join("\n"));
   }
   else {

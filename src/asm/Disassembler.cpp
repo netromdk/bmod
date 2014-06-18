@@ -25,3 +25,10 @@ bool Disassembler::disassemble(SectionPtr sec, Disassembly &result) {
   if (!asm_) return false;
   return asm_->disassemble(sec, result);
 }
+
+bool Disassembler::disassemble(const QByteArray &data, Disassembly &result) {
+  int size = data.size();
+  auto sec = SectionPtr(new Section(SectionType::Text, "", 0, size));
+  sec->setData(data);
+  return disassemble(sec, result);
+}
