@@ -24,6 +24,7 @@ public:
 
   bool disassemble(SectionPtr sec, Disassembly &result);
   bool disassemble(const QByteArray &data, Disassembly &result);
+  bool disassemble(const QString &data, Disassembly &result);
 
 private:
   Asm *asm_;

@@ -29,12 +29,9 @@ void DisassemblerDialog::onConvert() {
   }
 
   auto obj = BinaryObjectPtr(new BinaryObject(cpuType));
-  QByteArray data =
-    Util::hexToData(text.simplified().trimmed().replace(" ", ""));
-
   Disassembler dis(obj);
   Disassembly result;
-  if (dis.disassemble(data, result)) {
+  if (dis.disassemble(text, result)) {
     asmText->setText(result.asmLines.join("\n"));
   }
   else {
