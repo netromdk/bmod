@@ -1,6 +1,7 @@
 #include <QLabel>
 #include <QTextEdit>
 #include <QComboBox>
+#include <QSplitter>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -16,13 +17,14 @@ DisassemblerDialog::DisassemblerDialog(QWidget *parent, CpuType cpuType)
 {
   setWindowTitle(tr("Disassembler"));
   createLayout();
-  resize(400, 400);
+  resize(400, 300);
   Util::centerWidget(this);
 }
 
 void DisassemblerDialog::onConvert() {
   QString text = machineText->toPlainText();
   if (text.isEmpty()) {
+    setAsmVisible(false);
     machineText->setFocus();
     QMessageBox::warning(this, "bmod", tr("Write some machine code!"));
     return;
@@ -33,8 +35,10 @@ void DisassemblerDialog::onConvert() {
   Disassembly result;
   if (dis.disassemble(text, result)) {
     asmText->setText(result.asmLines.join("\n"));
+    setAsmVisible();
   }
   else {
+    setAsmVisible(false);
     machineText->setFocus();
     QMessageBox::warning(this, "bmod",
                          tr("Could not disassemble machine code!"));
@@ -45,9 +49,33 @@ void DisassemblerDialog::createLayout() {
   machineText = new QTextEdit;
   machineText->setTabChangesFocus(true);
 
+  auto *machineLayout = new QVBoxLayout;
+  machineLayout->setContentsMargins(0, 0, 0, 0);
+  machineLayout->addWidget(new QLabel(tr("Machine code:")));
+  machineLayout->addWidget(machineText);
+
+  auto *machineWidget = new QWidget;
+  machineWidget->setLayout(machineLayout);
+
   asmText = new QTextEdit;
   asmText->setReadOnly(true);
   asmText->setTabChangesFocus(true);
+
+  auto *asmLayout = new QVBoxLayout;
+  asmLayout->setContentsMargins(0, 0, 0, 0);
+  asmLayout->addWidget(new QLabel(tr("Disassembly:")));
+  asmLayout->addWidget(asmText);
+
+  auto *asmWidget = new QWidget;
+  asmWidget->setLayout(asmLayout);
+
+  splitter = new QSplitter(Qt::Vertical);
+  splitter->addWidget(machineWidget);
+  splitter->addWidget(asmWidget);
+
+  splitter->setCollapsible(0, false);
+  splitter->setCollapsible(1, true);
+  setAsmVisible(false);
 
   cpuTypeBox = new QComboBox;
 
@@ -72,11 +100,13 @@ void DisassemblerDialog::createLayout() {
   
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(5, 5, 5, 5);
-  layout->addWidget(new QLabel(tr("Machine code:")));
-  layout->addWidget(machineText);
-  layout->addWidget(new QLabel(tr("Disassembly:")));
-  layout->addWidget(asmText);
+  layout->addWidget(splitter);
   layout->addLayout(bottomLayout);
   
   setLayout(layout);
+}
+
+void DisassemblerDialog::setAsmVisible(bool visible) {
+  splitter->setSizes(QList<int>{1, visible ? 1 : 0});
+  if (!visible) asmText->clear();
 }

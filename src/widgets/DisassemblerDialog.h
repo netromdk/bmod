@@ -6,6 +6,7 @@
 #include "../CpuType.h"
 
 class QTextEdit;
+class QSplitter;
 class QComboBox;
 
 class DisassemblerDialog : public QDialog {
@@ -20,10 +21,12 @@ private slots:
 
 private:
   void createLayout();
+  void setAsmVisible(bool visible = true);
 
   CpuType cpuType;
 
   QTextEdit *machineText, *asmText;
+  QSplitter *splitter;
   QComboBox *cpuTypeBox;
 };
 
