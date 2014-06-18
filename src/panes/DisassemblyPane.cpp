@@ -149,6 +149,7 @@ void DisassemblyPane::createLayout() {
   treeWidget->setColumnWidth(1, 200);
   treeWidget->setColumnWidth(2, 200);
   treeWidget->setItemDelegate(new ItemDelegate(this, treeWidget, obj, sec));
+  treeWidget->setMachineCodeColumns(QList<int>{1});
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);

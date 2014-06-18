@@ -9,26 +9,36 @@ class QLabel;
 class LineEdit;
 
 class TreeWidget : public QTreeWidget {
+  Q_OBJECT
+
 public:
   TreeWidget(QWidget *parent = nullptr);
+
+  void setMachineCodeColumns(const QList<int> columns);
 
 protected:
   void keyPressEvent(QKeyEvent *event);
   void resizeEvent(QResizeEvent *event);
 
 private slots:
+  void doSearch();
   void endSearch();
   void onSearchLostFocus();
   void onSearchReturnPressed();
   void nextSearchResult();
   void prevSearchResult();
   void onSearchEdited(const QString &text);
+  void onShowContextMenu(const QPoint &pos);
+  void disassemble();
 
 private:
-  void doSearch();
   void resetSearch();
   void selectSearchResult(int col, int item);
   void showSearchText(const QString &text);
+
+  QList<int> machineCodeColumns;
+  QTreeWidgetItem *ctxItem;
+  int ctxCol;
 
   QMap<int, QList<QTreeWidgetItem*>> searchResults;
   int curCol, curItem, cur, total;

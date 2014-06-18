@@ -12,13 +12,19 @@
 #include "DisassemblerDialog.h"
 #include "../asm/Disassembler.h"
 
-DisassemblerDialog::DisassemblerDialog(QWidget *parent, CpuType cpuType)
+DisassemblerDialog::DisassemblerDialog(QWidget *parent, CpuType cpuType,
+                                       const QString &data)
   : QDialog{parent}, cpuType{cpuType}
 {
   setWindowTitle(tr("Disassembler"));
   createLayout();
   resize(400, 300);
   Util::centerWidget(this);
+
+  if (!data.isEmpty()) {
+    machineText->setText(data);
+    convertBtn->click();
+  }
 }
 
 void DisassemblerDialog::onConvert() {
@@ -88,7 +94,7 @@ void DisassemblerDialog::createLayout() {
     cpuTypeBox->setCurrentIndex(idx);
   }
 
-  auto *convertBtn = new QPushButton(tr("Disassemble"));
+  convertBtn = new QPushButton(tr("Disassemble"));
   connect(convertBtn, &QPushButton::clicked,
           this, &DisassemblerDialog::onConvert);
 

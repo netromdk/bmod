@@ -1,16 +1,22 @@
+#include <QMenu>
 #include <QDebug>
 #include <QLabel>
 #include <QKeyEvent>
 
 #include "LineEdit.h"
 #include "TreeWidget.h"
+#include "DisassemblerDialog.h"
 
 TreeWidget::TreeWidget(QWidget *parent)
-  : QTreeWidget(parent), curCol{0}, curItem{0}, cur{0}, total{0}
+  : QTreeWidget(parent), ctxItem{nullptr}, ctxCol{-1}, curCol{0}, curItem{0},
+  cur{0}, total{0}
 {
   setSelectionBehavior(QAbstractItemView::SelectItems);
   setSelectionMode(QAbstractItemView::SingleSelection);
   setEditTriggers(QAbstractItemView::DoubleClicked);
+  setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, &QTreeWidget::customContextMenuRequested,
+          this, &TreeWidget::onShowContextMenu);
 
   // Set fixed-width font.
   setFont(QFont("Courier"));
@@ -36,6 +42,24 @@ TreeWidget::TreeWidget(QWidget *parent)
                                "background-color: #EEEEEE; "
                                "border-top: 1px solid #CCCCCC; "
                              "}");
+}
+
+void TreeWidget::setMachineCodeColumns(const QList<int> columns) {
+  if (columns.isEmpty()) {
+    machineCodeColumns.clear();
+    return;
+  }
+
+  int cols = columnCount();
+  foreach (int col, columns) {
+    if (col < cols) {
+      machineCodeColumns << col;
+    }
+  }
+  machineCodeColumns = machineCodeColumns.toSet().toList();
+  if (machineCodeColumns.size() > cols) {
+    machineCodeColumns.clear();
+  }
 }
 
 void TreeWidget::keyPressEvent(QKeyEvent *event) {
@@ -74,11 +98,52 @@ void TreeWidget::endSearch() {
   setFocus();
 }
 
+void TreeWidget::onShowContextMenu(const QPoint &pos) {
+  QMenu menu;
+  menu.addAction("Search", this, SLOT(doSearch()));
+
+  ctxItem = itemAt(pos);
+  if (ctxItem) {
+    ctxCol = indexAt(pos).column();
+    bool sep{false};
+
+    if (machineCodeColumns.contains(ctxCol)) {
+      if (!sep) {
+        menu.addSeparator();
+        sep = true;
+      }
+      menu.addAction("Disassemble", this, SLOT(disassemble()));
+    }
+    
+    /* TODO
+       menu.addAction("Find address");
+    
+       menu.addAction("Copy field");
+       menu.addAction("Copy row");
+    */
+  }
+
+  // Use cursor because mapToGlobal(pos) is off by the height of the
+  // tree widget header anyway.
+  menu.exec(QCursor::pos());
+
+  ctxItem = nullptr;
+  ctxCol = -1;
+}
+
 void TreeWidget::doSearch() {
   searchEdit->move(width() - searchEdit->width() - 1,
                    height() - searchEdit->height() - 1);
   searchEdit->show();
   searchEdit->setFocus();
+}
+
+void TreeWidget::disassemble() {
+  if (!ctxItem) return;
+
+  QString text = ctxItem->text(ctxCol);
+  DisassemblerDialog diag(this, CpuType::X86, text);
+  diag.exec();
 }
 
 void TreeWidget::resetSearch() {

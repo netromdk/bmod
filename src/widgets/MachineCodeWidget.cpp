@@ -117,6 +117,7 @@ void MachineCodeWidget::createLayout() {
   treeWidget->setColumnWidth(2, 200);
   treeWidget->setColumnWidth(3, 110);
   treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
+  treeWidget->setMachineCodeColumns(QList<int>{1, 2});
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);
