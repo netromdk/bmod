@@ -33,6 +33,8 @@ private slots:
   void onSearchEdited(const QString &text);
   void onShowContextMenu(const QPoint &pos);
   void disassemble();
+  void copyField();
+  void copyRow();
 
 private:
   void resetSearch();

@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QLabel>
 #include <QKeyEvent>
+#include <QClipboard>
+#include <QApplication>
 
 #include "LineEdit.h"
 #include "TreeWidget.h"
@@ -105,8 +107,11 @@ void TreeWidget::onShowContextMenu(const QPoint &pos) {
   ctxItem = itemAt(pos);
   if (ctxItem) {
     ctxCol = indexAt(pos).column();
-    bool sep{false};
 
+    menu.addAction("Copy field", this, SLOT(copyField()));
+    menu.addAction("Copy row", this, SLOT(copyRow()));
+
+    bool sep{false};
     if (machineCodeColumns.contains(ctxCol)) {
       if (!sep) {
         menu.addSeparator();
@@ -117,9 +122,6 @@ void TreeWidget::onShowContextMenu(const QPoint &pos) {
     
     /* TODO
        menu.addAction("Find address");
-    
-       menu.addAction("Copy field");
-       menu.addAction("Copy row");
     */
   }
 
@@ -144,6 +146,22 @@ void TreeWidget::disassemble() {
   QString text = ctxItem->text(ctxCol);
   DisassemblerDialog diag(this, cpuType, text);
   diag.exec();
+}
+
+void TreeWidget::copyField() {
+  QString text = ctxItem->text(ctxCol);
+  QApplication::clipboard()->setText(text);
+}
+
+void TreeWidget::copyRow() {
+  QString text;
+  for (int i = 0; i < columnCount(); i++) {
+    text += ctxItem->text(i);
+    if (i < columnCount() - 1) {
+      text += "\t";
+    }
+  }
+  QApplication::clipboard()->setText(text);
 }
 
 void TreeWidget::resetSearch() {
