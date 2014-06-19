@@ -3,7 +3,9 @@
 #include <QLabel>
 #include <QKeyEvent>
 #include <QClipboard>
+#include <QMessageBox>
 #include <QApplication>
+#include <QInputDialog>
 
 #include "LineEdit.h"
 #include "TreeWidget.h"
@@ -11,7 +13,7 @@
 
 TreeWidget::TreeWidget(QWidget *parent)
   : QTreeWidget(parent), cpuType{CpuType::X86}, ctxItem{nullptr}, ctxCol{-1},
-  curCol{0}, curItem{0}, cur{0}, total{0}
+  addrColumn{-1}, curCol{0}, curItem{0}, cur{0}, total{0}
 {
   setSelectionBehavior(QAbstractItemView::SelectItems);
   setSelectionMode(QAbstractItemView::SingleSelection);
@@ -64,6 +66,15 @@ void TreeWidget::setMachineCodeColumns(const QList<int> columns) {
   }
 }
 
+void TreeWidget::setAddressColumn(int column) {
+  if (column < 0 || column > columnCount() - 1) {
+    addrColumn = -1;
+    return;
+  }
+
+  addrColumn = column;
+}
+
 void TreeWidget::keyPressEvent(QKeyEvent *event) {
   QTreeWidget::keyPressEvent(event);
 
@@ -104,25 +115,22 @@ void TreeWidget::onShowContextMenu(const QPoint &pos) {
   QMenu menu;
   menu.addAction("Search", this, SLOT(doSearch()));
 
+  if (addrColumn != -1) {
+    menu.addAction("Find address", this, SLOT(findAddress()));
+  }
+
   ctxItem = itemAt(pos);
   if (ctxItem) {
     ctxCol = indexAt(pos).column();
 
+    menu.addSeparator();
     menu.addAction("Copy field", this, SLOT(copyField()));
     menu.addAction("Copy row", this, SLOT(copyRow()));
 
-    bool sep{false};
     if (machineCodeColumns.contains(ctxCol)) {
-      if (!sep) {
-        menu.addSeparator();
-        sep = true;
-      }
+      menu.addSeparator();
       menu.addAction("Disassemble", this, SLOT(disassemble()));
     }
-    
-    /* TODO
-       menu.addAction("Find address");
-    */
   }
 
   // Use cursor because mapToGlobal(pos) is off by the height of the
@@ -142,18 +150,19 @@ void TreeWidget::doSearch() {
 
 void TreeWidget::disassemble() {
   if (!ctxItem) return;
-
   QString text = ctxItem->text(ctxCol);
   DisassemblerDialog diag(this, cpuType, text);
   diag.exec();
 }
 
 void TreeWidget::copyField() {
+  if (!ctxItem) return;
   QString text = ctxItem->text(ctxCol);
   QApplication::clipboard()->setText(text);
 }
 
 void TreeWidget::copyRow() {
+  if (!ctxItem) return;
   QString text;
   for (int i = 0; i < columnCount(); i++) {
     text += ctxItem->text(i);
@@ -162,6 +171,49 @@ void TreeWidget::copyRow() {
     }
   }
   QApplication::clipboard()->setText(text);
+}
+
+void TreeWidget::findAddress() {
+  bool ok;
+  QString text =
+    QInputDialog::getText(this, tr("Find Address"), tr("Address (hex):"),
+                          QLineEdit::Normal, QString(), &ok);
+  if (!ok || text.isEmpty()) {
+    return;
+  }
+
+  quint64 num = text.toULongLong(&ok, 16);
+  if (!ok) {
+    QMessageBox::warning(this, "bmod",
+                         tr("Invalid address! Must be in hexadecimal."));
+    findAddress();
+    return;
+  }
+
+  int cnt = topLevelItemCount();
+  for (int i = 0; i < cnt; i++) {
+    auto *item = topLevelItem(i);
+    QString text = item->text(addrColumn);
+    quint64 n = text.toULongLong(&ok, 16);
+    if (!ok) continue;
+    if (n == num) {
+      setCurrentItem(item);
+      return;
+    }
+
+    if (i < cnt - 1) {
+      auto *item2 = topLevelItem(i+1);
+      QString text2 = item2->text(addrColumn);
+      quint64 n2 = text2.toULongLong(&ok, 16);
+      if (!ok) continue;
+      if (num >= n && num < n2) {
+        setCurrentItem(item);
+        return;
+      }
+    }
+  }
+
+  QMessageBox::information(this, "bmdo", tr("Did not find anything."));
 }
 
 void TreeWidget::resetSearch() {
@@ -232,7 +284,7 @@ void TreeWidget::selectSearchResult(int col, int item) {
   scrollToItem(res, QAbstractItemView::PositionAtCenter);
   int row = indexOfTopLevelItem(res);
   auto index = model()->index(row, col);
-  selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);  
+  selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
 }
 
 void TreeWidget::nextSearchResult() {

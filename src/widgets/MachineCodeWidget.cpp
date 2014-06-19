@@ -119,6 +119,7 @@ void MachineCodeWidget::createLayout() {
   treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
   treeWidget->setMachineCodeColumns(QList<int>{1, 2});
   treeWidget->setCpuType(obj->getCpuType());
+  treeWidget->setAddressColumn(0);
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);

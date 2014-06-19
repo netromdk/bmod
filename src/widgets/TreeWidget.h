@@ -19,6 +19,8 @@ public:
   void setCpuType(CpuType type) { cpuType = type; }
   void setMachineCodeColumns(const QList<int> columns);
 
+  void setAddressColumn(int column);
+
 protected:
   void keyPressEvent(QKeyEvent *event);
   void resizeEvent(QResizeEvent *event);
@@ -35,6 +37,7 @@ private slots:
   void disassemble();
   void copyField();
   void copyRow();
+  void findAddress();
 
 private:
   void resetSearch();
@@ -44,7 +47,7 @@ private:
   QList<int> machineCodeColumns;
   CpuType cpuType;
   QTreeWidgetItem *ctxItem;
-  int ctxCol;
+  int ctxCol, addrColumn;
 
   QMap<int, QList<QTreeWidgetItem*>> searchResults;
   int curCol, curItem, cur, total;
