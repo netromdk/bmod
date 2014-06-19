@@ -193,8 +193,7 @@ void TreeWidget::findAddress() {
   int cnt = topLevelItemCount();
   for (int i = 0; i < cnt; i++) {
     auto *item = topLevelItem(i);
-    QString text = item->text(addrColumn);
-    quint64 n = text.toULongLong(&ok, 16);
+    quint64 n = item->text(addrColumn).toULongLong(&ok, 16);
     if (!ok) continue;
     if (n == num) {
       setCurrentItem(item);
@@ -203,8 +202,7 @@ void TreeWidget::findAddress() {
 
     if (i < cnt - 1) {
       auto *item2 = topLevelItem(i+1);
-      QString text2 = item2->text(addrColumn);
-      quint64 n2 = text2.toULongLong(&ok, 16);
+      quint64 n2 = item2->text(addrColumn).toULongLong(&ok, 16);
       if (!ok) continue;
       if (num >= n && num < n2) {
         setCurrentItem(item);
