@@ -23,8 +23,10 @@ public:
   ~Disassembler();
 
   bool disassemble(SectionPtr sec, Disassembly &result);
-  bool disassemble(const QByteArray &data, Disassembly &result);
-  bool disassemble(const QString &data, Disassembly &result);
+  bool disassemble(const QByteArray &data, Disassembly &result,
+                   quint64 offset = 0);
+  bool disassemble(const QString &data, Disassembly &result,
+                   quint64 offset = 0);
 
 private:
   Asm *asm_;

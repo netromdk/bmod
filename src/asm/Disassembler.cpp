@@ -27,15 +27,17 @@ bool Disassembler::disassemble(SectionPtr sec, Disassembly &result) {
   return asm_->disassemble(sec, result);
 }
 
-bool Disassembler::disassemble(const QByteArray &data, Disassembly &result) {
+bool Disassembler::disassemble(const QByteArray &data, Disassembly &result,
+                               quint64 offset) {
   int size = data.size();
-  auto sec = SectionPtr(new Section(SectionType::Text, "", 0, size));
+  auto sec = SectionPtr(new Section(SectionType::Text, "", offset, size));
   sec->setData(data);
   return disassemble(sec, result);
 }
 
-bool Disassembler::disassemble(const QString &data, Disassembly &result) {
+bool Disassembler::disassemble(const QString &data, Disassembly &result,
+                               quint64 offset) {
   QByteArray input =
     Util::hexToData(data.simplified().trimmed().replace(" ", ""));
-  return disassemble(input, result);
+  return disassemble(input, result, offset);
 }
