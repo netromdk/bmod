@@ -151,7 +151,13 @@ void TreeWidget::doSearch() {
 void TreeWidget::disassemble() {
   if (!ctxItem) return;
   QString text = ctxItem->text(ctxCol);
-  DisassemblerDialog diag(this, cpuType, text);
+  quint64 offset{0};
+  if (addrColumn != -1) {
+    bool ok;
+    offset = ctxItem->text(addrColumn).toULongLong(&ok, 16);
+    if (!ok) offset = 0;
+  }
+  DisassemblerDialog diag(this, cpuType, text, offset);
   diag.exec();
 }
 

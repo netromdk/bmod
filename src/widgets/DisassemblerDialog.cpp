@@ -1,4 +1,6 @@
+#include <QDebug>
 #include <QLabel>
+#include <QLineEdit>
 #include <QTextEdit>
 #include <QComboBox>
 #include <QSplitter>
@@ -13,8 +15,8 @@
 #include "../asm/Disassembler.h"
 
 DisassemblerDialog::DisassemblerDialog(QWidget *parent, CpuType cpuType,
-                                       const QString &data)
-  : QDialog{parent}, cpuType{cpuType}
+                                       const QString &data, quint64 offset)
+  : QDialog{parent}, cpuType{cpuType}, offset{offset}
 {
   setWindowTitle(tr("Disassembler"));
   createLayout();
@@ -36,10 +38,12 @@ void DisassemblerDialog::onConvert() {
     return;
   }
 
+  quint64 offset = offsetEdit->text().toULongLong(nullptr, 16);
+
   auto obj = BinaryObjectPtr(new BinaryObject(cpuType));
   Disassembler dis(obj);
   Disassembly result;
-  if (dis.disassemble(text, result)) {
+  if (dis.disassemble(text, result, offset)) {
     asmText->setText(result.asmLines.join("\n"));
     setAsmVisible();
   }
@@ -55,10 +59,23 @@ void DisassemblerDialog::createLayout() {
   machineText = new QTextEdit;
   machineText->setTabChangesFocus(true);
 
+  offsetEdit = new QLineEdit;
+  offsetEdit->setText(QString::number(offset, 16));
+  offsetEdit->setAlignment(Qt::AlignRight);
+  offsetEdit->setFixedWidth(140);
+  offsetEdit->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{1,16}"), this));
+
+  auto *offsetLayout = new QHBoxLayout;
+  offsetLayout->setContentsMargins(0, 0, 0, 0);
+  offsetLayout->addWidget(new QLabel(tr("Hex offset:")));
+  offsetLayout->addWidget(offsetEdit);
+  offsetLayout->addStretch();
+
   auto *machineLayout = new QVBoxLayout;
   machineLayout->setContentsMargins(0, 0, 0, 0);
   machineLayout->addWidget(new QLabel(tr("Machine code:")));
   machineLayout->addWidget(machineText);
+  machineLayout->addLayout(offsetLayout);
 
   auto *machineWidget = new QWidget;
   machineWidget->setLayout(machineLayout);
