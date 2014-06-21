@@ -35,9 +35,12 @@ private:
    * num is either a general-purpose register (r) or a memory address
    * (m). swap means to swap the order of the [op1] and [op2] part of
    * num and any displacement.
+   *
+   * 'imm' is for using an intermediate value instead of a register,
+   * the value can be 0 or 1, but -1 means unused.
    */
   QString getModRMByte(unsigned char num, RegType type1, RegType type2,
-                       bool swap = false);
+                       bool swap = false, int imm = -1);
 
   // Format and pad num as "0x.."
   QString formatHex(quint32 num, int len = 2);

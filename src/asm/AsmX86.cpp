@@ -180,15 +180,6 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
                 pos, result);
     }
 
-    // MOV (r16/32	imm16/32)
-    else if (ch >= 0xB8 && ch <= 0xBF) {
-      splitByteModRM(ch, mod, op1, op2);
-      num = reader->getUInt32(&ok);
-      if (!ok) return false;
-      addResult("movl $" + formatHex(num, 8) + "," +
-                getModRMByte(op2, RegType::R32, RegType::R32), pos, result);
-    }
-
     // MOV (r16/32	r/m16/32) (reverse of 0x89)
     else if (ch == 0x8B) {
       reader->getUChar(); // eat
@@ -215,9 +206,26 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult("testb $" + formatHex(nch, 2) + ",%al", pos, result);
     }
 
+    // MOV (r16/32	imm16/32)
+    else if (ch >= 0xB8 && ch <= 0xBF) {
+      splitByteModRM(ch, mod, op1, op2);
+      num = reader->getUInt32(&ok);
+      if (!ok) return false;
+      addResult("movl $" + formatHex(num, 8) + "," +
+                getModRMByte(op2, RegType::R32, RegType::R32), pos, result);
+    }
+
     // RETN
     else if (ch == 0xC3) {
       addResult("ret", pos, result);
+    }
+
+    // MOV (r/m8  imm8)
+    else if (ch == 0xC6 && peek) {
+      reader->getUChar(); // eat
+      if (!ok) return false;
+      addResult("movb " + getModRMByte(nch, RegType::R8, RegType::R32, false, 0),
+                pos, result);
     }
 
     // MOV (r/m16/32	imm16/32)
@@ -330,7 +338,7 @@ QString AsmX86::getReg(RegType type, int num) {
 }
 
 QString AsmX86::getModRMByte(unsigned char num, RegType type1, RegType type2,
-                             bool swap) {
+                             bool swap, int imm) {
   unsigned char mod, op1, op2;
   splitByteModRM(num, mod, op1, op2);
 
@@ -362,11 +370,16 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type1, RegType type2,
   // [reg]+disp8
   else if (mod == 1) {
     unsigned char num = reader->getUChar();
+    QString imms;
+    if (imm != -1) {
+      unsigned char num2 = reader->getUChar();
+      imms = "$" + formatHex(num2, 2);
+    }
     return (!swap
-            ? getReg(type1, op1) + "," + formatHex(num, 2) + "(" +
-            getReg(type2, op2) + ")"
+            ? (imm == 0 ? imms : getReg(type1, op1)) + "," +
+              formatHex(num, 2) + "(" + getReg(type2, op2) + ")"
             : formatHex(num, 2) + "(" + getReg(type2, op2) + ")," +
-            getReg(type1, op1));
+              (imm == 0 ? imms : getReg(type1, op1)));
   }
 
   // [reg]+disp32
