@@ -36,7 +36,8 @@ private:
    * (m). swap means to swap the order of the [op1] and [op2] part of
    * num and any displacement.
    */
-  QString getModRMByte(unsigned char num, RegType type, bool swap = false);
+  QString getModRMByte(unsigned char num, RegType type1, RegType type2,
+                       bool swap = false);
 
   // Format and pad num as "0x.."
   QString formatHex(quint32 num, int len = 2);

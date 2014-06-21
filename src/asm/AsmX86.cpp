@@ -124,18 +124,25 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
                 getReg(RegType::R32, op2), pos, result);
     }
 
+    // MOV (r/m8	r8)
+    else if (ch == 0x88 && peek) {
+      reader->getUChar(); // eat
+      addResult("movb " + getModRMByte(nch, RegType::R8, RegType::R32),
+                pos, result);
+    }
+
     // MOV (r/m16/32	r16/32)
     else if (ch == 0x89 && peek) {
       reader->getUChar(); // eat
-      addResult("movl " + getModRMByte(nch, RegType::R32), pos, result);
+      addResult("movl " + getModRMByte(nch, RegType::R32, RegType::R32),
+                pos, result);
     }
 
-    // MOV (r8  r/m8)
+    // MOV (r8  r/m8) (reverse of 0x88)
     else if (ch == 0x8A && peek) {
       reader->getUChar(); // eat
-      splitByteModRM(nch, mod, op1, op2);
-      addResult("movb (" + getReg(RegType::R32, op2) + ")," +
-                getReg(RegType::R8, op1), pos, result);
+      addResult("movb " + getModRMByte(nch, RegType::R8, RegType::R32, true),
+                pos, result);
     }
 
     // MOV (r16/32	imm16/32)
@@ -144,20 +151,22 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       num = reader->getUInt32(&ok);
       if (!ok) return false;
       addResult("movl $" + formatHex(num, 8) + "," +
-                getModRMByte(op2, RegType::R32), pos, result);
+                getModRMByte(op2, RegType::R32, RegType::R32), pos, result);
     }
 
     // MOV (r16/32	r/m16/32) (reverse of 0x89)
     else if (ch == 0x8B) {
       reader->getUChar(); // eat
-      addResult("movl " + getModRMByte(nch, RegType::R32, true), pos, result);
+      addResult("movl " + getModRMByte(nch, RegType::R32, RegType::R32, true),
+                pos, result);
     }
 
     // LEA (r16/32	m) Load Effective Address
     else if (ch == 0x8D && peek) {
       reader->getUChar(); // eat
       if (!ok) return false;
-      addResult("leal " + getModRMByte(nch, RegType::R32, true), pos, result);
+      addResult("leal " + getModRMByte(nch, RegType::R32, RegType::R32, true),
+                pos, result);
     }
 
     // NOP
@@ -264,7 +273,8 @@ QString AsmX86::getReg(RegType type, int num) {
   return "%" + regs[type][num];
 }
 
-QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
+QString AsmX86::getModRMByte(unsigned char num, RegType type1, RegType type2,
+                             bool swap) {
   unsigned char mod, op1, op2;
   splitByteModRM(num, mod, op1, op2);
 
@@ -272,20 +282,20 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
   if (mod == 0) {
     if (op1 != 4 && op1 != 5 && op2 != 4 && op2 != 5) {
       return (!swap
-              ? getReg(type, op1) + ",(" + getReg(type, op2) + ")"
-              : "(" + getReg(type, op2) + ")," + getReg(type, op1));
+              ? getReg(type1, op1) + ",(" + getReg(type2, op2) + ")"
+              : "(" + getReg(type2, op2) + ")," + getReg(type1, op1));
     }
     else if (op1 == 4) {
       unsigned char num = reader->getUChar();
       unsigned char m, o1, o2;
       splitByteModRM(num, m, o1, o2);
-      return getReg(type, op2) + ",(" + getReg(type, o2) + ")";
+      return getReg(type1, op2) + ",(" + getReg(type2, o2) + ")";
     }
     else if (op2 == 4) {
       unsigned char num = reader->getUChar();
       unsigned char m, o1, o2;
       splitByteModRM(num, m, o1, o2);
-      return getReg(type, op1) + ",(" + getReg(type, o1) + ")";
+      return getReg(type1, op1) + ",(" + getReg(type2, o1) + ")";
     }
     else {
       qDebug() << "unsupported mod=0 op1/op2 = 5" << op1 << op2;
@@ -297,24 +307,24 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
   else if (mod == 1) {
     unsigned char num = reader->getUChar();
     return (!swap
-            ? getReg(type, op1) + "," + formatHex(num, 2) + "(" +
-            getReg(type, op2) + ")"
-            : formatHex(num, 2) + "(" + getReg(type, op2) + ")," +
-            getReg(type, op1));
+            ? getReg(type1, op1) + "," + formatHex(num, 2) + "(" +
+            getReg(type2, op2) + ")"
+            : formatHex(num, 2) + "(" + getReg(type2, op2) + ")," +
+            getReg(type1, op1));
   }
 
   // [reg]+disp32
   else if (mod == 2) {
     quint32 num = reader->getUInt32();
     return (!swap
-            ? getReg(type, op1) + "," + formatHex(num, 8) + "(" +
-            getReg(type, op2) + ")"
-            : formatHex(num, 8) + "(" + getReg(type, op2) + ")," +
-            getReg(type, op1));
+            ? getReg(type1, op1) + "," + formatHex(num, 8) + "(" +
+            getReg(type2, op2) + ")"
+            : formatHex(num, 8) + "(" + getReg(type2, op2) + ")," +
+            getReg(type1, op1));
   }
 
   else if (mod == 3) {
-    return getReg(type, op1) + "," + getReg(type, op2);
+    return getReg(type1, op1) + "," + getReg(type2, op2);
   }
 
   return QString();
