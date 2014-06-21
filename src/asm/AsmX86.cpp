@@ -41,6 +41,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
                 pos, result);
     }
 
+    // ADD (r16/32  r/m16/32)
+    else if (ch == 0x03 && peek) {
+      reader->getUChar(); // eat
+      addResult("addl " + getModRMByte(nch, RegType::R32, RegType::R32),
+                pos, result);
+    }
+
     // AND (eAX  imm16/32)
     else if (ch == 0x25) {
       num = reader->getUInt32(&ok);
