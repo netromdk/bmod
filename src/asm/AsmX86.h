@@ -26,15 +26,15 @@ private:
 
   // Split byte into [2][3][3] bits.
   void splitByteModRM(unsigned char num, unsigned char &mod,
-                      unsigned char &first, unsigned char &second);
+                      unsigned char &op1, unsigned char &op2);
 
   // 0 <= num <= 7
   QString getReg(RegType type, int num);
 
   /**
    * num is either a general-purpose register (r) or a memory address
-   * (m). swap means to swap the order of the [first] and [second]
-   * part of num and any displacement.
+   * (m). swap means to swap the order of the [op1] and [op2] part of
+   * num and any displacement.
    */
   QString getModRMByte(unsigned char num, RegType type, bool swap = false);
 
