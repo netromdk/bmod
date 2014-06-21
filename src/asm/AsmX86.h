@@ -22,6 +22,7 @@ public:
   bool disassemble(SectionPtr sec, Disassembly &result);
 
 private:
+  bool handleNops(Disassembly &result);
   void addResult(const QString &line, qint64 pos, Disassembly &result);
 
   // Split byte into [2][3][3] bits.

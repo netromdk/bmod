@@ -28,51 +28,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
   quint32 num{0};
   qint64 pos{0};
   while (!reader->atEnd()) {
-    pos = reader->pos();
-
     // Handle special NOP sequences.
-    if (reader->peekList({0x66, 0x90})) {
-      reader->read(2);
-      addResult("xchg %ax,%ax", pos, result);
-      continue;
-    }
-    else if (reader->peekList({0x0f, 0x1f, 0x00})) {
-      reader->read(3);
-      addResult("nopl 0x0(%eax)", pos, result);
-      continue;
-    }
-    else if (reader->peekList({0x0f, 0x1f, 0x44, 0x00, 0x00})) {
-      reader->read(5);
-      addResult("nopl 0x0(%eax,%eax)", pos, result);
-      continue;
-    }
-    else if (reader->peekList({0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00})) {
-      reader->read(6);
-      addResult("nopw 0x0(%eax,%eax)", pos, result);
-      continue;
-    }
-    else if (reader->peekList({0x0f, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00})) {
-      reader->read(7);
-      addResult("nopl 0L(%eax)", pos, result);
-      continue;
-    }
-    else if (reader->peekList({0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00})) {
-      reader->read(8);
-      addResult("nopl 0L(%eax,%eax)", pos, result);
-      continue;
-    }
-    else if (reader->peekList({0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00})) {
-      reader->read(9);
-      addResult("nopw 0L(%eax,%eax)", pos, result);
-      continue;
-    }
-    else if (reader->peekList({0x66, 0x2e, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00})) {
-      reader->read(10);
-      addResult("nopw %cs:0L(%eax,%eax)", pos, result);
+    if (handleNops(result)) {
       continue;
     }
 
     // Handle other instructions.
+    pos = reader->pos();
     ch = reader->getUChar(&ok);
     if (!ok) return false;
 
@@ -365,6 +327,51 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
   }
 
   return !result.asmLines.isEmpty();
+}
+
+bool AsmX86::handleNops(Disassembly &result) {
+  qint64 pos = reader->pos();
+  if (reader->peekList({0x66, 0x90})) {
+    reader->read(2);
+    addResult("xchg %ax,%ax", pos, result);
+    return true;
+  }
+  else if (reader->peekList({0x0f, 0x1f, 0x00})) {
+    reader->read(3);
+    addResult("nopl 0x0(%eax)", pos, result);
+    return true;
+  }
+  else if (reader->peekList({0x0f, 0x1f, 0x44, 0x00, 0x00})) {
+    reader->read(5);
+    addResult("nopl 0x0(%eax,%eax)", pos, result);
+    return true;
+  }
+  else if (reader->peekList({0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00})) {
+    reader->read(6);
+    addResult("nopw 0x0(%eax,%eax)", pos, result);
+    return true;
+  }
+  else if (reader->peekList({0x0f, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00})) {
+    reader->read(7);
+    addResult("nopl 0L(%eax)", pos, result);
+    return true;
+  }
+  else if (reader->peekList({0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00})) {
+    reader->read(8);
+    addResult("nopl 0L(%eax,%eax)", pos, result);
+    return true;
+  }
+  else if (reader->peekList({0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00})) {
+    reader->read(9);
+    addResult("nopw 0L(%eax,%eax)", pos, result);
+    return true;
+  }
+  else if (reader->peekList({0x66, 0x2e, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00})) {
+    reader->read(10);
+    addResult("nopw %cs:0L(%eax,%eax)", pos, result);
+    return true;
+  }
+  return false;
 }
 
 void AsmX86::addResult(const QString &line, qint64 pos, Disassembly &result) {
