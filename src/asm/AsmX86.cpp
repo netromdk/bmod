@@ -130,6 +130,14 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult("movl " + getModRMByte(nch, RegType::R32), pos, result);
     }
 
+    // MOV (r8  r/m8)
+    else if (ch == 0x8A && peek) {
+      reader->getUChar(); // eat
+      splitByteModRM(nch, mod, op1, op2);
+      addResult("movb (" + getReg(RegType::R32, op2) + ")," +
+                getReg(RegType::R8, op1), pos, result);
+    }
+
     // MOV (r16/32	imm16/32)
     else if (ch >= 0xB8 && ch <= 0xBF) {
       splitByteModRM(ch, mod, op1, op2);
