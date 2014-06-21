@@ -34,14 +34,20 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     nch = reader->peekUChar(&peek);
 
+    // ADD (r/m16/32  r16/32)
+    if (ch == 0x01 && peek) {
+      reader->getUChar(); // eat
+      addResult("addl " + getModRMByte(nch, RegType::R32, RegType::R32),
+                pos, result);
+    }
+
     // Two-byte instructions.
-    if (ch == 0x0F && peek) {
+    else if (ch == 0x0F && peek) {
       ch = nch;
       reader->getUChar(); // eat
 
-      // JNZ (rel16/32)
-      // JNE (rel16/32)
-      // Relative function address.
+      // JNZ (rel16/32) or JNE (rel16/32), same functionality
+      // different name. Relative function address.
       if (ch == 0x85) {
         num = reader->getUInt32(&ok);
         if (!ok) return false;
