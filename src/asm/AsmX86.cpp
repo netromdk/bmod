@@ -174,6 +174,12 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult("nop", pos, result);
     }
 
+    // TEST	(AL	imm8)
+    else if (ch == 0xA8 && peek) {
+      reader->getUChar(); // eat
+      addResult("testb $" + formatHex(nch, 2) + ",%al", pos, result);
+    }
+
     // RETN
     else if (ch == 0xC3) {
       addResult("ret", pos, result);
