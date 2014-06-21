@@ -41,19 +41,11 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
                 pos, result);
     }
 
-    // Two-byte instructions.
-    else if (ch == 0x0F && peek) {
-      ch = nch;
-      reader->getUChar(); // eat
-
-      // JNZ (rel16/32) or JNE (rel16/32), same functionality
-      // different name. Relative function address.
-      if (ch == 0x85) {
-        num = reader->getUInt32(&ok);
-        if (!ok) return false;
-        addResult("jne " + formatHex(funcAddr + reader->pos() + num, 8),
-                  pos, result);
-      }
+    // AND (eAX  imm16/32)
+    else if (ch == 0x25) {
+      num = reader->getUInt32(&ok);
+      if (!ok) return false;
+      addResult("addl $" + formatHex(num, 8) + ",%eax", pos, result);
     }
 
     // PUSH
@@ -264,6 +256,21 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       }
 
       addResult(inst + getReg(RegType::R32, op2), pos, result);
+    }
+
+    // Two-byte instructions.
+    else if (ch == 0x0F && peek) {
+      ch = nch;
+      reader->getUChar(); // eat
+
+      // JNZ (rel16/32) or JNE (rel16/32), same functionality
+      // different name. Relative function address.
+      if (ch == 0x85) {
+        num = reader->getUInt32(&ok);
+        if (!ok) return false;
+        addResult("jne " + formatHex(funcAddr + reader->pos() + num, 8),
+                  pos, result);
+      }
     }
 
     // Unsupported
