@@ -34,8 +34,24 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     nch = reader->peekUChar(&peek);
 
+    // Two-byte instructions.
+    if (ch == 0x0F && peek) {
+      ch = nch;
+      reader->getUChar(); // eat
+
+      // JNZ (rel16/32)
+      // JNE (rel16/32)
+      // Relative function address.
+      if (ch == 0x85) {
+        num = reader->getUInt32(&ok);
+        if (!ok) return false;
+        addResult("jne " + formatHex(funcAddr + reader->pos() + num, 8),
+                  pos, result);
+      }
+    }
+
     // PUSH
-    if (ch >= 0x50 && ch <= 0x57) {
+    else if (ch >= 0x50 && ch <= 0x57) {
       r = ch - 0x50;
       addResult("pushl " + getReg(RegType::R32, r), pos, result);
     }
