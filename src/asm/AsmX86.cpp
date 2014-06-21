@@ -55,6 +55,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult("addl $" + formatHex(num, 8) + ",%eax", pos, result);
     }
 
+    // CMP (r16/32 r/m16/32) (reverse)
+    else if (ch == 0x3B && peek) {
+      reader->getUChar(); // eat
+      addResult("cmpl " + getModRMByte(nch, RegType::R32, RegType::R32, true),
+                pos, result);
+    }
+
     // CMP (eAX  imm16/32)
     else if (ch == 0x3D) {
       num = reader->getUInt32(&ok);
