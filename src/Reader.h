@@ -32,6 +32,8 @@ public:
   bool seek(qint64 pos);
   bool atEnd() const;
 
+  bool peekList(std::initializer_list<unsigned char> list);
+
 private:
   template <typename T>
   T getUInt(bool *ok = nullptr);

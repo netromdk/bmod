@@ -57,6 +57,20 @@ bool Reader::atEnd() const {
   return dev.atEnd();
 }
 
+bool Reader::peekList(std::initializer_list<unsigned char> list) {
+  const QByteArray parr = dev.peek(list.size());
+  if (parr.size() != list.size()) {
+    return false;
+  }
+  int i{0};
+  for (auto it = list.begin(); it != list.end(); it++, i++) {
+    if (*it != parr[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 template <typename T>
 T Reader::getUInt(bool *ok) {
   constexpr int num = sizeof(T);
