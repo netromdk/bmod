@@ -300,9 +300,20 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
       nch = reader->peekUChar(&peek);
 
+      // NOP (r/m16/32)
+      if (ch == 0x1F && peek) {
+        reader->getUChar(); // eat
+        splitByteModRM(nch, mod, op1, op2);
+        num = reader->getUInt32(&ok);
+        if (!ok) return false;
+        addResult("nopl " + formatHex(num, 8) +
+                  "(" + getReg(RegType::R32, op1) + ")",
+                  pos, result);
+      }
+
       // JNZ (rel16/32) or JNE (rel16/32), same functionality
       // different name. Relative function address.
-      if (ch == 0x85) {
+      else if (ch == 0x85) {
         num = reader->getUInt32(&ok);
         if (!ok) return false;
         addResult("jne " + formatHex(funcAddr + reader->pos() + num, 8),
