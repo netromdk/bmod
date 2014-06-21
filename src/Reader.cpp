@@ -58,6 +58,9 @@ bool Reader::atEnd() const {
 }
 
 bool Reader::peekList(std::initializer_list<unsigned char> list) {
+  if (list.size() == 0) {
+    return false;
+  }
   const QByteArray parr = dev.peek(list.size());
   if (parr.size() != list.size()) {
     return false;
