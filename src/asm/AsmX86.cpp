@@ -47,6 +47,45 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     }
 
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
+    // (r/m16/32	imm16/32)
+    else if (ch == 0x81 && peek) {
+      reader->getUChar(); // eat
+      splitByteModRM(nch, mod, op1, op2);
+
+      num = reader->getUInt32(&ok);
+      if (!ok) return false;
+
+      QString inst;
+      if (op1 == 0) {
+        inst = "addl";
+      }
+      else if (op1 == 1) {
+        inst = "orl";
+      }
+      else if (op1 == 2) {
+        inst = "adcl"; // Add with carry
+      }
+      else if (op1 == 3) {
+        inst = "sbbl"; // Integer subtraction with borrow
+      }
+      else if (op1 == 4) {
+        inst = "andl";
+      }
+      else if (op1 == 5) {
+        inst = "subl";
+      }
+      else if (op1 == 6) {
+        inst = "xorl";
+      }
+      else if (op1 == 7) {
+        inst = "cmpl";
+      }
+
+      addResult(inst + " $" + formatHex(num, 8) + "," +
+                getReg(RegType::R32, op2), pos, result);
+    }
+
+    // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m16/32	imm8)
     else if (ch == 0x83 && peek) {
       reader->getUChar(); // eat
