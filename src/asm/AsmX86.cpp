@@ -37,13 +37,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     // PUSH
     if (ch >= 0x50 && ch <= 0x57) {
       r = ch - 0x50;
-      addResult("pushl %" + getReg(RegType::R32, r), pos, result);
+      addResult("pushl " + getReg(RegType::R32, r), pos, result);
     }
 
     // POP
     else if (ch >= 0x58 && ch <= 0x60) {
       r = ch - 0x58;
-      addResult("popl %" + getReg(RegType::R32, r), pos, result);
+      addResult("popl " + getReg(RegType::R32, r), pos, result);
     }
 
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
@@ -81,7 +81,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst = "cmpl";
       }
 
-      addResult(inst + " $" + formatHex(ch2, 2) + ",%" +
+      addResult(inst + " $" + formatHex(ch2, 2) + "," +
                 getReg(RegType::R32, op2), pos, result);
     }
 
@@ -131,7 +131,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       if (!ok) return false;
       num = reader->getUInt32(&ok);
       if (!ok) return false;
-      addResult("movl $" + formatHex(num, 8) + "," + formatHex(ch2, 2) + "(%" +
+      addResult("movl $" + formatHex(num, 8) + "," + formatHex(ch2, 2) + "(" +
                 getReg(RegType::R32, op2) + ")", pos, result);
     }
 
@@ -179,7 +179,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst = "pushl ";
       }
 
-      addResult(inst + "%" + getReg(RegType::R32, op2), pos, result);
+      addResult(inst + getReg(RegType::R32, op2), pos, result);
     }
 
     // Unsupported
@@ -214,7 +214,7 @@ QString AsmX86::getReg(RegType type, int num) {
                                {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"},
                                {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"},
                                {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved"}};
-  return regs[type][num];
+  return "%" + regs[type][num];
 }
 
 QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
@@ -225,20 +225,20 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
   if (mod == 0) {
     if (op1 != 4 && op1 != 5 && op2 != 4 && op2 != 5) {
       return (!swap
-              ? "%" + getReg(type, op1) + ",(%" + getReg(type, op2) + ")"
-              : "(%" + getReg(type, op2) + "),%" + getReg(type, op1));
+              ? getReg(type, op1) + ",(" + getReg(type, op2) + ")"
+              : "(" + getReg(type, op2) + ")," + getReg(type, op1));
     }
     else if (op1 == 4) {
       unsigned char num = reader->getUChar();
       unsigned char m, o1, o2;
       splitByteModRM(num, m, o1, o2);
-      return "%" + getReg(type, op2) + ",(%" + getReg(type, o2) + ")";
+      return getReg(type, op2) + ",(" + getReg(type, o2) + ")";
     }
     else if (op2 == 4) {
       unsigned char num = reader->getUChar();
       unsigned char m, o1, o2;
       splitByteModRM(num, m, o1, o2);
-      return "%" + getReg(type, op1) + ",(%" + getReg(type, o1) + ")";
+      return getReg(type, op1) + ",(" + getReg(type, o1) + ")";
     }
     else {
       qDebug() << "unsupported mod=0 op1/op2 = 5" << op1 << op2;
@@ -250,9 +250,9 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
   else if (mod == 1) {
     unsigned char num = reader->getUChar();
     return (!swap
-            ? "%" + getReg(type, op1) + "," + formatHex(num, 2) + "(%" +
+            ? getReg(type, op1) + "," + formatHex(num, 2) + "(" +
             getReg(type, op2) + ")"
-            : formatHex(num, 2) + "(%" + getReg(type, op2) + "),%" +
+            : formatHex(num, 2) + "(" + getReg(type, op2) + ")," +
             getReg(type, op1));
   }
 
@@ -260,14 +260,14 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type, bool swap) {
   else if (mod == 2) {
     quint32 num = reader->getUInt32();
     return (!swap
-            ? "%" + getReg(type, op1) + "," + formatHex(num, 8) + "(%" +
+            ? getReg(type, op1) + "," + formatHex(num, 8) + "(" +
             getReg(type, op2) + ")"
-            : formatHex(num, 8) + "(%" + getReg(type, op2) + "),%" +
+            : formatHex(num, 8) + "(" + getReg(type, op2) + ")," +
             getReg(type, op1));
   }
 
   else if (mod == 3) {
-    return "%" + getReg(type, op1) + ",%" + getReg(type, op2);
+    return getReg(type, op1) + "," + getReg(type, op2);
   }
 
   return QString();
