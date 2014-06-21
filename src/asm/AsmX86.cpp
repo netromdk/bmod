@@ -292,12 +292,23 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       ch = nch;
       reader->getUChar(); // eat
 
+      nch = reader->peekUChar(&peek);
+
       // JNZ (rel16/32) or JNE (rel16/32), same functionality
       // different name. Relative function address.
       if (ch == 0x85) {
         num = reader->getUInt32(&ok);
         if (!ok) return false;
         addResult("jne " + formatHex(funcAddr + reader->pos() + num, 8),
+                  pos, result);
+      }
+
+      // MOVSX (r16/32 r/m8) (reverse)
+      // Move with Sign-Extension
+      else if (ch == 0xBE && peek) {
+        reader->getUChar(); // eat
+        if (!ok) return false;
+        addResult("movsbl " + getModRMByte(nch, RegType::R32, RegType::R8, true),
                   pos, result);
       }
     }
@@ -393,7 +404,9 @@ QString AsmX86::getModRMByte(unsigned char num, RegType type1, RegType type2,
   }
 
   else if (mod == 3) {
-    return getReg(type1, op1) + "," + getReg(type2, op2);
+    return (!swap
+            ? getReg(type1, op1) + "," + getReg(type2, op2)
+            : getReg(type2, op2) + "," + getReg(type1, op1));
   }
 
   return QString();
