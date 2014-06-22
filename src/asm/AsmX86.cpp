@@ -115,10 +115,13 @@ namespace {
   }
 
   QString Instruction::getSipString(RegType type) const {
-    return QString("(%1,%2,%3)")
-      .arg(getRegString(base, type))
-      .arg(getRegString(index, type))
-      .arg(pow(2, scale));
+    QString sip{"("};
+    sip += getRegString(base, type);
+    if (index != 4) {
+      sip += "," + getRegString(index, type) +
+        "," + QString::number(pow(2, scale));
+    }
+    return sip + ")";
   }
 
   QString Instruction::getDispString() const {
