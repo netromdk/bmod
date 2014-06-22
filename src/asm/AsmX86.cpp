@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QBuffer>
 
+#include <cmath>
+
 #include "AsmX86.h"
 #include "../Util.h"
 #include "../Reader.h"
@@ -15,18 +17,55 @@
 namespace {
   QString Instruction::toString() const {
     QString str(mnemonic);
+
+    bool comma{true};
     if (dstRegSet) {
       if (!str.endsWith(" ")) str += " ";
+      if (dispDst) {
+        str += getDispString() + "(";
+      }
       str += getRegString(dstReg, dstRegType);
+      if (dispDst) {
+        str += ")";
+      }
     }
+    else if (sipDst) {
+      if (!str.endsWith(" ")) str += " ";
+      if (dispDst) {
+        str += getDispString();
+      }
+      str += getSipString(dstRegType);
+    }
+    else {
+      comma = true;
+    }
+
     if (srcRegSet) {
-      if (!dstRegSet && !str.endsWith(" ")) {
+      if (!comma && !str.endsWith(" ")) {
         str += " ";
       }
       else {
         str += ",";
       }
+      if (dispSrc) {
+        str += getDispString() + "(";
+      }
       str += getRegString(srcReg, srcRegType);
+      if (dispSrc) {
+        str += ")";
+      }
+    }
+    else if (sipSrc) {
+      if (!comma && !str.endsWith(" ")) {
+        str += " ";
+      }
+      else {
+        str += ",";
+      }
+      if (dispSrc) {
+        str += getDispString();
+      }
+      str += getSipString(srcRegType);
     }
     return str;
   }
@@ -42,6 +81,21 @@ namespace {
                                  {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"},
                                  {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved"}};
     return "%" + regs[(int) type][reg];
+  }
+
+  QString Instruction::getSipString(RegType type) const {
+    return QString("(%1,%2,%3)")
+      .arg(getRegString(base, type))
+      .arg(getRegString(index, type))
+      .arg(pow(2, scale));
+  }
+
+  QString Instruction::getDispString() const {
+    return formatHex(disp, dispBytes * 2);
+  }
+  
+  QString Instruction::formatHex(quint32 num, int len) const {
+    return "0x" + Util::padString(QString::number(num, 16), len);
   }
 }
 
@@ -79,13 +133,23 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     // MOV (r16/32	r/m16/32) (reverse of 0x89)
     else if (ch == 0x8B && peek) {
-      reader->getUChar(); // eat
       Instruction inst;
       inst.mnemonic = "movl";
-      processModRegRM(nch, inst);
-      inst.dstRegType = RegType::R32;
       inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
       addResult(inst, pos, result);
+    }
+
+    // LEA (r16/32	m) Load Effective Address
+    else if (ch == 0x8D && peek) {
+      Instruction inst;
+      inst.mnemonic = "leal";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      addResult(inst, pos, result);
+      // TODO: was reversed before
     }
 
     // Unsupported
@@ -121,12 +185,115 @@ unsigned char AsmX86::getR(unsigned char num) {
   return num & 0x7; // 3 last bits  
 }
 
-void AsmX86::processModRegRM(unsigned char ch, Instruction &inst) {
-  splitByte(ch, inst.mod, inst.dstReg, inst.srcReg);
-  inst.dstRegSet = true;
-  inst.srcRegSet = true;
+void AsmX86::processModRegRM(Instruction &inst) {
+  unsigned char ch = reader->getUChar();
+
+  unsigned char mod, op1, op2;
+  splitByte(ch, mod, op1, op2);
+
+  // [reg]
+  if (mod == 0) {
+    if (op1 == 4) {
+      inst.sipSrc = true;
+      processSip(inst);
+    }
+    else if (op1 == 5) {
+      inst.dispSrc = true;
+    }
+    else {
+      inst.srcReg = op1;
+      inst.srcRegSet = true;
+    }
+    if (op2 == 4) {
+      inst.sipDst = true;
+      processSip(inst);
+    }
+    else if (op2 == 5) {
+      inst.dispDst = true;
+    }
+    else {
+      inst.dstReg = op2;
+      inst.dstRegSet = true;
+    }
+    if (inst.dispSrc) {
+      processDisp32(inst);
+    }
+    if (inst.dispDst) {
+      processDisp32(inst);
+    }
+  }
+
+  // [reg]+disp8
+  else if (mod == 1) {
+    if (op1 != 4) {
+      inst.srcReg = op1;
+      inst.srcRegSet = true;
+    }
+    else {
+      inst.sipSrc = true;
+      processSip(inst);
+    }
+    if (op2 != 4) {
+      inst.dstReg = op2;
+      inst.dstRegSet = true;
+    }
+    else {
+      inst.sipDst = true;
+      processSip(inst);
+    }
+    inst.dispDst = true;
+    processDisp8(inst);
+  }
+
+  // [reg]+disp32
+  else if (mod == 2) {
+    if (op1 != 4) {
+      inst.srcReg = op1;
+      inst.srcRegSet = true;
+    }
+    else {
+      inst.sipSrc = true;
+      processSip(inst);
+    }
+    if (op2 != 4) {
+      inst.dstReg = op2;
+      inst.dstRegSet = true;
+    }
+    else {
+      inst.sipDst = true;
+      processSip(inst);
+    }
+    inst.dispDst = true;
+    processDisp32(inst);
+  }
+
+  // [reg]
+  else if (mod == 3) {
+    inst.srcReg = op1;
+    inst.srcRegSet = true;
+    inst.dstReg = op2;
+    inst.dstRegSet = true;
+  }
 }
 
-QString AsmX86::formatHex(quint32 num, int len) {
-  return "0x" + Util::padString(QString::number(num, 16), len);
+void AsmX86::processSip(Instruction &inst) {
+  unsigned char sip = reader->getUChar();
+  splitByte(sip, inst.scale, inst.index, inst.base);
+  qDebug() << "sip, scale=" << inst.scale
+           << "index=" << inst.index
+           << "base=" << inst.base;
+  qDebug() << "src:" << inst.sipSrc;
+  qDebug() << "dst:" << inst.sipDst;
+}
+
+void AsmX86::processDisp8(Instruction &inst) {
+  inst.disp = reader->getUChar();
+  inst.dispBytes = 1;
+  qDebug() << "disp8:" << inst.disp;
+}
+
+void AsmX86::processDisp32(Instruction &inst) {
+  inst.disp = reader->getUInt32();
+  inst.dispBytes = 4;
+  qDebug() << "disp32:" << inst.disp;
 }

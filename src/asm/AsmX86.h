@@ -18,24 +18,30 @@ namespace {
   class Instruction {
   public:
     Instruction()
-      : mod{0}, srcReg{0}, dstReg{0}, rm{0}, srcRegSet{false}, dstRegSet{false},
-      srcRegType{RegType::R8}, dstRegType{RegType::R8}, scale{-1}, index{-1},
-      base{-1}, srcDisp{0}, dstDisp{0}, srcImm{0}, dstImm{0}
+      : srcReg{0}, dstReg{0}, srcRegSet{false}, dstRegSet{false},
+      srcRegType{RegType::R8}, dstRegType{RegType::R8}, scale{0}, index{0},
+      base{0}, sipSrc{false}, sipDst{false}, disp{0}, imm{0}, dispSrc{false},
+      dispDst{false}, immSet{false}, dispBytes{1}
     { }
 
     QString toString() const;
 
   private:
     QString getRegString(int reg, RegType type) const;
+    QString getSipString(RegType type) const;
+    QString getDispString() const;
+    QString formatHex(quint32 num, int len = 2) const;
 
   public:
     QString mnemonic;
-    unsigned char mod, srcReg, dstReg, rm; // mod-reg-r/m values
+    unsigned char srcReg, dstReg;
     bool srcRegSet, dstRegSet;
     RegType srcRegType, dstRegType;
-    char scale, index, base; // SIP values
-    qint32 srcDisp, dstDisp, // displacement
-      srcImm, dstImm; // immediate data
+    unsigned char scale, index, base; // SIP values
+    bool sipSrc, sipDst;
+    qint32 disp, imm;
+    bool dispSrc, dispDst, immSet;
+    char dispBytes;
   };
 }
 
@@ -55,10 +61,10 @@ private:
   // Get last 3 bits.
   unsigned char getR(unsigned char num);
 
-  void processModRegRM(unsigned char ch, Instruction &inst);
-
-  // Format and pad num as "0x.."
-  QString formatHex(quint32 num, int len = 2);
+  void processModRegRM(Instruction &inst);
+  void processSip(Instruction &inst);
+  void processDisp8(Instruction &inst);
+  void processDisp32(Instruction &inst);
 
   BinaryObjectPtr obj;
   ReaderPtr reader;
