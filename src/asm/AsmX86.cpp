@@ -516,9 +516,20 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
       nch = reader->peekUChar(&peek);
 
+      // NOP (r/m16/32)
+      if (ch == 0x1F && peek) {
+        Instruction inst;
+        inst.mnemonic = "nopl";
+        inst.srcRegType = RegType::R32;
+        inst.dstRegType = RegType::R32;
+        processModRegRM(inst);
+        inst.srcRegSet = false;
+        addResult(inst, pos, result);
+      }
+
       // JNZ (rel16/32) or JNE (rel16/32), same functionality
       // different name. Relative function address.
-      if (ch == 0x85) {
+      else if (ch == 0x85) {
         Instruction inst;
         inst.mnemonic = "jne";
         inst.disp = reader->getUInt32();
