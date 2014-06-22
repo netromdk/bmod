@@ -25,6 +25,7 @@ namespace {
     { }
 
     QString toString() const;
+    void reverse();
 
   private:
     QString getRegString(int reg, RegType type) const;

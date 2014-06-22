@@ -78,6 +78,14 @@ namespace {
     return str;
   }
 
+  void Instruction::reverse() {
+    qSwap<unsigned char>(srcReg, dstReg);
+    qSwap<bool>(srcRegSet, dstRegSet);
+    qSwap<RegType>(srcRegType, dstRegType);
+    qSwap<bool>(sipSrc, sipDst);
+    qSwap<bool>(dispSrc, dispDst);
+  }
+
   QString Instruction::getRegString(int reg, RegType type) const {
     if (reg < 0 || reg > 7) {
       return QString();
@@ -139,7 +147,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
-    // MOV (r16/32	r/m16/32) (reverse of 0x89)
+    // MOV (r16/32	r/m16/32)
     else if (ch == 0x8B && peek) {
       Instruction inst;
       inst.mnemonic = "movl";
@@ -158,6 +166,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       processModRegRM(inst);
       addResult(inst, pos, result);
       // TODO: was reversed before(?)
+    }
+
+    // MOV (r/m16/32  r16/32) (reverse of 0x8B)
+    else if (ch == 0x89 && peek) {
+      Instruction inst;
+      inst.mnemonic = "movl";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      inst.reverse();
+      addResult(inst, pos, result);
     }
 
     // Call (relative function address)
