@@ -228,6 +228,16 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // AND (r16/32  r/m16/32)
+    else if (ch == 0x23 && peek) {
+      Instruction inst;
+      inst.mnemonic = "andl";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      addResult(inst, pos, result);
+    }
+
     // AND (eAX  imm16/32)
     else if (ch == 0x25) {
       Instruction inst;
