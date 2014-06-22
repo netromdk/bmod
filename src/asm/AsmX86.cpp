@@ -276,6 +276,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // JMP (rel16/32) (relative address)
+    else if (ch == 0xE9) {
+      Instruction inst;
+      inst.mnemonic = "jmp";
+      inst.disp = reader->getUInt32();
+      inst.dispBytes = 4;
+      inst.dispSrc = true;
+      inst.offset = funcAddr + reader->pos();
+      addResult(inst, pos, result);
+    }
+
     // INC, DEC, CALL, CALLF, JMP, JMPF, PUSH
     else if (ch == 0xFF && peek) {
       Instruction inst;
