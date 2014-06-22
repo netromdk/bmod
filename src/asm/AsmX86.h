@@ -21,7 +21,7 @@ namespace {
       : srcReg{0}, dstReg{0}, srcRegSet{false}, dstRegSet{false},
       srcRegType{RegType::R8}, dstRegType{RegType::R8}, scale{0}, index{0},
       base{0}, sipSrc{false}, sipDst{false}, disp{0}, imm{0}, dispSrc{false},
-      dispDst{false}, immSet{false}, dispBytes{1}
+      dispDst{false}, immSet{false}, dispBytes{1}, offset{0}
     { }
 
     QString toString() const;
@@ -42,6 +42,7 @@ namespace {
     qint32 disp, imm;
     bool dispSrc, dispDst, immSet;
     char dispBytes;
+    qint32 offset;
   };
 }
 

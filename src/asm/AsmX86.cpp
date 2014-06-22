@@ -37,6 +37,7 @@ namespace {
       str += getSipString(dstRegType);
     }
     else if (dispDst) {
+      if (!str.endsWith(" ")) str += " ";
       str += getDispString();
     }
     else {
@@ -71,6 +72,7 @@ namespace {
       str += getSipString(srcRegType);
     }
     else if (dispSrc) {
+      if (!str.endsWith(" ")) str += " ";
       str += getDispString();
     }
     return str;
@@ -97,7 +99,7 @@ namespace {
   }
 
   QString Instruction::getDispString() const {
-    return formatHex(disp, dispBytes * 2);
+    return formatHex(disp + offset, dispBytes * 2);
   }
   
   QString Instruction::formatHex(quint32 num, int len) const {
@@ -117,7 +119,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
   quint64 funcAddr = sec->getAddress();
 
   bool ok{true}, peek{false};
-  unsigned char ch, nch, ch2, r, mod, op1, op2;
+  unsigned char ch, nch;
   quint32 num{0};
   qint64 pos{0};
   while (!reader->atEnd()) {
@@ -156,6 +158,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       processModRegRM(inst);
       addResult(inst, pos, result);
       // TODO: was reversed before(?)
+    }
+
+    // Call (relative function address)
+    else if (ch == 0xE8) {
+      Instruction inst;
+      inst.mnemonic = "calll";
+      inst.disp = reader->getUInt32();
+      inst.dispBytes = 4;
+      inst.dispSrc = true;
+      inst.offset = funcAddr + reader->pos();
+      addResult(inst, pos, result);
     }
 
     // INC, DEC, CALL, CALLF, JMP, JMPF, PUSH
@@ -320,21 +333,23 @@ void AsmX86::processModRegRM(Instruction &inst) {
 void AsmX86::processSip(Instruction &inst) {
   unsigned char sip = reader->getUChar();
   splitByte(sip, inst.scale, inst.index, inst.base);
+  /*
   qDebug() << "sip, scale=" << inst.scale
            << "index=" << inst.index
            << "base=" << inst.base;
   qDebug() << "src:" << inst.sipSrc;
   qDebug() << "dst:" << inst.sipDst;
+  */
 }
 
 void AsmX86::processDisp8(Instruction &inst) {
   inst.disp = reader->getUChar();
   inst.dispBytes = 1;
-  qDebug() << "disp8:" << inst.disp;
+  //qDebug() << "disp8:" << inst.disp;
 }
 
 void AsmX86::processDisp32(Instruction &inst) {
   inst.disp = reader->getUInt32();
   inst.dispBytes = 4;
-  qDebug() << "disp32:" << inst.disp;
+  //qDebug() << "disp32:" << inst.disp;
 }
