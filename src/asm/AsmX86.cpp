@@ -211,6 +211,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // OR (r/m16/32  r16/32)
+    else if (ch == 0x09) {
+      Instruction inst;
+      inst.mnemonic = "orl";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      inst.reverse();
+      addResult(inst, pos, result);
+    }
+
     // OR (eAX  imm16/32)
     else if (ch == 0x0D) {
       Instruction inst;
