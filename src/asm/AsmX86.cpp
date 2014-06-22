@@ -249,6 +249,11 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // RETN
+    else if (ch == 0xC3) {
+      addResult("ret", pos, result);
+    }
+
     // MOV (r/m16/32	imm16/32)
     else if (ch == 0xC7 && peek) {
       Instruction inst;
