@@ -210,6 +210,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // SUB (r/m16/32  r16/32)
+    else if (ch == 0x29 && peek) {
+      Instruction inst;
+      inst.mnemonic = "subl";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      inst.reverse();
+      addResult(inst, pos, result);
+    }
+
     // CMP (r16/32 r/m16/32)
     else if (ch == 0x3B && peek) {
       Instruction inst;
