@@ -416,6 +416,22 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult("ret", pos, result);
     }
 
+    // MOV (r/m8  imm8)
+    else if (ch == 0xC6 && peek) {
+      Instruction inst;
+      inst.mnemonic = "movb";
+      inst.srcRegType = RegType::R8;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      inst.reverse();
+
+      inst.immDst = true;
+      inst.dstRegSet = false;
+      processImm8(inst);
+
+      addResult(inst, pos, result);
+    }
+
     // MOV (r/m16/32	imm16/32)
     else if (ch == 0xC7 && peek) {
       Instruction inst;
