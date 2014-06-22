@@ -458,7 +458,6 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.offset = funcAddr + reader->pos();
       addResult(inst, pos, result);
     }
-
     // JMP (rel16/32) (relative address)
     else if (ch == 0xE9) {
       Instruction inst;
@@ -521,6 +520,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.dispBytes = 4;
         inst.dispSrc = true;
         inst.offset = funcAddr + reader->pos();
+        addResult(inst, pos, result);
+      }
+
+      // MOVSX (r16/32 r/m8)
+      // Move with Sign-Extension
+      else if (ch == 0xBE && peek) {
+        Instruction inst;
+        inst.mnemonic = "movsbl";
+        inst.srcRegType = RegType::R32;
+        inst.dstRegType = RegType::R32;
+        processModRegRM(inst);
         addResult(inst, pos, result);
       }
     }
