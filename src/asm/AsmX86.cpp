@@ -165,6 +165,16 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // POP
+    else if (ch >= 0x58 && ch <= 0x60) {
+      Instruction inst;
+      inst.mnemonic = "popl";
+      inst.dstReg = getR(ch);
+      inst.dstRegType = RegType::R32;
+      inst.dstRegSet = true;
+      addResult(inst, pos, result);
+    }
+
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m16/32	imm8)
     else if (ch == 0x83 && peek) {
