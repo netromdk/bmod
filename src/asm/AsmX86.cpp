@@ -342,6 +342,48 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     }
 
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
+    // (r/m8  imm8)
+    else if (ch == 0x80 && peek) {
+      Instruction inst;
+      inst.srcRegType = RegType::R8;
+      inst.dstRegType = RegType::R8;
+      processModRegRM(inst);
+
+      inst.immDst = true;
+      processImm8(inst);
+
+      // Don't display the 'src' after the 'dst'.
+      inst.srcRegSet = false;
+
+      if (inst.srcReg == 0) {
+        inst.mnemonic = "addb";
+      }
+      else if (inst.srcReg == 1) {
+        inst.mnemonic = "orb";
+      }
+      else if (inst.srcReg == 2) {
+        inst.mnemonic = "adcb"; // Add with carry
+      }
+      else if (inst.srcReg == 3) {
+        inst.mnemonic = "sbbb"; // Integer subtraction with borrow
+      }
+      else if (inst.srcReg == 4) {
+        inst.mnemonic = "andb";
+      }
+      else if (inst.srcReg == 5) {
+        inst.mnemonic = "subb";
+      }
+      else if (inst.srcReg == 6) {
+        inst.mnemonic = "xorb";
+      }
+      else if (inst.srcReg == 7) {
+        inst.mnemonic = "cmpb";
+      }
+
+      addResult(inst, pos, result);
+    }
+
+    // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m16/32	imm16/32)
     else if (ch == 0x81 && peek) {
       Instruction inst;
