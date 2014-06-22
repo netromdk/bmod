@@ -182,9 +182,26 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0x25) {
       Instruction inst;
       inst.mnemonic = "andl";
-      inst.disp = reader->getUInt32();
-      inst.dispBytes = 4;
-      inst.dispDst = true;
+      inst.imm = reader->getUInt32();
+      inst.immBytes = 4;
+      inst.immDst = true;
+
+      // Src is always %eax.
+      inst.srcReg = 0;
+      inst.srcRegSet = true;
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+
+      addResult(inst, pos, result);
+    }
+
+    // CMP (eAX  imm16/32)
+    else if (ch == 0x3D) {
+      Instruction inst;
+      inst.mnemonic = "cmpl";
+      inst.imm = reader->getUInt32();
+      inst.immBytes = 4;
+      inst.immDst = true;
 
       // Src is always %eax.
       inst.srcReg = 0;
@@ -365,7 +382,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dispBytes = 1;
       inst.dispDst = true;
 
-      // Src is always %eax.
+      // Src is always %al.
       inst.srcReg = 0;
       inst.srcRegSet = true;
       inst.srcRegType = RegType::R8;
