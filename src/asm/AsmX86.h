@@ -56,6 +56,7 @@ public:
   bool disassemble(SectionPtr sec, Disassembly &result);
 
 private:
+  bool handleNops(Disassembly &result);
   void addResult(const Instruction &inst, qint64 pos, Disassembly &result);
   void addResult(const QString &inst, qint64 pos, Disassembly &result);
 
