@@ -19,7 +19,7 @@ namespace {
   public:
     Instruction()
       : srcReg{0}, dstReg{0}, srcRegSet{false}, dstRegSet{false},
-      srcRegType{RegType::R8}, dstRegType{RegType::R8}, scale{0}, index{0},
+      srcRegType{RegType::R32}, dstRegType{RegType::R32}, scale{0}, index{0},
       base{0}, sipSrc{false}, sipDst{false}, disp{0}, imm{0}, dispSrc{false},
       dispDst{false}, immSrc{false}, immDst{false}, dispBytes{1}, immBytes{1},
       offset{0}
