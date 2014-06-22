@@ -167,7 +167,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     nch = reader->peekUChar(&peek);
 
-    // ADD (r/m16/32  r16/32)
+    // ADD (r/m16/32  r16/32) (reverse of 0x03)
     if (ch == 0x01 && peek) {
       Instruction inst;
       inst.mnemonic = "addl";
@@ -175,6 +175,16 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R32;
       processModRegRM(inst);
       inst.reverse();
+      addResult(inst, pos, result);
+    }
+
+    // ADD (r16/32  r/m16/32)
+    else if (ch == 0x03 && peek) {
+      Instruction inst;
+      inst.mnemonic = "addl";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
       addResult(inst, pos, result);
     }
 
