@@ -129,7 +129,7 @@ namespace {
   }
 
   QString Instruction::getImmString() const {
-    return formatHex(imm + offset, immBytes * 2);
+    return "$" + formatHex(imm + offset, immBytes * 2);
   }
   
   QString Instruction::formatHex(quint32 num, int len) const {
@@ -175,6 +175,48 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstReg = getR(ch);
       inst.dstRegType = RegType::R32;
       inst.dstRegSet = true;
+      addResult(inst, pos, result);
+    }
+
+    // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
+    // (r/m16/32	imm16/32)
+    else if (ch == 0x81 && peek) {
+      Instruction inst;
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+
+      inst.immDst = true;
+      processImm32(inst);
+
+      // Don't display the 'src' after the 'dst'.
+      inst.srcRegSet = false;
+
+      if (inst.srcReg == 0) {
+        inst.mnemonic = "addl";
+      }
+      else if (inst.srcReg == 1) {
+        inst.mnemonic = "orl";
+      }
+      else if (inst.srcReg == 2) {
+        inst.mnemonic = "adcl"; // Add with carry
+      }
+      else if (inst.srcReg == 3) {
+        inst.mnemonic = "sbbl"; // Integer subtraction with borrow
+      }
+      else if (inst.srcReg == 4) {
+        inst.mnemonic = "andl";
+      }
+      else if (inst.srcReg == 5) {
+        inst.mnemonic = "subl";
+      }
+      else if (inst.srcReg == 6) {
+        inst.mnemonic = "xorl";
+      }
+      else if (inst.srcReg == 7) {
+        inst.mnemonic = "cmpl";
+      }
+
       addResult(inst, pos, result);
     }
 
