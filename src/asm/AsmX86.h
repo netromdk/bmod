@@ -18,9 +18,9 @@ namespace {
   class Instruction {
   public:
     Instruction()
-      : mod{-1}, srcReg{-1}, dstReg{-1}, rm{-1}, srcRegType{RegType::R8},
-      dstRegType{RegType::R8}, scale{-1}, index{-1}, base{-1}, srcDisp{0},
-      dstDisp{0}, srcImm{0}, dstImm{0}
+      : mod{0}, srcReg{0}, dstReg{0}, rm{0}, srcRegSet{false}, dstRegSet{false},
+      srcRegType{RegType::R8}, dstRegType{RegType::R8}, scale{-1}, index{-1},
+      base{-1}, srcDisp{0}, dstDisp{0}, srcImm{0}, dstImm{0}
     { }
 
     QString toString() const;
@@ -30,7 +30,8 @@ namespace {
 
   public:
     QString mnemonic;
-    char mod, srcReg, dstReg, rm; // mod-reg-r/m values
+    unsigned char mod, srcReg, dstReg, rm; // mod-reg-r/m values
+    bool srcRegSet, dstRegSet;
     RegType srcRegType, dstRegType;
     char scale, index, base; // SIP values
     qint32 srcDisp, dstDisp, // displacement
@@ -53,6 +54,8 @@ private:
 
   // Get last 3 bits.
   unsigned char getR(unsigned char num);
+
+  void processModRegRM(unsigned char ch, Instruction &inst);
 
   // Format and pad num as "0x.."
   QString formatHex(quint32 num, int len = 2);

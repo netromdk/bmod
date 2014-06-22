@@ -15,8 +15,18 @@
 namespace {
   QString Instruction::toString() const {
     QString str(mnemonic);
-    if (dstReg != -1) {
-      str += " " + getRegString(dstReg, dstRegType);
+    if (dstRegSet) {
+      if (!str.endsWith(" ")) str += " ";
+      str += getRegString(dstReg, dstRegType);
+    }
+    if (srcRegSet) {
+      if (!dstRegSet && !str.endsWith(" ")) {
+        str += " ";
+      }
+      else {
+        str += ",";
+      }
+      str += getRegString(srcReg, srcRegType);
     }
     return str;
   }
@@ -63,6 +73,18 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "pushl";
       inst.dstReg = getR(ch);
       inst.dstRegType = RegType::R32;
+      inst.dstRegSet = true;
+      addResult(inst, pos, result);
+    }
+
+    // MOV (r16/32	r/m16/32) (reverse of 0x89)
+    else if (ch == 0x8B && peek) {
+      reader->getUChar(); // eat
+      Instruction inst;
+      inst.mnemonic = "movl";
+      processModRegRM(nch, inst);
+      inst.dstRegType = RegType::R32;
+      inst.srcRegType = RegType::R32;
       addResult(inst, pos, result);
     }
 
@@ -97,6 +119,12 @@ void AsmX86::splitByte(unsigned char num, unsigned char &mod, unsigned char &op1
 
 unsigned char AsmX86::getR(unsigned char num) {
   return num & 0x7; // 3 last bits  
+}
+
+void AsmX86::processModRegRM(unsigned char ch, Instruction &inst) {
+  splitByte(ch, inst.mod, inst.dstReg, inst.srcReg);
+  inst.dstRegSet = true;
+  inst.srcRegSet = true;
 }
 
 QString AsmX86::formatHex(quint32 num, int len) {
