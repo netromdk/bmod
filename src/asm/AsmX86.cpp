@@ -762,6 +762,16 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         addResult(inst, pos, result);
       }
 
+      // SETZ (r/m8) or SETE (r/m8)
+      else if (ch == 0x94 && peek) {
+        Instruction inst;
+        inst.mnemonic = "sete";
+        inst.dstRegType = RegType::R8;
+        processModRegRM(inst);
+        inst.srcRegSet = false;
+        addResult(inst, pos, result);
+      }
+
       // SETNZ (r/m8) or SETNE (r/m8).
       else if (ch == 0x95 && peek) {
         Instruction inst;
