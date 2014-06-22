@@ -205,6 +205,16 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // CMP (r16/32 r/m16/32)
+    else if (ch == 0x3B && peek) {
+      Instruction inst;
+      inst.mnemonic = "cmpl";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      addResult(inst, pos, result);
+    }
+
     // CMP (eAX  imm16/32)
     else if (ch == 0x3D) {
       Instruction inst;
