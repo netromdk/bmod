@@ -564,6 +564,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         addResult(inst, pos, result);
       }
 
+      // JNB (rel16/32), JAE (rel16/32), or JNC (rel16/32).
+      else if (ch == 0x83) {
+        Instruction inst;
+        inst.mnemonic = "jae";
+        inst.disp = reader->getUInt32();
+        inst.dispBytes = 4;
+        inst.dispSrc = true;
+        inst.offset = funcAddr + reader->pos();
+        addResult(inst, pos, result);
+      }
+
       // JZ (rel16/32) or JE (rel16/32), same functionality different
       // name. Relative function address.
       else if (ch == 0x84) {
