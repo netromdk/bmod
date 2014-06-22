@@ -361,19 +361,15 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0xA8 && peek) {
       Instruction inst;
       inst.mnemonic = "testb";
-      inst.srcRegType = RegType::R8;
-      inst.dstRegType = RegType::R8;
-      processModRegRM(inst);
+      inst.disp = reader->getUChar();
+      inst.dispBytes = 1;
+      inst.dispDst = true;
 
-      // Src is always %al.
+      // Src is always %eax.
       inst.srcReg = 0;
       inst.srcRegSet = true;
-
-      // Convert dst reg into imm8.
-      inst.imm = inst.dstReg;
-      inst.immDst = true;
-      inst.immBytes = 1;
-      inst.dstRegSet = false;
+      inst.srcRegType = RegType::R8;
+      inst.dstRegType = RegType::R8;
 
       addResult(inst, pos, result);
     }
