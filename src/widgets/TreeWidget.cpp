@@ -203,6 +203,7 @@ void TreeWidget::findAddress() {
     if (!ok) continue;
     if (n == num) {
       setCurrentItem(item);
+      scrollToItem(item, QAbstractItemView::PositionAtCenter);
       return;
     }
 
@@ -212,6 +213,7 @@ void TreeWidget::findAddress() {
       if (!ok) continue;
       if (num >= n && num < n2) {
         setCurrentItem(item);
+        scrollToItem(item, QAbstractItemView::PositionAtCenter);
         return;
       }
     }
