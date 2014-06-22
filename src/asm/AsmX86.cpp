@@ -27,7 +27,8 @@ namespace {
       else if (immDst) {
         str += getImmString() + ",";
       }
-      str += getRegString(dstReg, dstRegType);
+      str += getRegString(dstReg, dstRegType,
+                          dispDst ? RegType::SREG : srcRegType);
       if (dispDst) {
         str += ")";
       }
@@ -64,7 +65,8 @@ namespace {
       else if (immSrc) {
         str += getImmString() + ",";
       }
-      str += getRegString(srcReg, srcRegType);
+      str += getRegString(srcReg, srcRegType,
+                          dispSrc ? RegType::SREG : dstRegType);
       if (dispSrc) {
         str += ")";
       }
@@ -101,7 +103,8 @@ namespace {
     qSwap<bool>(immSrc, immDst);
   }
 
-  QString Instruction::getRegString(int reg, RegType type) const {
+  QString Instruction::getRegString(int reg, RegType type,
+                                    RegType type2) const {
     if (reg < 0 || reg > 7) {
       return QString();
     }
@@ -111,7 +114,13 @@ namespace {
                                  {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"},
                                  {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"},
                                  {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved"}};
-    return "%" + regs[(int) type][reg];
+    QString res = "%" + regs[(int) type][reg];
+
+    // If opposite type is less than then mark as address reference.
+    if ((int) type > (int) type2) {
+      res = "(" + res + ")";
+    }
+    return res;
   }
 
   QString Instruction::getSipString(RegType type) const {
@@ -259,6 +268,16 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.mnemonic = "cmpl";
       }
 
+      addResult(inst, pos, result);
+    }
+
+    // MOV (r8  r/m8) (reverse of 0x88)
+    else if (ch == 0x8A && peek) {
+      Instruction inst;
+      inst.mnemonic = "movb";
+      inst.srcRegType = RegType::R8;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
       addResult(inst, pos, result);
     }
 

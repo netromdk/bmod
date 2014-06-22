@@ -29,7 +29,8 @@ namespace {
     void reverse();
 
   private:
-    QString getRegString(int reg, RegType type) const;
+    QString getRegString(int reg, RegType type,
+                         RegType type2 = RegType::SREG) const;
     QString getSipString(RegType type) const;
     QString getDispString() const;
     QString getImmString() const;
