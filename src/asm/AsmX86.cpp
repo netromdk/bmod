@@ -575,6 +575,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         addResult(inst, pos, result);
       }
 
+      // MOVZX (r16/32 r/m8)
+      // Move with Zero-Extension
+      else if (ch == 0xB6) {
+        Instruction inst;
+        inst.mnemonic = "movzbl";
+        inst.srcRegType = RegType::R32;
+        inst.dstRegType = RegType::R32;
+        processModRegRM(inst);
+        addResult(inst, pos, result);
+      }
+
       // MOVSX (r16/32 r/m8)
       // Move with Sign-Extension
       else if (ch == 0xBE && peek) {
