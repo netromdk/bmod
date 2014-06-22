@@ -36,8 +36,11 @@ namespace {
       }
       str += getSipString(dstRegType);
     }
+    else if (dispDst) {
+      str += getDispString();
+    }
     else {
-      comma = true;
+      comma = false;
     }
 
     if (srcRegSet) {
@@ -66,6 +69,9 @@ namespace {
         str += getDispString();
       }
       str += getSipString(srcRegType);
+    }
+    else if (dispSrc) {
+      str += getDispString();
     }
     return str;
   }
@@ -149,7 +155,42 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R32;
       processModRegRM(inst);
       addResult(inst, pos, result);
-      // TODO: was reversed before
+      // TODO: was reversed before(?)
+    }
+
+    // INC, DEC, CALL, CALLF, JMP, JMPF, PUSH
+    else if (ch == 0xFF && peek) {
+      Instruction inst;
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+
+      // Don't display the 'src' after the 'dst'.
+      inst.srcRegSet = false;
+
+      if (inst.srcReg == 0) {
+        inst.mnemonic = "inc ";
+      }
+      else if (inst.srcReg == 1) {
+        inst.mnemonic = "dec ";
+      }
+      else if (inst.srcReg == 2) {
+        inst.mnemonic = "call *";
+      }
+      else if (inst.srcReg == 3) {
+        inst.mnemonic = "callf ";
+      }
+      else if (inst.srcReg == 4) {
+        inst.mnemonic = "jmp ";
+      }
+      else if (inst.srcReg == 5) {
+        inst.mnemonic = "jmpf ";
+      }
+      else if (inst.srcReg == 6) {
+        inst.mnemonic = "pushl ";
+      }
+
+      addResult(inst, pos, result);
     }
 
     // Unsupported
