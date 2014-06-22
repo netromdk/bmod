@@ -249,6 +249,11 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // NOP
+    else if (ch == 0x90) {
+      addResult("nop", pos, result);
+    }
+
     // RETN
     else if (ch == 0xC3) {
       addResult("ret", pos, result);
