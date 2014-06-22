@@ -28,6 +28,7 @@ namespace {
         str += getDispString() + "(";
       }
       str += getRegString(dstReg, dstRegType,
+                          // Using SREG because it's the greatest value.
                           dispDst ? RegType::SREG : srcRegType);
       if (dispDst) {
         str += ")";
@@ -535,6 +536,18 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.dstRegType = RegType::R32;
         processModRegRM(inst);
         inst.srcRegSet = false;
+        addResult(inst, pos, result);
+      }
+
+      // JZ (rel16/32) or JE (rel16/32), same functionality different
+      // name. Relative function address.
+      else if (ch == 0x84) {
+        Instruction inst;
+        inst.mnemonic = "je";
+        inst.disp = reader->getUInt32();
+        inst.dispBytes = 4;
+        inst.dispSrc = true;
+        inst.offset = funcAddr + reader->pos();
         addResult(inst, pos, result);
       }
 
