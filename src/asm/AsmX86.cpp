@@ -428,6 +428,26 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // Two-byte instructions.
+    else if (ch == 0x0F && peek) {
+      ch = nch;
+      reader->getUChar(); // eat
+
+      nch = reader->peekUChar(&peek);
+
+      // JNZ (rel16/32) or JNE (rel16/32), same functionality
+      // different name. Relative function address.
+      if (ch == 0x85) {
+        Instruction inst;
+        inst.mnemonic = "jne";
+        inst.disp = reader->getUInt32();
+        inst.dispBytes = 4;
+        inst.dispSrc = true;
+        inst.offset = funcAddr + reader->pos();
+        addResult(inst, pos, result);
+      }
+    }
+
     // Unsupported
     else {
       addResult("Unsupported: " + QString::number(ch, 16).toUpper(),
