@@ -332,7 +332,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     }
 
     // POP
-    else if (ch >= 0x58 && ch <= 0x60) {
+    else if (ch >= 0x58 && ch <= 0x5F) {
       Instruction inst;
       inst.mnemonic = "popl";
       inst.dstReg = getR(ch);
