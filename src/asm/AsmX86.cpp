@@ -239,6 +239,23 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // SUB (eAX  imm16/32)
+    else if (ch == 0x2D) {
+      Instruction inst;
+      inst.mnemonic = "subl";
+      inst.imm = reader->getUInt32();
+      inst.immBytes = 4;
+      inst.immDst = true;
+
+      // Src is always %eax.
+      inst.srcReg = 0;
+      inst.srcRegSet = true;
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+
+      addResult(inst, pos, result);
+    }
+
     // CMP (r16/32 r/m16/32)
     else if (ch == 0x3B && peek) {
       Instruction inst;
