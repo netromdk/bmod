@@ -439,6 +439,20 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // MOV (r16/32  imm16/32)
+    else if (ch >= 0xB8 && ch <= 0xBF) {
+      Instruction inst;
+      inst.mnemonic = "movl";
+      inst.dstReg = getR(ch);
+      inst.dstRegType = RegType::R32;
+      inst.dstRegSet = true;
+
+      inst.immDst = true;
+      processImm32(inst);
+
+      addResult(inst, pos, result);
+    }
+
     // RETN
     else if (ch == 0xC3) {
       addResult("ret", pos, result);
