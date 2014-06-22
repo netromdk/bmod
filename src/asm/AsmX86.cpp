@@ -329,6 +329,27 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult("nop", pos, result);
     }
 
+    // TEST	(AL	imm8)
+    else if (ch == 0xA8 && peek) {
+      Instruction inst;
+      inst.mnemonic = "testb";
+      inst.srcRegType = RegType::R8;
+      inst.dstRegType = RegType::R8;
+      processModRegRM(inst);
+
+      // Src is always %al.
+      inst.srcReg = 0;
+      inst.srcRegSet = true;
+
+      // Convert dst reg into imm8.
+      inst.imm = inst.dstReg;
+      inst.immDst = true;
+      inst.immBytes = 1;
+      inst.dstRegSet = false;
+
+      addResult(inst, pos, result);
+    }
+
     // RETN
     else if (ch == 0xC3) {
       addResult("ret", pos, result);
