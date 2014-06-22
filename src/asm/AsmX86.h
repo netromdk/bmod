@@ -21,7 +21,8 @@ namespace {
       : srcReg{0}, dstReg{0}, srcRegSet{false}, dstRegSet{false},
       srcRegType{RegType::R8}, dstRegType{RegType::R8}, scale{0}, index{0},
       base{0}, sipSrc{false}, sipDst{false}, disp{0}, imm{0}, dispSrc{false},
-      dispDst{false}, immSet{false}, dispBytes{1}, offset{0}
+      dispDst{false}, immSrc{false}, immDst{false}, dispBytes{1}, immBytes{1},
+      offset{0}
     { }
 
     QString toString() const;
@@ -31,6 +32,7 @@ namespace {
     QString getRegString(int reg, RegType type) const;
     QString getSipString(RegType type) const;
     QString getDispString() const;
+    QString getImmString() const;
     QString formatHex(quint32 num, int len = 2) const;
 
   public:
@@ -41,8 +43,8 @@ namespace {
     unsigned char scale, index, base; // SIP values
     bool sipSrc, sipDst;
     qint32 disp, imm;
-    bool dispSrc, dispDst, immSet;
-    char dispBytes;
+    bool dispSrc, dispDst, immSrc, immDst;
+    char dispBytes, immBytes;
     qint32 offset;
   };
 }
@@ -67,6 +69,7 @@ private:
   void processSip(Instruction &inst);
   void processDisp8(Instruction &inst);
   void processDisp32(Instruction &inst);
+  void processImm8(Instruction &inst);
 
   BinaryObjectPtr obj;
   ReaderPtr reader;
