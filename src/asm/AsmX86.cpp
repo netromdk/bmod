@@ -470,6 +470,48 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // ROL, ROR, RCL, RCR, SHL/SAL, SHR, SAL/SHL, SAR
+    // (r/m16/32  imm8)
+    else if (ch == 0xC1) {
+      Instruction inst;
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+
+      inst.immDst = true;
+      processImm8(inst);
+
+      // Don't display the 'src' after the 'dst'.
+      inst.srcRegSet = false;
+
+      if (inst.srcReg == 0) {
+        inst.mnemonic = "roll";
+      }
+      else if (inst.srcReg == 1) {
+        inst.mnemonic = "rorl";
+      }
+      else if (inst.srcReg == 2) {
+        inst.mnemonic = "rcll";
+      }
+      else if (inst.srcReg == 3) {
+        inst.mnemonic = "rcrl";
+      }
+      else if (inst.srcReg == 4) {
+        inst.mnemonic = "shll";
+      }
+      else if (inst.srcReg == 5) {
+        inst.mnemonic = "shrl";
+      }
+      else if (inst.srcReg == 6) {
+        inst.mnemonic = "sall";
+      }
+      else if (inst.srcReg == 7) {
+        inst.mnemonic = "sarl";
+      }
+
+      addResult(inst, pos, result);
+    }
+
     // RETN
     else if (ch == 0xC3) {
       addResult("ret", pos, result);
@@ -517,6 +559,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.offset = funcAddr + reader->pos();
       addResult(inst, pos, result);
     }
+
     // JMP (rel16/32) (relative address)
     else if (ch == 0xE9) {
       Instruction inst;
