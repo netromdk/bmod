@@ -550,6 +550,18 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         addResult(inst, pos, result);
       }
 
+      // JLE (rel16/32) or JNG (rel16/32), same functionality
+      // different name. Relative function address.
+      else if (ch == 0x8E) {
+        Instruction inst;
+        inst.mnemonic = "jle";
+        inst.disp = reader->getUInt32();
+        inst.dispBytes = 4;
+        inst.dispSrc = true;
+        inst.offset = funcAddr + reader->pos();
+        addResult(inst, pos, result);
+      }
+
       // MOVSX (r16/32 r/m8)
       // Move with Sign-Extension
       else if (ch == 0xBE && peek) {
