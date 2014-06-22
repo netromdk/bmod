@@ -21,11 +21,11 @@ namespace {
     bool comma{true};
     if (dstRegSet) {
       if (!str.endsWith(" ")) str += " ";
+      if (immDst) {
+        str += getImmString() + ",";
+      }
       if (dispDst) {
         str += getDispString() + "(";
-      }
-      else if (immDst) {
-        str += getImmString() + ",";
       }
       str += getRegString(dstReg, dstRegType,
                           dispDst ? RegType::SREG : srcRegType);
@@ -59,11 +59,11 @@ namespace {
       else {
         str += ",";
       }
+      if (immSrc) {
+        str += getImmString() + ",";
+      }
       if (dispSrc) {
         str += getDispString() + "(";
-      }
-      else if (immSrc) {
-        str += getImmString() + ",";
       }
       str += getRegString(srcReg, srcRegType,
                           dispSrc ? RegType::SREG : dstRegType);
