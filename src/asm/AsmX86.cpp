@@ -249,6 +249,22 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // MOV (r/m16/32	imm16/32)
+    else if (ch == 0xC7 && peek) {
+      Instruction inst;
+      inst.mnemonic = "movl";
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      inst.reverse();
+
+      inst.immDst = true;
+      inst.dstRegSet = false;
+      processImm32(inst);
+
+      addResult(inst, pos, result);
+    }
+
     // Call (relative function address)
     else if (ch == 0xE8) {
       Instruction inst;
@@ -446,5 +462,11 @@ void AsmX86::processDisp32(Instruction &inst) {
 void AsmX86::processImm8(Instruction &inst) {
   inst.imm = reader->getUChar();
   inst.immBytes = 1;
+  //qDebug() << "imm8:" << inst.imm;
+}
+
+void AsmX86::processImm32(Instruction &inst) {
+  inst.imm = reader->getUInt32();
+  inst.immBytes = 4;
   //qDebug() << "imm8:" << inst.imm;
 }

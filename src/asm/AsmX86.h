@@ -70,6 +70,7 @@ private:
   void processDisp8(Instruction &inst);
   void processDisp32(Instruction &inst);
   void processImm8(Instruction &inst);
+  void processImm32(Instruction &inst);
 
   BinaryObjectPtr obj;
   ReaderPtr reader;
