@@ -271,7 +271,18 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
-    // MOV (r8  r/m8) (reverse of 0x88)
+    // MOV (r/m8	r8) (reverse of 0x8A)
+    else if (ch == 0x88 && peek) {
+      Instruction inst;
+      inst.mnemonic = "movb";
+      inst.srcRegType = RegType::R8;
+      inst.dstRegType = RegType::R32;
+      processModRegRM(inst);
+      inst.reverse();
+      addResult(inst, pos, result);
+    }
+
+    // MOV (r8  r/m8)
     else if (ch == 0x8A && peek) {
       Instruction inst;
       inst.mnemonic = "movb";
