@@ -14,7 +14,24 @@
 
 namespace {
   QString Instruction::toString() const {
-    return "not implemented yet";
+    QString str(mnemonic);
+    if (dstReg != -1) {
+      str += " " + getRegString(dstReg, dstRegType);
+    }
+    return str;
+  }
+
+  QString Instruction::getRegString(int reg, RegType type) const {
+    if (reg < 0 || reg > 7) {
+      return QString();
+    }
+    static QString regs[6][8] = {{"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"},
+                                 {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"},
+                                 {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"},
+                                 {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"},
+                                 {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"},
+                                 {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved"}};
+    return "%" + regs[(int) type][reg];
   }
 }
 
@@ -42,11 +59,12 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     // PUSH
     if (ch >= 0x50 && ch <= 0x57) {
-      // 1. set instruction type (PUSH)
-      // 2. find r value and set register
-      // 3. convert to string value and add result
+      Instruction inst;
+      inst.mnemonic = "pushl";
+      inst.dstReg = getR(ch);
+      inst.dstRegType = RegType::R32;
+      addResult(inst, pos, result);
     }
-
 
     // Unsupported
     else {
@@ -58,7 +76,14 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
   return !result.asmLines.isEmpty();
 }
 
-void AsmX86::addResult(const QString &line, qint64 pos, Disassembly &result) {
+
+void AsmX86::addResult(const Instruction &inst, qint64 pos,
+                       Disassembly &result) {
+  addResult(inst.toString(), pos, result);
+}
+
+void AsmX86::addResult(const QString &line, qint64 pos,
+                       Disassembly &result) {
   result.asmLines << line;
   result.bytesConsumed << reader->pos() - pos;
 }
@@ -70,20 +95,9 @@ void AsmX86::splitByte(unsigned char num, unsigned char &mod, unsigned char &op1
   op2 = num & 0x7; // 3 last bits  
 }
 
-/*
-QString AsmX86::getReg(RegType type, int num) {
-  if (num < 0 || num > 7) {
-    return QString();
-  }
-  static QString regs[6][8] = {{"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"},
-                               {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"},
-                               {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"},
-                               {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"},
-                               {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"},
-                               {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved"}};
-  return "%" + regs[(int) type][num];
+unsigned char AsmX86::getR(unsigned char num) {
+  return num & 0x7; // 3 last bits  
 }
-*/
 
 QString AsmX86::formatHex(quint32 num, int len) {
   return "0x" + Util::padString(QString::number(num, 16), len);
