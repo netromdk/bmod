@@ -178,6 +178,23 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // AND (eAX  imm16/32)
+    else if (ch == 0x25) {
+      Instruction inst;
+      inst.mnemonic = "andl";
+      inst.disp = reader->getUInt32();
+      inst.dispBytes = 4;
+      inst.dispDst = true;
+
+      // Src is always %eax.
+      inst.srcReg = 0;
+      inst.srcRegSet = true;
+      inst.srcRegType = RegType::R32;
+      inst.dstRegType = RegType::R32;
+
+      addResult(inst, pos, result);
+    }
+
     // PUSH
     else if (ch >= 0x50 && ch <= 0x57) {
       Instruction inst;
