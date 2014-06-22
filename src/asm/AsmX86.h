@@ -19,7 +19,8 @@ namespace {
   public:
     Instruction()
       : mod{-1}, srcReg{-1}, dstReg{-1}, rm{-1}, srcRegType{RegType::R8},
-      dstRegType{RegType::R8}, scale{-1}, index{-1}, base{-1}, disp{0}, imm{0}
+      dstRegType{RegType::R8}, scale{-1}, index{-1}, base{-1}, srcDisp{0},
+      dstDisp{0}, srcImm{0}, dstImm{0}
     { }
 
     QString toString() const;
@@ -32,8 +33,8 @@ namespace {
     char mod, srcReg, dstReg, rm; // mod-reg-r/m values
     RegType srcRegType, dstRegType;
     char scale, index, base; // SIP values
-    qint32 disp, // displacement
-      imm; // immediate data
+    qint32 srcDisp, dstDisp, // displacement
+      srcImm, dstImm; // immediate data
   };
 }
 
