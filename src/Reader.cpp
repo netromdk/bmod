@@ -67,7 +67,7 @@ bool Reader::peekList(std::initializer_list<unsigned char> list) {
   }
   int i{0};
   for (auto it = list.begin(); it != list.end(); it++, i++) {
-    if (*it != parr[i]) {
+    if (*it != (unsigned char) parr[i]) {
       return false;
     }
   }
