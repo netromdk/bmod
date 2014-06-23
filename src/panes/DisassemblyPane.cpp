@@ -176,6 +176,8 @@ void DisassemblyPane::setup() {
   quint32 pos = 0, size = sec->getSize();
   const QByteArray &data = sec->getData();
 
+  const auto &symTable = obj->getSymbolTable();
+
   Disassembler dis(obj);
   Disassembly result;
   if (dis.disassemble(sec, result)) {
@@ -184,6 +186,22 @@ void DisassemblyPane::setup() {
     for (int i = 0; i < len; i++) {
       const QString &line = result.asmLines[i];
       short bytes = result.bytesConsumed[i];
+
+      // Check if this is the beginning of a function.
+      QString funcName;
+      if (symTable.getString(addr, funcName)) {
+        auto *item = new QTreeWidgetItem;
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+        int col{2};
+        item->setText(col, funcName);
+        auto font = item->font(col);
+        font.setBold(true);
+        item->setFont(col, font);
+        if (i > 0) {
+          treeWidget->addTopLevelItem(new QTreeWidgetItem);
+        }
+        treeWidget->addTopLevelItem(item);
+      }
 
       auto *item = new QTreeWidgetItem;
       item->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);

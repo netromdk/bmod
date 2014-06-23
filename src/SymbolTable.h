@@ -29,6 +29,8 @@ public:
   QList<SymbolEntry> &getSymbols() { return entries; }  
   const QList<SymbolEntry> &getSymbols() const { return entries; }
 
+  bool getString(quint64 value, QString &str) const;
+
 private:
   QList<SymbolEntry> entries;
 };
