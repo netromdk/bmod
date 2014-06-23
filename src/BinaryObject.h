@@ -8,6 +8,7 @@
 #include "Section.h"
 #include "CpuType.h"
 #include "FileType.h"
+#include "SymbolTable.h"
 
 class BinaryObject;
 typedef std::shared_ptr<BinaryObject> BinaryObjectPtr;
@@ -41,12 +42,16 @@ public:
   SectionPtr getSection(SectionType type) const;
   void addSection(SectionPtr ptr) { sections << ptr; }
 
+  void setSymbolTable(const SymbolTable &tbl) { symTable = tbl; }
+  const SymbolTable &getSymbolTable() const { return symTable; }
+
 private:
   CpuType cpuType, cpuSubType;
   bool littleEndian;
   int systemBits;
   FileType fileType;
   QList<SectionPtr> sections;
+  SymbolTable symTable;
 };
 
 #endif // BMOD_BINARY_OBJECT_H

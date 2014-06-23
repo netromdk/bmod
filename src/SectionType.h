@@ -3,6 +3,7 @@
 
 enum class SectionType : int {
   Text, // Executable code (__text, .text).
+  Symbols, // Symbol table.
   CString, // Constant C strings (__cstring).
   String, // String table constants.
   FuncStarts, // Function starts.

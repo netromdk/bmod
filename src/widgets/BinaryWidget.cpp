@@ -84,6 +84,11 @@ void BinaryWidget::setup() {
       addPane(tr("Disassembly"), new DisassemblyPane(obj, sec), 2);
     }
 
+    sec = obj->getSection(SectionType::Symbols);
+    if (sec) {
+      addPane(sec->getName(), new GenericPane(obj, sec), 1);
+    }
+
     sec = obj->getSection(SectionType::String);
     if (sec) {
       addPane(sec->getName(), new StringsPane(obj, sec), 1);

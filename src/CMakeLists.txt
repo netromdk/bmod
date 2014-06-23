@@ -16,6 +16,8 @@ ADD_EXECUTABLE(
 
   BinaryObject.h
   BinaryObject.cpp
+  SymbolTable.h
+  SymbolTable.cpp
 
   widgets/MainWindow.h
   widgets/MainWindow.cpp

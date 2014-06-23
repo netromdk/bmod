@@ -272,6 +272,9 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
 
   // TODO: Load flags when necessary.
 
+  // Symbol table offset and number of elements in it.
+  quint32 symoff{0}, symnum{0};
+
   // Parse load commands sequentially. Each consists of the type, size
   // and data.
   for (int i = 0; i < ncmds; i++) {
@@ -473,11 +476,11 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     // LC_SYMTAB
     else if (type == 2) {
       // Symbol table offset.
-      r.getUInt32(&ok);
+      symoff = r.getUInt32(&ok);
       if (!ok) return false;
 
       // Number of symbol table entries.
-      r.getUInt32(&ok);
+      symnum = r.getUInt32(&ok);
       if (!ok) return false;
 
       // String table offset.
@@ -706,10 +709,77 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     }
   }
 
+  // Parse symbol table if found.
+  // (/usr/include/macho/nlist.h)
+  quint32 symsize{0};
+  SymbolTable symTable;
+  if (symnum > 0) {
+    r.seek(symoff);
+    qint64 pos;
+    for (int i = 0; i < symnum; i++) {
+      pos = r.pos();
+
+      // Index into the string table.
+      quint32 index = r.getUInt32(&ok);
+      if (!ok) return false;
+
+      // Type flag.
+      r.getUChar(&ok);
+      if (!ok) return false;
+
+      // Section number or NO_SECT.
+      r.getUChar(&ok);
+      if (!ok) return false;
+
+      // Description.
+      r.getUInt16(&ok);
+      if (!ok) return false;
+
+      // Value of the symbol (or stab offset).
+      quint64 value;
+      if (systemBits == 32) {
+        value = r.getUInt32(&ok);
+        if (!ok) return false;
+      }
+      else {
+        value = r.getUInt64(&ok);
+        if (!ok) return false;
+      }
+
+      symTable.addSymbol(SymbolEntry(index, value));
+      symsize += (r.pos() - pos);
+    }
+
+    SectionPtr sec(new Section(SectionType::Symbols,
+                               QObject::tr("Symbol table"),
+                               symoff, symsize, offset + symoff));
+    binaryObject->addSection(sec);
+  }
+
   // Fill data of stored sections.
   foreach (auto sec, binaryObject->getSections()) {
     r.seek(sec->getOffset());
     sec->setData(r.read(sec->getSize()));
+  }
+
+  // If symbol table loaded then merge string table entries into it.
+  if (symnum > 0) {
+    auto strTable = binaryObject->getSection(SectionType::String);
+    if (strTable) {
+      auto &data = strTable->getData();
+      auto &symbols = symTable.getSymbols();
+      for (int h = 0; h < symbols.size(); h++) {
+        auto &symbol = symbols[h];
+        QByteArray tmp;
+        for (int i = symbol.getIndex(); i < data.size(); i++) {
+          char c = data[i];
+          tmp += c;
+          if (c == 0) break;
+        }
+        symbol.setString(QString::fromUtf8(tmp));
+      }
+    }
+    binaryObject->setSymbolTable(symTable);
   }
 
   objects << binaryObject;
