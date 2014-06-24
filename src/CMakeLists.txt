@@ -43,6 +43,8 @@ ADD_EXECUTABLE(
   panes/DisassemblyPane.cpp
   panes/StringsPane.h
   panes/StringsPane.cpp
+  panes/SymbolsPane.h
+  panes/SymbolsPane.cpp
   panes/GenericPane.h
   panes/GenericPane.cpp
 

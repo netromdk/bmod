@@ -13,6 +13,7 @@
 #include "../panes/Pane.h"
 #include "../panes/ArchPane.h"
 #include "../panes/ProgramPane.h"
+#include "../panes/SymbolsPane.h"
 #include "../panes/StringsPane.h"
 #include "../panes/GenericPane.h"
 #include "../panes/DisassemblyPane.h"
@@ -86,7 +87,8 @@ void BinaryWidget::setup() {
 
     sec = obj->getSection(SectionType::Symbols);
     if (sec) {
-      addPane(sec->getName(), new GenericPane(obj, sec), 1);
+      addPane(sec->getName(), new SymbolsPane(obj, sec), 1);
+      addPane(tr("Raw View"), new GenericPane(obj, sec), 2);
     }
 
     sec = obj->getSection(SectionType::String);

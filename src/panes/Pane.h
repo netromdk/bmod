@@ -10,6 +10,7 @@ public:
     Program,
     Disassembly,
     Strings,
+    Symbols,
     Generic
   };
 
