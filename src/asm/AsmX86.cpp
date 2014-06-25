@@ -143,7 +143,7 @@ namespace {
   }
   
   QString Instruction::formatHex(quint32 num, int len) const {
-    return "0x" + Util::padString(QString::number(num, 16), len);
+    return "0x" + Util::padString(QString::number(num, 16).toUpper(), len);
   }
 }
 
