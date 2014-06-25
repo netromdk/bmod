@@ -7,7 +7,9 @@ void SymbolTable::addSymbol(const SymbolEntry &entry) {
 bool SymbolTable::getString(quint64 value, QString &str) const {
   foreach (const auto &entry, entries) {
     if (entry.getValue() == value) {
-      str = entry.getString();
+      const auto &s  = entry.getString();
+      if (s.isEmpty()) continue;
+      str = s;
       return true;
     }
   }
