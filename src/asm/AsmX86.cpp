@@ -15,8 +15,20 @@
 #include "../Section.h"
 
 namespace {
-  QString Instruction::toString() const {
+  QString Instruction::toString(BinaryObjectPtr obj) const {
     QString str(mnemonic);
+
+    // Annotate calls with symbols if present.
+    if (call && dispSrc) {
+      str += " " + getDispString();
+      const auto &symTable = obj->getSymbolTable();
+      quint32 addr = disp + offset;
+      QString name;
+      if (symTable.getString(addr, name)) {
+        str += " (" + name + ")";
+      }
+      return str;
+    }
 
     bool comma{true};
     if (dstRegSet) {
@@ -668,6 +680,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dispBytes = 4;
       inst.dispSrc = true;
       inst.offset = funcAddr + reader->pos();
+      inst.call = true;
       addResult(inst, pos, result);
     }
 
@@ -700,9 +713,11 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       }
       else if (inst.srcReg == 2) {
         inst.mnemonic = "call *";
+        inst.call = true;
       }
       else if (inst.srcReg == 3) {
         inst.mnemonic = "callf ";
+        inst.call = true;
       }
       else if (inst.srcReg == 4) {
         inst.mnemonic = "jmp ";
@@ -905,7 +920,7 @@ bool AsmX86::handleNops(Disassembly &result) {
 
 void AsmX86::addResult(const Instruction &inst, qint64 pos,
                        Disassembly &result) {
-  addResult(inst.toString(), pos, result);
+  addResult(inst.toString(obj), pos, result);
 }
 
 void AsmX86::addResult(const QString &line, qint64 pos,

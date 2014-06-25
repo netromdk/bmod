@@ -22,10 +22,10 @@ namespace {
       srcRegType{RegType::R32}, dstRegType{RegType::R32}, scale{0}, index{0},
       base{0}, sipSrc{false}, sipDst{false}, disp{0}, imm{0}, dispSrc{false},
       dispDst{false}, immSrc{false}, immDst{false}, dispBytes{1}, immBytes{1},
-      offset{0}
+      offset{0}, call{false}
     { }
 
-    QString toString() const;
+    QString toString(BinaryObjectPtr obj) const;
     void reverse();
 
   private:
@@ -47,6 +47,7 @@ namespace {
     bool dispSrc, dispDst, immSrc, immDst;
     char dispBytes, immBytes;
     qint32 offset;
+    bool call;
   };
 }
 
