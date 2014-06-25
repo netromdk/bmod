@@ -17,6 +17,9 @@ class MachineCodeWidget : public QWidget {
 public:
   MachineCodeWidget(BinaryObjectPtr obj, SectionPtr sec);
 
+signals:
+  void modified();
+
 protected:
   void showEvent(QShowEvent *event);
 

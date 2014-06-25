@@ -11,6 +11,7 @@ GenericPane::GenericPane(BinaryObjectPtr obj, SectionPtr sec)
 
 void GenericPane::createLayout() {
   auto *codeWidget = new MachineCodeWidget(obj, sec);
+  connect(codeWidget, SIGNAL(modified()), this, SIGNAL(modified()));
 
   auto *layout = new QVBoxLayout;
   layout->setContentsMargins(0, 0, 0, 0);

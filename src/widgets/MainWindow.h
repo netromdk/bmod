@@ -25,6 +25,7 @@ private slots:
   void showConversionHelper();
   void showDisassembler();
   void onRecentFile();
+  void onBinaryObjectModified();
 
 private:
   void readSettings();

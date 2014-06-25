@@ -88,6 +88,8 @@ namespace {
           else {
             item->setText(2, tr("Could not disassemble!"));
           }
+
+          emit pane->modified();
         }
       }
     }

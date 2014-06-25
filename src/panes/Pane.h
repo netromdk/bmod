@@ -4,6 +4,8 @@
 #include <QWidget>
 
 class Pane : public QWidget {
+  Q_OBJECT
+
 public:
   enum class Kind {
     Arch,
@@ -13,6 +15,9 @@ public:
     Symbols,
     Generic
   };
+
+signals:
+  void modified();
 
 protected:
   Pane(Kind kind) : kind{kind} { }  

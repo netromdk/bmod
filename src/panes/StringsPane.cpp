@@ -14,7 +14,9 @@
 namespace {
   class ItemDelegate : public QStyledItemDelegate {
   public:
-    ItemDelegate(QTreeWidget *tree, SectionPtr sec) : tree{tree}, sec{sec} { }
+    ItemDelegate(StringsPane *pane, QTreeWidget *tree, SectionPtr sec)
+      : pane{pane}, tree{tree}, sec{sec}
+    { }
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const {
@@ -66,11 +68,14 @@ namespace {
           quint64 pos = addr - sec->getAddress();
           QByteArray data = Util::hexToData(newStr);
           sec->setSubData(data, pos);
+
+          emit pane->modified();
         }
       }
     }
 
   private:
+    StringsPane *pane;
     QTreeWidget *tree;
     SectionPtr sec;
   };
@@ -107,7 +112,7 @@ void StringsPane::createLayout() {
   treeWidget->setColumnWidth(1, 200);
   treeWidget->setColumnWidth(2, 50);
   treeWidget->setColumnWidth(3, 200);
-  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
+  treeWidget->setItemDelegate(new ItemDelegate(this, treeWidget, sec));
   treeWidget->setAddressColumn(0);
 
   auto *layout = new QVBoxLayout;

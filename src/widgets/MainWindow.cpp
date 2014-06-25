@@ -95,6 +95,12 @@ void MainWindow::saveBinary() {
   }
 
   binary->commit();
+
+  QString text = tabWidget->tabText(idx);
+  if (text.endsWith(" *")) {
+    text.chop(2);
+    tabWidget->setTabText(idx, text);
+  }
 }
 
 void MainWindow::closeBinary() {
@@ -130,6 +136,17 @@ void MainWindow::onRecentFile() {
   auto *action = qobject_cast<QAction*>(sender());
   if (!action) return;
   loadBinary(action->text());
+}
+
+void MainWindow::onBinaryObjectModified() {
+  auto *bin = qobject_cast<BinaryWidget*>(sender());
+  if (!bin) return;
+
+  int idx = tabWidget->currentIndex();
+  QString text = tabWidget->tabText(idx);
+  if (!text.endsWith(" *")) {
+    tabWidget->setTabText(idx, text + " *");
+  }
 }
 
 void MainWindow::readSettings() {
@@ -229,6 +246,8 @@ void MainWindow::loadBinary(QString file) {
   }
 
   auto *binWidget = new BinaryWidget(fmt);
+  connect(binWidget, &BinaryWidget::modified,
+          this, &MainWindow::onBinaryObjectModified);
   binaryWidgets << binWidget;
   int idx = tabWidget->addTab(binWidget, QFileInfo(file).fileName());
   tabWidget->setCurrentIndex(idx);

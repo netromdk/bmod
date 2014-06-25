@@ -120,5 +120,6 @@ void BinaryWidget::setup() {
 
 void BinaryWidget::addPane(const QString &title, Pane *pane, int level) {
   listWidget->addItem(QString(level * 4, ' ') + title);
-  stackLayout->addWidget(pane); 
+  stackLayout->addWidget(pane);
+  connect(pane, SIGNAL(modified()), this, SIGNAL(modified()));
 }

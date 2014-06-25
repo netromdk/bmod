@@ -14,7 +14,9 @@
 namespace {
   class ItemDelegate : public QStyledItemDelegate {
   public:
-    ItemDelegate(QTreeWidget *tree, SectionPtr sec) : tree{tree}, sec{sec} { }
+    ItemDelegate(MachineCodeWidget *widget, QTreeWidget *tree, SectionPtr sec)
+      : widget{widget}, tree{tree}, sec{sec}
+    { }
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const {
@@ -74,11 +76,14 @@ namespace {
           quint64 pos = (addr - sec->getAddress()) + (col - 1) * 8;
           QByteArray data = Util::hexToData(newStr.replace(" ", ""));
           sec->setSubData(data, pos);
+
+          emit widget->modified();
         }
       }
     }
 
   private:
+    MachineCodeWidget *widget;
     QTreeWidget *tree;
     SectionPtr sec;
   };
@@ -116,7 +121,7 @@ void MachineCodeWidget::createLayout() {
   treeWidget->setColumnWidth(1, 200);
   treeWidget->setColumnWidth(2, 200);
   treeWidget->setColumnWidth(3, 110);
-  treeWidget->setItemDelegate(new ItemDelegate(treeWidget, sec));
+  treeWidget->setItemDelegate(new ItemDelegate(this, treeWidget, sec));
   treeWidget->setMachineCodeColumns(QList<int>{1, 2});
   treeWidget->setCpuType(obj->getCpuType());
   treeWidget->setAddressColumn(0);

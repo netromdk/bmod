@@ -19,6 +19,9 @@ public:
 
   void commit();
 
+signals:
+  void modified();
+
 private slots:
   void onModeChanged(int row);
 
