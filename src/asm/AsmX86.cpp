@@ -2,6 +2,8 @@
  * References:
  *   http://www.read.seas.harvard.edu/~kohler/class/04f-aos/ref/i386.pdf
  *   http://ref.x86asm.net
+ *
+ * Uses the AT&T/GAS assembly syntax: Mnemonic Src Dst
  */
 
 #include <QDebug>
@@ -19,7 +21,7 @@ namespace {
     QString str(mnemonic);
 
     // Annotate calls with symbols if present.
-    if (call && dispSrc) {
+    if (call && dispDst) {
       str += " " + getDispString();
       const auto &symTable = obj->getSymbolTable();
       quint32 addr = disp + offset;
@@ -31,47 +33,8 @@ namespace {
     }
 
     bool comma{true};
-    if (dstRegSet) {
-      if (!str.endsWith(" ")) str += " ";
-      if (immDst) {
-        str += getImmString() + ",";
-      }
-      if (dispDst) {
-        str += getDispString() + "(";
-      }
-      str += getRegString(dstReg, dstRegType,
-                          // Using SREG because it's the greatest value.
-                          dispDst ? RegType::SREG : srcRegType);
-      if (dispDst) {
-        str += ")";
-      }
-    }
-    else if (sipDst) {
-      if (!str.endsWith(" ")) str += " ";
-      if (dispDst) {
-        str += getDispString();
-      }
-      str += getSipString(dstRegType);
-    }
-    else if (dispDst) {
-      if (!str.endsWith(" ")) str += " ";
-      str += getDispString();
-    }
-    else if (immDst) {
-      if (!str.endsWith(" ")) str += " ";
-      str += getImmString();
-    }
-    else {
-      comma = false;
-    }
-
     if (srcRegSet) {
-      if (!comma && !str.endsWith(" ")) {
-        str += " ";
-      }
-      else {
-        str += ",";
-      }
+      if (!str.endsWith(" ")) str += " ";
       if (immSrc) {
         str += getImmString() + ",";
       }
@@ -79,18 +42,14 @@ namespace {
         str += getDispString() + "(";
       }
       str += getRegString(srcReg, srcRegType,
-                          dispSrc ? RegType::SREG : dstRegType);
+                          // Using SREG because it's the greatest value.
+                          dispSrc ? RegType::SREG : srcRegType);
       if (dispSrc) {
         str += ")";
       }
     }
     else if (sipSrc) {
-      if (!comma && !str.endsWith(" ")) {
-        str += " ";
-      }
-      else {
-        str += ",";
-      }
+      if (!str.endsWith(" ")) str += " ";
       if (dispSrc) {
         str += getDispString();
       }
@@ -101,6 +60,49 @@ namespace {
       str += getDispString();
     }
     else if (immSrc) {
+      if (!str.endsWith(" ")) str += " ";
+      str += getImmString();
+    }
+    else {
+      comma = false;
+    }
+
+    if (dstRegSet) {
+      if (!comma && !str.endsWith(" ")) {
+        str += " ";
+      }
+      else {
+        str += ",";
+      }
+      if (immDst) {
+        str += getImmString() + ",";
+      }
+      if (dispDst) {
+        str += getDispString() + "(";
+      }
+      str += getRegString(dstReg, dstRegType,
+                          dispDst ? RegType::SREG : dstRegType);
+      if (dispDst) {
+        str += ")";
+      }
+    }
+    else if (sipDst) {
+      if (!comma && !str.endsWith(" ")) {
+        str += " ";
+      }
+      else {
+        str += ",";
+      }
+      if (dispDst) {
+        str += getDispString();
+      }
+      str += getSipString(dstRegType);
+    }
+    else if (dispDst) {
+      if (!str.endsWith(" ")) str += " ";
+      str += getDispString();
+    }
+    else if (immDst) {
       if (!str.endsWith(" ")) str += " ";
       str += getImmString();
     }
@@ -212,13 +214,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "addl";
       inst.imm = reader->getUInt32();
       inst.immBytes = 4;
-      inst.immDst = true;
+      inst.immSrc = true;
 
-      // Src is always %eax.
-      inst.srcReg = 0;
-      inst.srcRegSet = true;
-      inst.srcRegType = RegType::R32;
+      // Dst is always %eax.
+      inst.dstReg = 0;
+      inst.dstRegSet = true;
       inst.dstRegType = RegType::R32;
+      inst.srcRegType = RegType::R32;
 
       addResult(inst, pos, result);
     }
@@ -240,13 +242,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "orl";
       inst.imm = reader->getUInt32();
       inst.immBytes = 4;
-      inst.immDst = true;
+      inst.immSrc = true;
 
-      // Src is always %eax.
-      inst.srcReg = 0;
-      inst.srcRegSet = true;
-      inst.srcRegType = RegType::R32;
+      // Dst is always %eax.
+      inst.dstReg = 0;
+      inst.dstRegSet = true;
       inst.dstRegType = RegType::R32;
+      inst.srcRegType = RegType::R32;
 
       addResult(inst, pos, result);
     }
@@ -267,13 +269,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "andl";
       inst.imm = reader->getUInt32();
       inst.immBytes = 4;
-      inst.immDst = true;
+      inst.immSrc = true;
 
-      // Src is always %eax.
-      inst.srcReg = 0;
-      inst.srcRegSet = true;
-      inst.srcRegType = RegType::R32;
+      // Dst is always %eax.
+      inst.dstReg = 0;
+      inst.dstRegSet = true;
       inst.dstRegType = RegType::R32;
+      inst.srcRegType = RegType::R32;
 
       addResult(inst, pos, result);
     }
@@ -295,13 +297,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "subl";
       inst.imm = reader->getUInt32();
       inst.immBytes = 4;
-      inst.immDst = true;
+      inst.immSrc = true;
 
-      // Src is always %eax.
-      inst.srcReg = 0;
-      inst.srcRegSet = true;
-      inst.srcRegType = RegType::R32;
+      // Dst is always %eax.
+      inst.dstReg = 0;
+      inst.dstRegSet = true;
       inst.dstRegType = RegType::R32;
+      inst.srcRegType = RegType::R32;
 
       addResult(inst, pos, result);
     }
@@ -322,34 +324,34 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "cmpl";
       inst.imm = reader->getUInt32();
       inst.immBytes = 4;
-      inst.immDst = true;
+      inst.immSrc = true;
 
-      // Src is always %eax.
-      inst.srcReg = 0;
-      inst.srcRegSet = true;
-      inst.srcRegType = RegType::R32;
+      // Dst is always %eax.
+      inst.dstReg = 0;
+      inst.dstRegSet = true;
       inst.dstRegType = RegType::R32;
+      inst.srcRegType = RegType::R32;
 
       addResult(inst, pos, result);
     }
 
-    // PUSH
+    // PUSH (r16/32)
     else if (ch >= 0x50 && ch <= 0x57) {
       Instruction inst;
       inst.mnemonic = "pushl";
-      inst.dstReg = getR(ch);
-      inst.dstRegType = RegType::R32;
-      inst.dstRegSet = true;
+      inst.srcReg = getR(ch);
+      inst.srcRegType = RegType::R32;
+      inst.srcRegSet = true;
       addResult(inst, pos, result);
     }
 
-    // POP
+    // POP (r16/32)
     else if (ch >= 0x58 && ch <= 0x5F) {
       Instruction inst;
       inst.mnemonic = "popl";
-      inst.dstReg = getR(ch);
-      inst.dstRegType = RegType::R32;
-      inst.dstRegSet = true;
+      inst.srcReg = getR(ch);
+      inst.srcRegType = RegType::R32;
+      inst.srcRegSet = true;
       addResult(inst, pos, result);
     }
 
@@ -361,34 +363,34 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R8;
       processModRegRM(inst);
 
-      inst.immDst = true;
+      inst.immSrc = true;
       processImm8(inst);
 
-      // Don't display the 'src' after the 'dst'.
-      inst.srcRegSet = false;
+      // Don't display the 'dst' after the 'src'.
+      inst.dstRegSet = false;
 
-      if (inst.srcReg == 0) {
+      if (inst.dstReg == 0) {
         inst.mnemonic = "addb";
       }
-      else if (inst.srcReg == 1) {
+      else if (inst.dstReg == 1) {
         inst.mnemonic = "orb";
       }
-      else if (inst.srcReg == 2) {
+      else if (inst.dstReg == 2) {
         inst.mnemonic = "adcb"; // Add with carry
       }
-      else if (inst.srcReg == 3) {
+      else if (inst.dstReg == 3) {
         inst.mnemonic = "sbbb"; // Integer subtraction with borrow
       }
-      else if (inst.srcReg == 4) {
+      else if (inst.dstReg == 4) {
         inst.mnemonic = "andb";
       }
-      else if (inst.srcReg == 5) {
+      else if (inst.dstReg == 5) {
         inst.mnemonic = "subb";
       }
-      else if (inst.srcReg == 6) {
+      else if (inst.dstReg == 6) {
         inst.mnemonic = "xorb";
       }
-      else if (inst.srcReg == 7) {
+      else if (inst.dstReg == 7) {
         inst.mnemonic = "cmpb";
       }
 
@@ -403,34 +405,34 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R32;
       processModRegRM(inst);
 
-      inst.immDst = true;
+      inst.immSrc = true;
       processImm32(inst);
 
-      // Don't display the 'src' after the 'dst'.
-      inst.srcRegSet = false;
+      // Don't display the 'dst' after the 'src'.
+      inst.dstRegSet = false;
 
-      if (inst.srcReg == 0) {
+      if (inst.dstReg == 0) {
         inst.mnemonic = "addl";
       }
-      else if (inst.srcReg == 1) {
+      else if (inst.dstReg == 1) {
         inst.mnemonic = "orl";
       }
-      else if (inst.srcReg == 2) {
+      else if (inst.dstReg == 2) {
         inst.mnemonic = "adcl"; // Add with carry
       }
-      else if (inst.srcReg == 3) {
+      else if (inst.dstReg == 3) {
         inst.mnemonic = "sbbl"; // Integer subtraction with borrow
       }
-      else if (inst.srcReg == 4) {
+      else if (inst.dstReg == 4) {
         inst.mnemonic = "andl";
       }
-      else if (inst.srcReg == 5) {
+      else if (inst.dstReg == 5) {
         inst.mnemonic = "subl";
       }
-      else if (inst.srcReg == 6) {
+      else if (inst.dstReg == 6) {
         inst.mnemonic = "xorl";
       }
-      else if (inst.srcReg == 7) {
+      else if (inst.dstReg == 7) {
         inst.mnemonic = "cmpl";
       }
 
@@ -445,34 +447,34 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R32;
       processModRegRM(inst);
 
-      inst.immDst = true;
+      inst.immSrc = true;
       processImm8(inst);
 
-      // Don't display the 'src' after the 'dst'.
-      inst.srcRegSet = false;
+      // Don't display the 'dst' after the 'src'.
+      inst.dstRegSet = false;
 
-      if (inst.srcReg == 0) {
+      if (inst.dstReg == 0) {
         inst.mnemonic = "addl";
       }
-      else if (inst.srcReg == 1) {
+      else if (inst.dstReg == 1) {
         inst.mnemonic = "orl";
       }
-      else if (inst.srcReg == 2) {
+      else if (inst.dstReg == 2) {
         inst.mnemonic = "adcl"; // Add with carry
       }
-      else if (inst.srcReg == 3) {
+      else if (inst.dstReg == 3) {
         inst.mnemonic = "sbbl"; // Integer subtraction with borrow
       }
-      else if (inst.srcReg == 4) {
+      else if (inst.dstReg == 4) {
         inst.mnemonic = "andl";
       }
-      else if (inst.srcReg == 5) {
+      else if (inst.dstReg == 5) {
         inst.mnemonic = "subl";
       }
-      else if (inst.srcReg == 6) {
+      else if (inst.dstReg == 6) {
         inst.mnemonic = "xorl";
       }
-      else if (inst.srcReg == 7) {
+      else if (inst.dstReg == 7) {
         inst.mnemonic = "cmpl";
       }
 
@@ -529,7 +531,6 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R32;
       processModRegRM(inst);
       addResult(inst, pos, result);
-      // TODO: was reversed before(?)
     }
 
     // MOV (r/m16/32  r16/32) (reverse of 0x8B)
@@ -554,13 +555,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "testb";
       inst.disp = reader->getUChar();
       inst.dispBytes = 1;
-      inst.dispDst = true;
+      inst.dispSrc = true;
 
-      // Src is always %al.
-      inst.srcReg = 0;
-      inst.srcRegSet = true;
-      inst.srcRegType = RegType::R8;
+      // Dst is always %al.
+      inst.dstReg = 0;
+      inst.dstRegSet = true;
       inst.dstRegType = RegType::R8;
+      inst.srcRegType = RegType::R8;
 
       addResult(inst, pos, result);
     }
@@ -569,11 +570,11 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch >= 0xB0 && ch <= 0xB7) {
       Instruction inst;
       inst.mnemonic = "movb";
-      inst.dstReg = getR(ch);
-      inst.dstRegType = RegType::R8;
-      inst.dstRegSet = true;
+      inst.srcReg = getR(ch);
+      inst.srcRegType = RegType::R8;
+      inst.srcRegSet = true;
 
-      inst.immDst = true;
+      inst.immSrc = true;
       processImm8(inst);
 
       addResult(inst, pos, result);
@@ -583,11 +584,11 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch >= 0xB8 && ch <= 0xBF) {
       Instruction inst;
       inst.mnemonic = "movl";
-      inst.dstReg = getR(ch);
-      inst.dstRegType = RegType::R32;
-      inst.dstRegSet = true;
+      inst.srcReg = getR(ch);
+      inst.srcRegType = RegType::R32;
+      inst.srcRegSet = true;
 
-      inst.immDst = true;
+      inst.immSrc = true;
       processImm32(inst);
 
       addResult(inst, pos, result);
@@ -601,34 +602,34 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R32;
       processModRegRM(inst);
 
-      inst.immDst = true;
+      inst.immSrc = true;
       processImm8(inst);
 
-      // Don't display the 'src' after the 'dst'.
-      inst.srcRegSet = false;
+      // Don't display the 'dst' after the 'src'.
+      inst.dstRegSet = false;
 
-      if (inst.srcReg == 0) {
+      if (inst.dstReg == 0) {
         inst.mnemonic = "roll";
       }
-      else if (inst.srcReg == 1) {
+      else if (inst.dstReg == 1) {
         inst.mnemonic = "rorl";
       }
-      else if (inst.srcReg == 2) {
+      else if (inst.dstReg == 2) {
         inst.mnemonic = "rcll";
       }
-      else if (inst.srcReg == 3) {
+      else if (inst.dstReg == 3) {
         inst.mnemonic = "rcrl";
       }
-      else if (inst.srcReg == 4) {
+      else if (inst.dstReg == 4) {
         inst.mnemonic = "shll";
       }
-      else if (inst.srcReg == 5) {
+      else if (inst.dstReg == 5) {
         inst.mnemonic = "shrl";
       }
-      else if (inst.srcReg == 6) {
+      else if (inst.dstReg == 6) {
         inst.mnemonic = "sall";
       }
-      else if (inst.srcReg == 7) {
+      else if (inst.dstReg == 7) {
         inst.mnemonic = "sarl";
       }
 
@@ -649,8 +650,8 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       processModRegRM(inst);
       inst.reverse();
 
-      inst.immDst = true;
-      inst.dstRegSet = false;
+      inst.immSrc = true;
+      inst.srcRegSet = false;
       processImm8(inst);
 
       addResult(inst, pos, result);
@@ -665,8 +666,8 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       processModRegRM(inst);
       inst.reverse();
 
-      inst.immDst = true;
-      inst.dstRegSet = false;
+      inst.immSrc = true;
+      inst.srcRegSet = false;
       processImm32(inst);
 
       addResult(inst, pos, result);
@@ -678,7 +679,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "calll";
       inst.disp = reader->getUInt32();
       inst.dispBytes = 4;
-      inst.dispSrc = true;
+      inst.dispDst = true;
       inst.offset = funcAddr + reader->pos();
       inst.call = true;
       addResult(inst, pos, result);
@@ -690,7 +691,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.mnemonic = "jmp";
       inst.disp = reader->getUInt32();
       inst.dispBytes = 4;
-      inst.dispSrc = true;
+      inst.dispDst = true;
       inst.offset = funcAddr + reader->pos();
       addResult(inst, pos, result);
     }
@@ -702,30 +703,30 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegType = RegType::R32;
       processModRegRM(inst);
 
-      // Don't display the 'src' after the 'dst'.
-      inst.srcRegSet = false;
+      // Don't display the 'dst' after the 'src'.
+      inst.dstRegSet = false;
 
-      if (inst.srcReg == 0) {
+      if (inst.dstReg == 0) {
         inst.mnemonic = "inc ";
       }
-      else if (inst.srcReg == 1) {
+      else if (inst.dstReg == 1) {
         inst.mnemonic = "dec ";
       }
-      else if (inst.srcReg == 2) {
+      else if (inst.dstReg == 2) {
         inst.mnemonic = "call *";
         inst.call = true;
       }
-      else if (inst.srcReg == 3) {
+      else if (inst.dstReg == 3) {
         inst.mnemonic = "callf ";
         inst.call = true;
       }
-      else if (inst.srcReg == 4) {
+      else if (inst.dstReg == 4) {
         inst.mnemonic = "jmp ";
       }
-      else if (inst.srcReg == 5) {
+      else if (inst.dstReg == 5) {
         inst.mnemonic = "jmpf ";
       }
-      else if (inst.srcReg == 6) {
+      else if (inst.dstReg == 6) {
         inst.mnemonic = "pushl ";
       }
 
@@ -746,7 +747,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.srcRegType = RegType::R32;
         inst.dstRegType = RegType::R32;
         processModRegRM(inst);
-        inst.srcRegSet = false;
+        inst.dstRegSet = false;
         addResult(inst, pos, result);
       }
 
@@ -756,7 +757,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.mnemonic = "jae";
         inst.disp = reader->getUInt32();
         inst.dispBytes = 4;
-        inst.dispSrc = true;
+        inst.dispDst = true;
         inst.offset = funcAddr + reader->pos();
         addResult(inst, pos, result);
       }
@@ -768,7 +769,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.mnemonic = "je";
         inst.disp = reader->getUInt32();
         inst.dispBytes = 4;
-        inst.dispSrc = true;
+        inst.dispDst = true;
         inst.offset = funcAddr + reader->pos();
         addResult(inst, pos, result);
       }
@@ -780,7 +781,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.mnemonic = "jne";
         inst.disp = reader->getUInt32();
         inst.dispBytes = 4;
-        inst.dispSrc = true;
+        inst.dispDst = true;
         inst.offset = funcAddr + reader->pos();
         addResult(inst, pos, result);
       }
@@ -791,7 +792,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.mnemonic = "jge";
         inst.disp = reader->getUInt32();
         inst.dispBytes = 4;
-        inst.dispSrc = true;
+        inst.dispDst = true;
         inst.offset = funcAddr + reader->pos();
         addResult(inst, pos, result);
       }
@@ -803,7 +804,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.mnemonic = "jle";
         inst.disp = reader->getUInt32();
         inst.dispBytes = 4;
-        inst.dispSrc = true;
+        inst.dispDst = true;
         inst.offset = funcAddr + reader->pos();
         addResult(inst, pos, result);
       }
@@ -814,7 +815,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.mnemonic = "jg";
         inst.disp = reader->getUInt32();
         inst.dispBytes = 4;
-        inst.dispSrc = true;
+        inst.dispDst = true;
         inst.offset = funcAddr + reader->pos();
         addResult(inst, pos, result);
       }
@@ -823,9 +824,9 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       else if (ch == 0x94 && peek) {
         Instruction inst;
         inst.mnemonic = "sete";
-        inst.dstRegType = RegType::R8;
+        inst.srcRegType = RegType::R8;
         processModRegRM(inst);
-        inst.srcRegSet = false;
+        inst.dstRegSet = false;
         addResult(inst, pos, result);
       }
 
@@ -833,9 +834,9 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       else if (ch == 0x95 && peek) {
         Instruction inst;
         inst.mnemonic = "setne";
-        inst.dstRegType = RegType::R8;
+        inst.srcRegType = RegType::R8;
         processModRegRM(inst);
-        inst.srcRegSet = false;
+        inst.dstRegSet = false;
         addResult(inst, pos, result);
       }
 
@@ -949,31 +950,31 @@ void AsmX86::processModRegRM(Instruction &inst) {
   // [reg]
   if (mod == 0) {
     if (op1 == 4) {
-      inst.sipSrc = true;
-      processSip(inst);
-    }
-    else if (op1 == 5) {
-      inst.dispSrc = true;
-    }
-    else {
-      inst.srcReg = op1;
-      inst.srcRegSet = true;
-    }
-    if (op2 == 4) {
       inst.sipDst = true;
       processSip(inst);
     }
-    else if (op2 == 5) {
+    else if (op1 == 5) {
       inst.dispDst = true;
     }
     else {
-      inst.dstReg = op2;
+      inst.dstReg = op1;
       inst.dstRegSet = true;
     }
-    if (inst.dispSrc) {
-      processDisp32(inst);
+    if (op2 == 4) {
+      inst.sipSrc = true;
+      processSip(inst);
+    }
+    else if (op2 == 5) {
+      inst.dispSrc = true;
+    }
+    else {
+      inst.srcReg = op2;
+      inst.srcRegSet = true;
     }
     if (inst.dispDst) {
+      processDisp32(inst);
+    }
+    if (inst.dispSrc) {
       processDisp32(inst);
     }
   }
@@ -981,53 +982,53 @@ void AsmX86::processModRegRM(Instruction &inst) {
   // [reg]+disp8
   else if (mod == 1) {
     if (op1 != 4) {
-      inst.srcReg = op1;
-      inst.srcRegSet = true;
-    }
-    else {
-      inst.sipSrc = true;
-      processSip(inst);
-    }
-    if (op2 != 4) {
-      inst.dstReg = op2;
+      inst.dstReg = op1;
       inst.dstRegSet = true;
     }
     else {
       inst.sipDst = true;
       processSip(inst);
     }
-    inst.dispDst = true;
+    if (op2 != 4) {
+      inst.srcReg = op2;
+      inst.srcRegSet = true;
+    }
+    else {
+      inst.sipSrc = true;
+      processSip(inst);
+    }
+    inst.dispSrc = true;
     processDisp8(inst);
   }
 
   // [reg]+disp32
   else if (mod == 2) {
     if (op1 != 4) {
-      inst.srcReg = op1;
-      inst.srcRegSet = true;
-    }
-    else {
-      inst.sipSrc = true;
-      processSip(inst);
-    }
-    if (op2 != 4) {
-      inst.dstReg = op2;
+      inst.dstReg = op1;
       inst.dstRegSet = true;
     }
     else {
       inst.sipDst = true;
       processSip(inst);
     }
-    inst.dispDst = true;
+    if (op2 != 4) {
+      inst.srcReg = op2;
+      inst.srcRegSet = true;
+    }
+    else {
+      inst.sipSrc = true;
+      processSip(inst);
+    }
+    inst.dispSrc = true;
     processDisp32(inst);
   }
 
   // [reg]
   else if (mod == 3) {
-    inst.srcReg = op1;
-    inst.srcRegSet = true;
-    inst.dstReg = op2;
+    inst.dstReg = op1;
     inst.dstRegSet = true;
+    inst.srcReg = op2;
+    inst.srcRegSet = true;
   }
 }
 
