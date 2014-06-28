@@ -416,7 +416,8 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
                                          addr, secsize, offset + secfileoff));
               binaryObject->addSection(sec);
             }
-            else if (secname == "__symbol_stub") {
+            else if (secname == "__symbol_stub" ||
+                     secname == "__stubs") {
               SectionPtr sec(new Section(SectionType::SymbolStubs,
                                          QObject::tr("Symbol Stubs"),
                                          addr, secsize, offset + secfileoff));
