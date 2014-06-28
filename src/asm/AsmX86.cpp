@@ -665,7 +665,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dispDst = true;
       inst.offset = funcAddr + reader->pos();
       inst.call = true;
-      inst.dataType = DataType::None;
+      if (_64) inst.dataType = DataType::Quadword;
       addResult(inst, pos, result);
     }
 
