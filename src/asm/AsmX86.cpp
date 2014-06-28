@@ -498,8 +498,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0x88 && peek) {
       inst.mnemonic = "mov";
       inst.dataType = DataType::Byte;
-      inst.srcRegType = RegType::R8;
-      inst.dstRegType = RegType::R32;
+      inst.dstRegType = RegType::R8;
       processModRegRM(inst);
       inst.reverse();
       addResult(inst, pos, result);
@@ -509,8 +508,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0x8A && peek) {
       inst.mnemonic = "mov";
       inst.dataType = DataType::Byte;
-      inst.srcRegType = RegType::R8;
-      inst.dstRegType = RegType::R32;
+      inst.dstRegType = RegType::R8;
       processModRegRM(inst);
       addResult(inst, pos, result);
     }
@@ -576,7 +574,6 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch >= 0xB8 && ch <= 0xBF) {
       inst.mnemonic = "mov";
       inst.srcReg = getR(ch);
-      inst.srcRegType = RegType::R32;
       inst.srcRegSet = true;
 
       inst.immSrc = true;
@@ -631,9 +628,9 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     // MOV (r/m8  imm8)
     else if (ch == 0xC6 && peek) {
-      inst.mnemonic = "movb";
-      inst.srcRegType = RegType::R8;
-      inst.dstRegType = RegType::R32;
+      inst.mnemonic = "mov";
+      inst.dataType = DataType::Byte;
+      inst.dstRegType = RegType::R8;
       processModRegRM(inst);
       inst.reverse();
 
