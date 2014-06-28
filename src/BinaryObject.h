@@ -45,13 +45,16 @@ public:
   void setSymbolTable(const SymbolTable &tbl) { symTable = tbl; }
   const SymbolTable &getSymbolTable() const { return symTable; }
 
+  void setDynSymbolTable(const SymbolTable &tbl) { dynsymTable = tbl; }
+  const SymbolTable &getDynSymbolTable() const { return dynsymTable; }
+
 private:
   CpuType cpuType, cpuSubType;
   bool littleEndian;
   int systemBits;
   FileType fileType;
   QList<SectionPtr> sections;
-  SymbolTable symTable;
+  SymbolTable symTable, dynsymTable;
 };
 
 #endif // BMOD_BINARY_OBJECT_H

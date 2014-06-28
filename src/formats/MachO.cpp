@@ -275,6 +275,10 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
   // Symbol table offset and number of elements in it.
   quint32 symoff{0}, symnum{0};
 
+  // Dynamic (indirect) symbol table offset and number of elements in
+  // it.
+  quint32 indirsymoff{0}, indirsymnum{0};
+
   // Parse load commands sequentially. Each consists of the type, size
   // and data.
   for (int i = 0; i < ncmds; i++) {
@@ -409,6 +413,12 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
             if (secname == "__text") {
               SectionPtr sec(new Section(SectionType::Text,
                                          QObject::tr("Program"),
+                                         addr, secsize, offset + secfileoff));
+              binaryObject->addSection(sec);
+            }
+            else if (secname == "__symbol_stub") {
+              SectionPtr sec(new Section(SectionType::SymbolStubs,
+                                         QObject::tr("Symbol Stubs"),
                                          addr, secsize, offset + secfileoff));
               binaryObject->addSection(sec);
             }
@@ -548,11 +558,11 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       if (!ok) return false;
 
       // File offset to indirect symbol table.
-      r.getUInt32(&ok);
+      indirsymoff = r.getUInt32(&ok);
       if (!ok) return false;
 
       // Number of indirect symbol table entries.
-      r.getUInt32(&ok);
+      indirsymnum = r.getUInt32(&ok);
       if (!ok) return false;
 
       // File offset to external relocation entries.
@@ -751,8 +761,31 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
     }
 
     SectionPtr sec(new Section(SectionType::Symbols,
-                               QObject::tr("Symbol table"),
+                               QObject::tr("Symbol Table"),
                                symoff, symsize, offset + symoff));
+    binaryObject->addSection(sec);
+  }
+
+  // Parse dynamic symbol table if found. Store the offsets into the
+  // symbol table for later updating.
+  quint32 dynsymsize{0};
+  SymbolTable dynsymTable;
+  if (indirsymnum > 0) {
+    r.seek(indirsymoff);
+    qint64 pos;
+    for (int i = 0; i < indirsymnum; i++) {
+      pos = r.pos();
+
+      quint32 num = r.getUInt32(&ok);
+      if (!ok) return false;
+
+      dynsymTable.addSymbol(SymbolEntry(num, 0));
+      dynsymsize += (r.pos() - pos);
+    }
+
+    SectionPtr sec(new Section(SectionType::DynSymbols,
+                               QObject::tr("Dynamic Symbol Table"),
+                               indirsymoff, dynsymsize, offset + indirsymoff));
     binaryObject->addSection(sec);
   }
 
@@ -780,6 +813,29 @@ bool MachO::parseHeader(quint32 offset, quint32 size, Reader &r) {
       }
     }
     binaryObject->setSymbolTable(symTable);
+  }
+
+  // If dynamic symbol table loaded then merge data from symbol table
+  // and symbol stubs into it.
+  if (indirsymnum > 0 && symnum > 0) {
+    auto stubs = binaryObject->getSection(SectionType::SymbolStubs);
+    if (stubs) {
+      quint64 stubAddr = stubs->getAddress();
+      const auto &symbols = symTable.getSymbols();
+      auto &dynsymbols = dynsymTable.getSymbols();
+      for (int h = 0; h < dynsymbols.size(); h++) {
+        auto &symbol = dynsymbols[h];
+        int idx = symbol.getIndex();
+        if (idx >= 0 && idx < symnum) {
+          // The index corresponds to the index in the symbol table.
+          symbol.setString(symbols[idx].getString());
+
+          // Each symbol stub takes up 6 bytes.
+          symbol.setValue(stubAddr + h * 6);
+        }
+      }
+    }
+    binaryObject->setDynSymbolTable(dynsymTable);
   }
 
   objects << binaryObject;

@@ -53,7 +53,7 @@ void BinaryWidget::commit() {
 
 void BinaryWidget::createLayout() {
   listWidget = new QListWidget;
-  listWidget->setFixedWidth(160);
+  listWidget->setFixedWidth(175);
   connect(listWidget, &QListWidget::currentRowChanged,
           this, &BinaryWidget::onModeChanged);
 
@@ -85,9 +85,22 @@ void BinaryWidget::setup() {
       addPane(tr("Disassembly"), new DisassemblyPane(obj, sec), 2);
     }
 
+    sec = obj->getSection(SectionType::SymbolStubs);
+    if (sec) {
+      addPane(sec->getName(), new GenericPane(obj, sec), 1);
+    }
+
     sec = obj->getSection(SectionType::Symbols);
     if (sec) {
-      addPane(sec->getName(), new SymbolsPane(obj, sec), 1);
+      addPane(sec->getName(),
+              new SymbolsPane(obj, sec, SymbolsPane::Type::Symbols), 1);
+      addPane(tr("Raw View"), new GenericPane(obj, sec), 2);
+    }
+
+    sec = obj->getSection(SectionType::DynSymbols);
+    if (sec) {
+      addPane(sec->getName(),
+              new SymbolsPane(obj, sec, SymbolsPane::Type::DynSymbols), 1);
       addPane(tr("Raw View"), new GenericPane(obj, sec), 2);
     }
 

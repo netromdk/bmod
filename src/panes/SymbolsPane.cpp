@@ -7,8 +7,8 @@
 #include "SymbolsPane.h"
 #include "../widgets/TreeWidget.h"
 
-SymbolsPane::SymbolsPane(BinaryObjectPtr obj, SectionPtr sec)
-  : Pane(Kind::Symbols), obj{obj}, sec{sec}, shown{false}
+SymbolsPane::SymbolsPane(BinaryObjectPtr obj, SectionPtr sec, Type type)
+  : Pane(Kind::Symbols), obj{obj}, sec{sec}, type{type}, shown{false}
 {
   createLayout();
 }
@@ -48,7 +48,9 @@ void SymbolsPane::setup() {
   progDiag.show();
   qApp->processEvents();
 
-  const auto &symTable = obj->getSymbolTable();
+  const auto &symTable =
+    (type == Type::Symbols ? obj->getSymbolTable()
+     : obj->getDynSymbolTable());
   foreach (const auto &symbol, symTable.getSymbols()) {
     auto *item = new QTreeWidgetItem;
     item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);

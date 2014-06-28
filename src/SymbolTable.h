@@ -12,6 +12,8 @@ public:
   { }
 
   quint32 getIndex() const { return index; }
+
+  void setValue(quint64 value) { this->value = value; }
   quint64 getValue() const { return value; }
 
   void setString(const QString &str) { strValue = str; }

@@ -10,7 +10,12 @@ class TreeWidget;
 
 class SymbolsPane : public Pane {
 public:
-  SymbolsPane(BinaryObjectPtr obj, SectionPtr sec);
+  enum class Type {
+    Symbols,
+    DynSymbols
+  };
+
+  SymbolsPane(BinaryObjectPtr obj, SectionPtr sec, Type type);
 
 protected:
   void showEvent(QShowEvent *event);
@@ -21,6 +26,7 @@ private:
 
   BinaryObjectPtr obj;
   SectionPtr sec;
+  Type type;
 
   bool shown;
   QLabel *label;
