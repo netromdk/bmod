@@ -328,6 +328,13 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // XOR (r/m16/32/64  r16/32/64)
+    else if (ch == 0x31 && peek) {
+      inst.mnemonic = "xor";
+      processModRegRM(inst);
+      addResult(inst, pos, result);
+    }
+
     // CMP (r16/32 r/m16/32)
     else if (ch == 0x3B && peek) {
       inst.mnemonic = "cmp";
