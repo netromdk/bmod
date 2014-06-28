@@ -23,10 +23,11 @@ namespace {
     // Annotate calls with symbols if present.
     if (call && dispDst) {
       str += " " + getDispString();
-      const auto &symTable = obj->getSymbolTable();
       quint32 addr = disp + offset;
+      const auto &symTable = obj->getSymbolTable();
+      const auto &dynsymTable = obj->getDynSymbolTable();
       QString name;
-      if (symTable.getString(addr, name)) {
+      if (symTable.getString(addr, name) || dynsymTable.getString(addr, name)) {
         str += " (" + name + ")";
       }
       return str;
