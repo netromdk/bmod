@@ -370,8 +370,8 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m8  imm8)
     else if (ch == 0x80 && peek) {
-      inst.srcRegType = RegType::R8;
-      inst.dstRegType = RegType::R8;
+      inst.dataType = DataType::Byte;
+      inst.srcRegType = inst.dstRegType = RegType::R8;
       processModRegRM(inst);
 
       inst.immSrc = true;
@@ -381,28 +381,28 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dstRegSet = false;
 
       if (inst.dstReg == 0) {
-        inst.mnemonic = "addb";
+        inst.mnemonic = "add";
       }
       else if (inst.dstReg == 1) {
-        inst.mnemonic = "orb";
+        inst.mnemonic = "or";
       }
       else if (inst.dstReg == 2) {
-        inst.mnemonic = "adcb"; // Add with carry
+        inst.mnemonic = "adc"; // Add with carry
       }
       else if (inst.dstReg == 3) {
-        inst.mnemonic = "sbbb"; // Integer subtraction with borrow
+        inst.mnemonic = "sbb"; // Integer subtraction with borrow
       }
       else if (inst.dstReg == 4) {
-        inst.mnemonic = "andb";
+        inst.mnemonic = "and";
       }
       else if (inst.dstReg == 5) {
-        inst.mnemonic = "subb";
+        inst.mnemonic = "sub";
       }
       else if (inst.dstReg == 6) {
-        inst.mnemonic = "xorb";
+        inst.mnemonic = "xor";
       }
       else if (inst.dstReg == 7) {
-        inst.mnemonic = "cmpb";
+        inst.mnemonic = "cmp";
       }
 
       addResult(inst, pos, result);
