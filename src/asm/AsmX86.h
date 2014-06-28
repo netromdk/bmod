@@ -43,7 +43,7 @@ namespace {
     QString getSipString(RegType type) const;
     QString getDispString() const;
     QString getImmString() const;
-    QString formatHex(quint32 num, int len = 2) const;
+    QString formatHex(quint64 num, int len = 2) const;
 
   public:
     QString mnemonic;
@@ -53,10 +53,10 @@ namespace {
     RegType srcRegType, dstRegType;
     unsigned char scale, index, base; // SIP values
     bool sipSrc, sipDst;
-    qint32 disp, imm;
+    quint64 disp, imm;
     bool dispSrc, dispDst, immSrc, immDst;
     char dispBytes, immBytes;
-    qint32 offset;
+    quint64 offset;
     bool call;
   };
 }

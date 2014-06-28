@@ -44,7 +44,7 @@ namespace {
     // Annotate calls with symbols if present.
     if (call && dispDst) {
       str += " " + getDispString();
-      quint32 addr = disp + offset;
+      quint64 addr = disp + offset;
       const auto &symTable = obj->getSymbolTable();
       const auto &dynsymTable = obj->getDynSymbolTable();
       QString name;
@@ -180,7 +180,7 @@ namespace {
     return "$" + formatHex(imm + offset, immBytes * 2);
   }
   
-  QString Instruction::formatHex(quint32 num, int len) const {
+  QString Instruction::formatHex(quint64 num, int len) const {
     return "0x" + Util::padString(QString::number(num, 16).toUpper(), len);
   }
 }
