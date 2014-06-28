@@ -55,6 +55,10 @@ void DisassemblerDialog::onConvert() {
   }
 }
 
+void DisassemblerDialog::onCpuTypeIndexChanged(int index) {
+  cpuType = (CpuType) cpuTypeBox->itemData(index).toInt();
+}
+
 void DisassemblerDialog::createLayout() {
   machineText = new QTextEdit;
   machineText->setTabChangesFocus(true);
@@ -101,15 +105,16 @@ void DisassemblerDialog::createLayout() {
   setAsmVisible(false);
 
   cpuTypeBox = new QComboBox;
-
-  // TODO: For now there is only one entry so changing it has no
-  // effect anyway.
   cpuTypeBox->addItem(tr("X86"), (int) CpuType::X86);
+  cpuTypeBox->addItem(tr("X86_64"), (int) CpuType::X86_64);
 
   int idx = cpuTypeBox->findData((int) cpuType);
   if (idx != -1) {
     cpuTypeBox->setCurrentIndex(idx);
   }
+
+  connect(cpuTypeBox, SIGNAL(currentIndexChanged(int)),
+          this, SLOT(onCpuTypeIndexChanged(int)));
 
   convertBtn = new QPushButton(tr("Disassemble"));
   connect(convertBtn, &QPushButton::clicked,

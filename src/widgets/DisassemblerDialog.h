@@ -22,6 +22,7 @@ public:
 
 private slots:
   void onConvert();
+  void onCpuTypeIndexChanged(int index);
 
 private:
   void createLayout();
