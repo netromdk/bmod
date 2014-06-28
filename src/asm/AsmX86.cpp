@@ -142,16 +142,17 @@ namespace {
 
   QString Instruction::getRegString(int reg, RegType type,
                                     RegType type2) const {
-    if (reg < 0 || reg > 7) {
+    if (reg < 0 || reg > 8) {
       return QString();
     }
-    static QString regs[7][8] = {{"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"},
-                                 {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"},
-                                 {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"},
-                                 {"rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi"},
-                                 {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"},
-                                 {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"},
-                                 {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved"}};
+    static QString regs[7][9] =
+      {{"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh", "invalid"},
+       {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di", "invalid"},
+       {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "eip"},
+       {"rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "rip"},
+       {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7", "invalid"},
+       {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7", "invalid"},
+       {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved", "invalid"}};
     QString res = "%" + regs[(int) type][reg];
 
     // If opposite type is less than then mark as address reference.
@@ -939,6 +940,8 @@ void AsmX86::processModRegRM(Instruction &inst) {
     }
     else if (op1 == 5) {
       inst.dispDst = true;
+      inst.dstReg = 8; // RIP/EIP
+      inst.dstRegSet = true;
     }
     else {
       inst.dstReg = op1;
@@ -950,6 +953,8 @@ void AsmX86::processModRegRM(Instruction &inst) {
     }
     else if (op2 == 5) {
       inst.dispSrc = true;
+      inst.srcReg = 8; // RIP/EIP
+      inst.srcRegSet = true;
     }
     else {
       inst.srcReg = op2;
