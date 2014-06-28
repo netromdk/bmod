@@ -292,6 +292,22 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // AND (AL  imm8)
+    else if (ch == 0x24) {
+      inst.mnemonic = "and";
+      inst.dataType = DataType::Byte;
+      inst.srcRegType = inst.dstRegType = RegType::R8;
+      inst.imm = reader->getUChar();
+      inst.immBytes = 1;
+      inst.immSrc = true;
+
+      // Dst is always %al.
+      inst.dstReg = 0;
+      inst.dstRegSet = true;
+
+      addResult(inst, pos, result);
+    }
+
     // AND (eAX  imm16/32)
     else if (ch == 0x25) {
       inst.mnemonic = "and";
