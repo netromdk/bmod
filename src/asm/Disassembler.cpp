@@ -8,6 +8,7 @@
 Disassembler::Disassembler(BinaryObjectPtr obj) : asm_{nullptr} {
   switch (obj->getCpuType()) {
   case CpuType::X86:
+  case CpuType::X86_64:
     asm_ = new AsmX86(obj);
     break;
 

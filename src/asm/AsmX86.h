@@ -10,19 +10,28 @@ namespace {
     R8,  // 8-bit register
     R16, // 16-bit register
     R32, // 32-bit register
+    R64, // 64-bit register
     MM,  // MMX register
     XMM, // 128-bit register
     SREG // Segment register
   };
 
+  enum class DataType : int {
+    None,       // When it should not be shown, like for CALL and JMP.
+    Byte,       // 8-bit
+    Word,       // 16-bit
+    Doubleword, // 32-bit
+    Quadword    // 64-bit
+  };
+
   class Instruction {
   public:
     Instruction()
-      : srcReg{0}, dstReg{0}, srcRegSet{false}, dstRegSet{false},
-      srcRegType{RegType::R32}, dstRegType{RegType::R32}, scale{0}, index{0},
-      base{0}, sipSrc{false}, sipDst{false}, disp{0}, imm{0}, dispSrc{false},
-      dispDst{false}, immSrc{false}, immDst{false}, dispBytes{1}, immBytes{1},
-      offset{0}, call{false}
+      : dataType{DataType::Doubleword}, srcReg{0}, dstReg{0}, srcRegSet{false},
+      dstRegSet{false}, srcRegType{RegType::R32}, dstRegType{RegType::R32},
+      scale{0}, index{0}, base{0}, sipSrc{false}, sipDst{false}, disp{0},
+      imm{0}, dispSrc{false}, dispDst{false}, immSrc{false}, immDst{false},
+      dispBytes{1}, immBytes{1}, offset{0}, call{false}
     { }
 
     QString toString(BinaryObjectPtr obj) const;
@@ -38,6 +47,7 @@ namespace {
 
   public:
     QString mnemonic;
+    DataType dataType;
     unsigned char srcReg, dstReg;
     bool srcRegSet, dstRegSet;
     RegType srcRegType, dstRegType;
@@ -67,6 +77,10 @@ private:
 
   // Get last 3 bits.
   unsigned char getR(unsigned char num);
+
+  // Split REX values [0100WRXB]. (64-bit only)
+  void splitRex(unsigned char num, unsigned char &w, unsigned char &r,
+                unsigned char &x, unsigned char &b);
 
   void processModRegRM(Instruction &inst);
   void processSip(Instruction &inst);
