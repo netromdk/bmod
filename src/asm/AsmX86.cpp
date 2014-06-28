@@ -374,6 +374,14 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // MOVSXD (r32/64  r/m32)
+    // Move with Sign-Extension
+    else if (ch == 0x63 && peek) {
+      inst.mnemonic = "movsl";
+      processModRegRM(inst);
+      addResult(inst, pos, result);
+    }
+
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m8  imm8)
     else if (ch == 0x80 && peek) {
