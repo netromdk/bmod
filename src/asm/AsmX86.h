@@ -88,6 +88,7 @@ private:
   void processDisp32(Instruction &inst);
   void processImm8(Instruction &inst);
   void processImm32(Instruction &inst);
+  void processImm64(Instruction &inst);
 
   BinaryObjectPtr obj;
   ReaderPtr reader;

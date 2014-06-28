@@ -529,7 +529,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0x88 && peek) {
       inst.mnemonic = "mov";
       inst.dataType = DataType::Byte;
-      inst.dstRegType = RegType::R8;
+      inst.srcRegType = inst.dstRegType = RegType::R8;
       processModRegRM(inst);
       inst.reverse();
       addResult(inst, pos, result);
@@ -539,7 +539,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0x8A && peek) {
       inst.mnemonic = "mov";
       inst.dataType = DataType::Byte;
-      inst.dstRegType = RegType::R8;
+      inst.srcRegType = inst.dstRegType = RegType::R8;
       processModRegRM(inst);
       addResult(inst, pos, result);
     }
@@ -608,7 +608,12 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.srcRegSet = true;
 
       inst.immSrc = true;
-      processImm32(inst);
+      if (_64) {
+        processImm64(inst);
+      }
+      else {
+        processImm32(inst);
+      }
 
       addResult(inst, pos, result);
     }
@@ -1052,35 +1057,29 @@ void AsmX86::processModRegRM(Instruction &inst) {
 void AsmX86::processSip(Instruction &inst) {
   unsigned char sip = reader->getUChar();
   splitByte(sip, inst.scale, inst.index, inst.base);
-  /*
-  qDebug() << "sip, scale=" << inst.scale
-           << "index=" << inst.index
-           << "base=" << inst.base;
-  qDebug() << "src:" << inst.sipSrc;
-  qDebug() << "dst:" << inst.sipDst;
-  */
 }
 
 void AsmX86::processDisp8(Instruction &inst) {
   inst.disp = reader->getUChar();
   inst.dispBytes = 1;
-  //qDebug() << "disp8:" << inst.disp;
 }
 
 void AsmX86::processDisp32(Instruction &inst) {
   inst.disp = reader->getUInt32();
   inst.dispBytes = 4;
-  //qDebug() << "disp32:" << inst.disp;
 }
 
 void AsmX86::processImm8(Instruction &inst) {
   inst.imm = reader->getUChar();
   inst.immBytes = 1;
-  //qDebug() << "imm8:" << inst.imm;
 }
 
 void AsmX86::processImm32(Instruction &inst) {
   inst.imm = reader->getUInt32();
   inst.immBytes = 4;
-  //qDebug() << "imm8:" << inst.imm;
+}
+
+void AsmX86::processImm64(Instruction &inst) {
+  inst.imm = reader->getUInt64();
+  inst.immBytes = 8;
 }
