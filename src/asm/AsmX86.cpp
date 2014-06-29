@@ -460,7 +460,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0x80 && peek) {
       inst.dataType = DataType::Byte;
       inst.srcRegType = inst.dstRegType = RegType::R8;
-      processModRegRM(inst);
+      processModRegRM(inst, true);
 
       inst.immSrc = true;
       processImm8(inst);
@@ -499,7 +499,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m16/32	imm16/32)
     else if (ch == 0x81 && peek) {
-      processModRegRM(inst);
+      processModRegRM(inst, true);
 
       inst.immSrc = true;
       processImm32(inst);
@@ -538,7 +538,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     // ADD, OR, ADC, SBB, AND, SUB, XOR, CMP
     // (r/m16/32	imm8)
     else if (ch == 0x83 && peek) {
-      processModRegRM(inst);
+      processModRegRM(inst, true);
 
       inst.immSrc = true;
       processImm8(inst);
@@ -678,7 +678,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     // ROL, ROR, RCL, RCR, SHL/SAL, SHR, SAL/SHL, SAR
     // (r/m16/32  imm8)
     else if (ch == 0xC1) {
-      processModRegRM(inst);
+      processModRegRM(inst, true);
 
       inst.immSrc = true;
       processImm8(inst);
@@ -788,7 +788,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     // INC, DEC, CALL, CALLF, JMP, JMPF, PUSH
     else if (ch == 0xFF && peek) {
-      processModRegRM(inst);
+      processModRegRM(inst, true);
 
       // Don't display the 'dst' after the 'src'.
       inst.dstRegSet = false;
@@ -812,7 +812,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
         inst.dataType = DataType::None;
       }
       else if (inst.dstReg == 4) {
-        inst.mnemonic = "jmp";
+        inst.mnemonic = "jmp *";
         inst.dataType = DataType::None;
       }
       else if (inst.dstReg == 5) {
@@ -869,6 +869,17 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       // different name. Relative function address.
       else if (ch == 0x85) {
         inst.mnemonic = "jne";
+        inst.disp = reader->getUInt32();
+        inst.dispBytes = 4;
+        inst.dispDst = true;
+        inst.offset = funcAddr + reader->pos();
+        inst.dataType = DataType::None;
+        addResult(inst, pos, result);
+      }
+
+      // JA (rel16/32) or JNBE (rel16/32)
+      else if (ch == 0x87) {
+        inst.mnemonic = "ja";
         inst.disp = reader->getUInt32();
         inst.dispBytes = 4;
         inst.dispDst = true;
@@ -1031,7 +1042,7 @@ void AsmX86::splitRex(unsigned char num, bool &w, bool &r, bool &x, bool &b) {
   b = ((num & 0x1) == 1);
 }
 
-void AsmX86::processModRegRM(Instruction &inst) {
+void AsmX86::processModRegRM(Instruction &inst, bool noSip) {
   unsigned char ch = reader->getUChar();
 
   unsigned char mod, op1, op2;
@@ -1039,7 +1050,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
 
   // [reg]
   if (mod == 0) {
-    if (op1 == 4) {
+    if (op1 == 4 && !noSip) {
       inst.sipDst = true;
       processSip(inst);
     }
@@ -1052,7 +1063,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
       inst.dstReg = op1 + (inst.rexR ? 8 : 0);
       inst.dstRegSet = true;
     }
-    if (op2 == 4) {
+    if (op2 == 4 && !noSip) {
       inst.sipSrc = true;
       processSip(inst);
     }
@@ -1075,7 +1086,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
 
   // [reg]+disp8
   else if (mod == 1) {
-    if (op1 != 4) {
+    if (op1 != 4 || noSip) {
       inst.dstReg = op1 + (inst.rexR ? 8 : 0);
       inst.dstRegSet = true;
     }
@@ -1083,7 +1094,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
       inst.sipDst = true;
       processSip(inst);
     }
-    if (op2 != 4) {
+    if (op2 != 4 || noSip) {
       inst.srcReg = op2 + (inst.rexB ? 8 : 0);
       inst.srcRegSet = true;
     }
@@ -1097,7 +1108,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
 
   // [reg]+disp32
   else if (mod == 2) {
-    if (op1 != 4) {
+    if (op1 != 4 || noSip) {
       inst.dstReg = op1 + (inst.rexR ? 8 : 0);
       inst.dstRegSet = true;
     }
@@ -1105,7 +1116,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
       inst.sipDst = true;
       processSip(inst);
     }
-    if (op2 != 4) {
+    if (op2 != 4 || noSip) {
       inst.srcReg = op2 + (inst.rexB ? 8 : 0);
       inst.srcRegSet = true;
     }

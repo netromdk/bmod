@@ -84,7 +84,7 @@ private:
   // Split REX values [0100WRXB]. (64-bit only)
   void splitRex(unsigned char num, bool &w, bool &r, bool &x, bool &b);
 
-  void processModRegRM(Instruction &inst);
+  void processModRegRM(Instruction &inst, bool noSip = false);
   void processSip(Instruction &inst);
   void processDisp8(Instruction &inst);
   void processDisp32(Instruction &inst);
