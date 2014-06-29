@@ -20,6 +20,7 @@ void Config::load() {
   backupEnabled = settings.value("backupEnabled", true).toBool();
   backupAsk = settings.value("backupAsk", true).toBool();
   backupAmount = settings.value("backupAmount", 5).toInt();
+  if (backupAmount < 0) backupAmount = 0;
   settings.endArray();
 }
 
