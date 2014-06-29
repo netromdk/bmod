@@ -11,8 +11,9 @@
 #include "../Util.h"
 #include "MainWindow.h"
 #include "BinaryWidget.h"
-#include "../formats/Format.h"
 #include "ConversionHelper.h"
+#include "../formats/Format.h"
+#include "PreferencesDialog.h"
 #include "DisassemblerDialog.h"
 
 MainWindow::MainWindow(const QStringList &files)
@@ -122,6 +123,12 @@ void MainWindow::closeBinary() {
   }
 }
 
+void MainWindow::showPreferences() {
+  PreferencesDialog diag(config);
+  diag.exec();
+  config.save();
+}
+
 void MainWindow::showConversionHelper() {
   auto *helper = new ConversionHelper(this);
   helper->show();
@@ -198,6 +205,11 @@ void MainWindow::createMenu() {
                       QKeySequence::Save);
   fileMenu->addAction(tr("Close binary"), this, SLOT(closeBinary()),
                       QKeySequence::Close);
+#ifndef MAC
+  fileMenu->addSeparator();
+#endif
+  fileMenu->addAction(tr("Preferences"), this, SLOT(showPreferences()),
+                      QKeySequence(Qt::CTRL + Qt::Key_P));
 
   QMenu *toolsMenu = menuBar()->addMenu(tr("Tools"));
   toolsMenu->addAction(tr("Conversion helper"),

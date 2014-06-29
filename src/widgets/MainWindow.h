@@ -4,6 +4,8 @@
 #include <QList>
 #include <QMainWindow>
 
+#include "Config.h"
+
 class QTabWidget;
 class QStringList;
 class BinaryWidget;
@@ -22,6 +24,7 @@ private slots:
   void openBinary();
   void saveBinary();
   void closeBinary();
+  void showPreferences();
   void showConversionHelper();
   void showDisassembler();
   void onRecentFile();
@@ -35,6 +38,7 @@ private:
 
   void loadBinary(QString file);
 
+  Config config;
   bool shown;
   QStringList recentFiles, startupFiles;
   QByteArray geometry;

@@ -8,6 +8,9 @@ ADD_EXECUTABLE(
   Util.h
   Util.cpp
 
+  Config.h
+  Config.cpp
+
   Reader.h
   Reader.cpp
 
@@ -33,6 +36,8 @@ ADD_EXECUTABLE(
   widgets/ConversionHelper.cpp
   widgets/DisassemblerDialog.h
   widgets/DisassemblerDialog.cpp
+  widgets/PreferencesDialog.h
+  widgets/PreferencesDialog.cpp
 
   panes/Pane.h
   panes/ArchPane.h
