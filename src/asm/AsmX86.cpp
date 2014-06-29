@@ -265,6 +265,16 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // PUSH (imm8)
+    else if (ch == 0x6A && peek) {
+      inst.mnemonic = "push";
+      if (_64) inst.dataType = DataType::Quadword;
+      inst.immDst = true;
+      inst.dstRegSet = false;
+      processImm8(inst);
+      addResult(inst, pos, result);
+    }
+
     // OR (r/m16/32  r16/32)
     else if (ch == 0x09) {
       inst.mnemonic = "or";
@@ -397,6 +407,18 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
     else if (ch == 0x63 && peek) {
       inst.mnemonic = "movsl";
       processModRegRM(inst);
+      addResult(inst, pos, result);
+    }
+
+    // JNZ (rel8) or JNE (rel8)
+    // Short jump
+    else if (ch == 0x75 && peek) {
+      inst.mnemonic = "jne";
+      inst.disp = pos - (255 - (int) reader->getUChar()) + 1;
+      inst.dispBytes = 1;
+      inst.dispDst = true;
+      inst.offset = funcAddr;
+      inst.dataType = DataType::None;
       addResult(inst, pos, result);
     }
 
@@ -713,6 +735,22 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.dispDst = true;
       inst.offset = funcAddr + reader->pos();
       addResult(inst, pos, result);
+    }
+
+    // JMP (rel8)
+    else if (ch == 0xEB && peek) {
+      inst.mnemonic = "jmp";
+      inst.dataType = DataType::None;
+      inst.disp = reader->getUChar();
+      inst.dispBytes = 1;
+      inst.dispDst = true;
+      inst.offset = funcAddr + reader->pos();
+      addResult(inst, pos, result);
+    }
+
+    // HLT
+    else if (ch == 0xF4) {
+      addResult("hlt", pos, result);
     }
 
     // INC, DEC, CALL, CALLF, JMP, JMPF, PUSH
