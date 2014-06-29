@@ -7,7 +7,8 @@
 
 namespace {
   enum class RegType : int {
-    R8,  // 8-bit register
+    R8,  // 8-bit register without REX prefix
+    R8R, // 8-bit register with any REX prefix
     R16, // 16-bit register
     R32, // 32-bit register
     R64, // 64-bit register
@@ -31,7 +32,8 @@ namespace {
       dstRegSet{false}, srcRegType{RegType::R32}, dstRegType{RegType::R32},
       scale{0}, index{0}, base{0}, sipSrc{false}, sipDst{false}, disp{0},
       imm{0}, dispSrc{false}, dispDst{false}, immSrc{false}, immDst{false},
-      dispBytes{1}, immBytes{1}, offset{0}, call{false}
+      dispBytes{1}, immBytes{1}, offset{0}, call{false}, rexW{false},
+      rexR{false}, rexX{false}, rexB{false}
     { }
 
     QString toString(BinaryObjectPtr obj) const;
@@ -58,6 +60,7 @@ namespace {
     char dispBytes, immBytes;
     quint64 offset;
     bool call;
+    bool rexW, rexR, rexX, rexB;
   };
 }
 
@@ -79,8 +82,7 @@ private:
   unsigned char getR(unsigned char num);
 
   // Split REX values [0100WRXB]. (64-bit only)
-  void splitRex(unsigned char num, unsigned char &w, unsigned char &r,
-                unsigned char &x, unsigned char &b);
+  void splitRex(unsigned char num, bool &w, bool &r, bool &x, bool &b);
 
   void processModRegRM(Instruction &inst);
   void processSip(Instruction &inst);

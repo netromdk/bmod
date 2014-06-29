@@ -144,17 +144,48 @@ namespace {
 
   QString Instruction::getRegString(int reg, RegType type,
                                     RegType type2) const {
-    if (reg < 0 || reg > 8) {
+    if (reg < 0 || reg > 17) {
       return QString();
     }
-    static QString regs[7][9] =
-      {{"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh", "invalid"},
-       {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di", "invalid"},
-       {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "eip"},
-       {"rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi", "rip"},
-       {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7", "invalid"},
-       {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7", "invalid"},
-       {"es", "cs", "ss", "ds", "fs", "gs", "reserved", "reserved", "invalid"}};
+    static QString regs[8][17] =
+      { // R8 without REX prefix
+        {"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh",
+         "inva", "inva", "inva", "inva", "inva", "inva", "inva", "inva", "inva"},
+
+        // R8R with any REX prefix
+        {"al", "cl", "dl", "bl", "spl", "bpl", "sil", "dil",
+         "r8b", "r9b", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b", // REX.R=1
+         "inva"},
+
+        // R16
+        {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di",
+         "r8w", "r9w", "r10w", "r11w", "r12w", "r13w", "r14w", "r15w", // REX.R=1
+         "inva"},
+
+        // R32
+        {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi",
+         "r8d", "r9d", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d", // REX.R=1
+         "eip"},
+
+        // R64
+        {"rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi",
+         "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15", // REX.R=1
+         "rip"},
+
+        // MM
+        {"mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7",
+         "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7", // REX.R=1
+         "inva"},
+
+        // XMM
+        {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7",
+         "xmm8", "xmm9", "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15", // REX.R=1
+         "inva"},
+
+        // SREG
+        {"es", "cs", "ss", "ds", "fs", "gs", "resv", "resv",
+         "es", "cs", "ss", "ds", "fs", "gs", "resv", "resv", // REX.R=1
+         "inva"}};
     QString res = "%" + regs[(int) type][reg];
 
     // If opposite type is less than then mark as address reference.
@@ -222,10 +253,12 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
 
     // REX mode (64-bit ONLY!).
     if (_64 && ch >= 0x40 && ch <= 0x4F) {
-      unsigned char w, r, x, b;
-      splitRex(ch, w, r, x, b);
-      //qDebug() << "REX:" << w << r << x << b;
-      if (w == 1) {
+      // W=1 => 64-bit
+      // R=1 => Extension to Mod-R/M: reg
+      // X=1 => Extension to SIB index
+      // B=1 => Extension to Mod-R/M: R/M oR SIB base
+      splitRex(ch, inst.rexW, inst.rexR, inst.rexX, inst.rexB);
+      if (inst.rexW) {
         inst.dataType = DataType::Quadword;
       }
 
@@ -632,7 +665,7 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       inst.srcRegSet = true;
 
       inst.immSrc = true;
-      if (_64) {
+      if (inst.dataType == DataType::Quadword) {
         processImm64(inst);
       }
       else {
@@ -991,12 +1024,11 @@ unsigned char AsmX86::getR(unsigned char num) {
   return num & 0x7; // 3 last bits  
 }
 
-void AsmX86::splitRex(unsigned char num, unsigned char &w, unsigned char &r,
-                      unsigned char &x, unsigned char &b) {
-  w = (num & 0x8) >> 3;
-  r = (num & 0x4) >> 2;
-  x = (num & 0x2) >> 1;
-  b = (num & 0x1);
+void AsmX86::splitRex(unsigned char num, bool &w, bool &r, bool &x, bool &b) {
+  w = ((num & 0x8) >> 3 == 1);
+  r = ((num & 0x4) >> 2 == 1);
+  x = ((num & 0x2) >> 1 == 1);
+  b = ((num & 0x1) == 1);
 }
 
 void AsmX86::processModRegRM(Instruction &inst) {
@@ -1013,11 +1045,11 @@ void AsmX86::processModRegRM(Instruction &inst) {
     }
     else if (op1 == 5) {
       inst.dispDst = true;
-      inst.dstReg = 8; // RIP/EIP
+      inst.dstReg = 16; // RIP/EIP
       inst.dstRegSet = true;
     }
     else {
-      inst.dstReg = op1;
+      inst.dstReg = op1 + (inst.rexR ? 8 : 0);
       inst.dstRegSet = true;
     }
     if (op2 == 4) {
@@ -1026,11 +1058,11 @@ void AsmX86::processModRegRM(Instruction &inst) {
     }
     else if (op2 == 5) {
       inst.dispSrc = true;
-      inst.srcReg = 8; // RIP/EIP
+      inst.srcReg = 16; // RIP/EIP
       inst.srcRegSet = true;
     }
     else {
-      inst.srcReg = op2;
+      inst.srcReg = op2 + (inst.rexB ? 8 : 0);
       inst.srcRegSet = true;
     }
     if (inst.dispDst) {
@@ -1044,7 +1076,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
   // [reg]+disp8
   else if (mod == 1) {
     if (op1 != 4) {
-      inst.dstReg = op1;
+      inst.dstReg = op1 + (inst.rexR ? 8 : 0);
       inst.dstRegSet = true;
     }
     else {
@@ -1052,7 +1084,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
       processSip(inst);
     }
     if (op2 != 4) {
-      inst.srcReg = op2;
+      inst.srcReg = op2 + (inst.rexB ? 8 : 0);
       inst.srcRegSet = true;
     }
     else {
@@ -1066,7 +1098,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
   // [reg]+disp32
   else if (mod == 2) {
     if (op1 != 4) {
-      inst.dstReg = op1;
+      inst.dstReg = op1 + (inst.rexR ? 8 : 0);
       inst.dstRegSet = true;
     }
     else {
@@ -1074,7 +1106,7 @@ void AsmX86::processModRegRM(Instruction &inst) {
       processSip(inst);
     }
     if (op2 != 4) {
-      inst.srcReg = op2;
+      inst.srcReg = op2 + (inst.rexB ? 8 : 0);
       inst.srcRegSet = true;
     }
     else {
@@ -1087,16 +1119,32 @@ void AsmX86::processModRegRM(Instruction &inst) {
 
   // [reg]
   else if (mod == 3) {
-    inst.dstReg = op1;
+    inst.dstReg = op1 + (inst.rexR ? 8 : 0);
     inst.dstRegSet = true;
-    inst.srcReg = op2;
+    inst.srcReg = op2 + (inst.rexB ? 8 : 0);
     inst.srcRegSet = true;
+  }
+
+  // Any REX prefix means R8 => R8R.
+  if (inst.rexW || inst.rexR || inst.rexX || inst.rexB) {
+    if (inst.dstRegSet && inst.dstRegType == RegType::R8) {
+      inst.dstRegType = RegType::R8R;
+    }
+    if (inst.srcRegSet && inst.srcRegType == RegType::R8) {
+      inst.srcRegType = RegType::R8R;
+    }
   }
 }
 
 void AsmX86::processSip(Instruction &inst) {
   unsigned char sip = reader->getUChar();
   splitByte(sip, inst.scale, inst.index, inst.base);
+  if (inst.rexB) {
+    inst.base += 8;
+  }
+  if (inst.rexX && inst.index != 4) {
+    inst.index += 8;
+  }
 }
 
 void AsmX86::processDisp8(Instruction &inst) {
