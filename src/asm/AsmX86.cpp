@@ -1,9 +1,11 @@
 /**
+ * X86 and X86_64 disassembling.
+ *
+ * Uses the AT&T/GAS assembly syntax: Mnemonic Src Dst
+ *
  * References:
  *   http://www.read.seas.harvard.edu/~kohler/class/04f-aos/ref/i386.pdf
  *   http://ref.x86asm.net
- *
- * Uses the AT&T/GAS assembly syntax: Mnemonic Src Dst
  */
 
 #include <QDebug>

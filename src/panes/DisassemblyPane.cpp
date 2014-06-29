@@ -229,14 +229,14 @@ void DisassemblyPane::setup() {
       pos += bytes;
 
       static int lastPerc{0};
-      int perc = (float) i / (float) len * 100.0;
+      int perc = (long double) pos / (long double) size * 100.0;
       if (perc > lastPerc || perc == 100) {
         lastPerc = perc;
         progDiag.setValue(perc);
         progDiag.setLabelText(tr("Disassembling data.. %1% (%2 of %3)")
                               .arg(perc)
                               .arg(Util::formatSize(pos))
-                              .arg(Util::formatSize(len)));
+                              .arg(Util::formatSize(size)));
         qApp->processEvents();
       }
     }
