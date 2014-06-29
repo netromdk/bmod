@@ -443,6 +443,20 @@ bool AsmX86::disassemble(SectionPtr sec, Disassembly &result) {
       addResult(inst, pos, result);
     }
 
+    // INS (m8  DX) or INSB (m8  DX)
+    else if (ch == 0x6C && peek) {
+      inst.mnemonic = "ins";
+      inst.dataType = DataType::Byte;
+      processModRegRM(inst);
+
+      // Src is always %dx/dl
+      inst.srcReg = 2;
+      inst.srcRegType = RegType::R8;
+      inst.srcRegSet = true;
+
+      addResult(inst, pos, result);
+    }
+
     // JNZ (rel8) or JNE (rel8)
     // Short jump
     else if (ch == 0x75 && peek) {
