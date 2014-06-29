@@ -1,5 +1,6 @@
 #include <QLabel>
 #include <QGroupBox>
+#include <QCheckBox>
 #include <QTabWidget>
 #include <QVBoxLayout>
 
@@ -13,6 +14,10 @@ PreferencesDialog::PreferencesDialog(Config &config) : config{config} {
 
 void PreferencesDialog::onBackupsToggled(bool on) {
   config.setBackupEnabled(on);
+}
+
+void PreferencesDialog::onBackupAskChanged(int state) {
+  config.setBackupAsk(state == Qt::Checked);
 }
 
 void PreferencesDialog::createLayout() {
@@ -39,8 +44,21 @@ void PreferencesDialog::createTabs() {
                   "\"N\" is the backup number."));
   backupLbl->setWordWrap(true);
 
+  auto *backupAskChk =
+    new QCheckBox(tr("Ask before each commit whether to save backup or not."));
+  backupAskChk->setChecked(config.getBackupAsk());
+  connect(backupAskChk, &QCheckBox::stateChanged,
+          this, &PreferencesDialog::onBackupAskChanged);
+
+  /*
+  auto *backupCustomChk =
+    new QCheckBox(tr("Set custom output folder."));
+  */
+
   auto *backupLayout = new QVBoxLayout;
   backupLayout->addWidget(backupLbl);
+  backupLayout->addWidget(backupAskChk);
+  //backupLayout->addWidget(backupCustomChk);
   backupLayout->addStretch();
   backupWidget->setLayout(backupLayout);
   

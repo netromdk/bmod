@@ -16,10 +16,12 @@ Config::~Config() {
 
 void Config::load() {
   backupEnabled = settings.value("backupEnabled", true).toBool();
+  backupAsk = settings.value("backupAsk", true).toBool();
 }
 
 void Config::save() {
   settings.clear();
   settings.setValue("backupEnabled", backupEnabled);
+  settings.setValue("backupAsk", backupAsk);
   settings.sync();
 }

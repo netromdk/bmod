@@ -14,10 +14,13 @@ public:
   bool getBackupEnabled() const { return backupEnabled; }
   void setBackupEnabled(bool enabled) { backupEnabled = enabled; }
 
+  bool getBackupAsk() const { return backupAsk; }
+  void setBackupAsk(bool ask) { this->backupAsk = ask; }
+
 private:
   QSettings settings;
   
-  bool backupEnabled;
+  bool backupEnabled, backupAsk;
 };
 
 #endif // BMOD_CONFIG_H
