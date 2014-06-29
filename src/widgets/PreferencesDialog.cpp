@@ -25,6 +25,7 @@ void PreferencesDialog::onBackupAskChanged(int state) {
 
 void PreferencesDialog::onBackupAmountChanged(int amount) {
   config.setBackupAmount(amount);
+  backupAmountInfo->setVisible(amount == 0);
 }
 
 void PreferencesDialog::createLayout() {
@@ -55,14 +56,17 @@ void PreferencesDialog::createTabs() {
 
   auto *backupAmountSpin = new QSpinBox;
   backupAmountSpin->setRange(0, 1024);
-  qDebug() << config.getBackupAmount();
   backupAmountSpin->setValue(config.getBackupAmount());
   connect(backupAmountSpin, SIGNAL(valueChanged(int)),
           this, SLOT(onBackupAmountChanged(int)));
 
+  backupAmountInfo = new QLabel(tr("(Unlimited)"));
+  backupAmountInfo->setVisible(config.getBackupAmount() == 0);
+
   auto *backupAmountLayout = new QHBoxLayout;
   backupAmountLayout->addWidget(backupAmountLbl);
   backupAmountLayout->addWidget(backupAmountSpin);
+  backupAmountLayout->addWidget(backupAmountInfo);
   backupAmountLayout->addStretch();
 
   auto *backupAskChk =

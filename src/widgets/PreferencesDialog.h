@@ -4,6 +4,7 @@
 #include <QDialog>
 
 class Config;
+class QLabel;
 class QTabWidget;
 
 class PreferencesDialog : public QDialog {
@@ -24,6 +25,7 @@ private:
   Config &config;
 
   QTabWidget *tabWidget;
+  QLabel *backupAmountInfo;
 };
 
 #endif // BMOD_PREFERENCES_DIALOG_H
