@@ -17,10 +17,14 @@ public:
   bool getBackupAsk() const { return backupAsk; }
   void setBackupAsk(bool ask) { this->backupAsk = ask; }
 
+  int getBackupAmount() const { return backupAmount; }
+  void setBackupAmount(int amount) { backupAmount = amount; }
+
 private:
   QSettings settings;
   
   bool backupEnabled, backupAsk;
+  int backupAmount;
 };
 
 #endif // BMOD_CONFIG_H

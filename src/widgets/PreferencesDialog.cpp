@@ -1,4 +1,6 @@
+#include <QDebug>
 #include <QLabel>
+#include <QSpinBox>
 #include <QGroupBox>
 #include <QCheckBox>
 #include <QTabWidget>
@@ -8,6 +10,7 @@
 #include "PreferencesDialog.h"
 
 PreferencesDialog::PreferencesDialog(Config &config) : config{config} {
+  setWindowTitle(tr("Preferences"));
   createLayout();
   createTabs();
 }
@@ -18,6 +21,10 @@ void PreferencesDialog::onBackupsToggled(bool on) {
 
 void PreferencesDialog::onBackupAskChanged(int state) {
   config.setBackupAsk(state == Qt::Checked);
+}
+
+void PreferencesDialog::onBackupAmountChanged(int amount) {
+  config.setBackupAmount(amount);
 }
 
 void PreferencesDialog::createLayout() {
@@ -44,6 +51,20 @@ void PreferencesDialog::createTabs() {
                   "\"N\" is the backup number."));
   backupLbl->setWordWrap(true);
 
+  auto *backupAmountLbl = new QLabel(tr("Number of copies to keep:"));
+
+  auto *backupAmountSpin = new QSpinBox;
+  backupAmountSpin->setRange(0, 1024);
+  qDebug() << config.getBackupAmount();
+  backupAmountSpin->setValue(config.getBackupAmount());
+  connect(backupAmountSpin, SIGNAL(valueChanged(int)),
+          this, SLOT(onBackupAmountChanged(int)));
+
+  auto *backupAmountLayout = new QHBoxLayout;
+  backupAmountLayout->addWidget(backupAmountLbl);
+  backupAmountLayout->addWidget(backupAmountSpin);
+  backupAmountLayout->addStretch();
+
   auto *backupAskChk =
     new QCheckBox(tr("Ask before each commit whether to save backup or not."));
   backupAskChk->setChecked(config.getBackupAsk());
@@ -57,6 +78,7 @@ void PreferencesDialog::createTabs() {
 
   auto *backupLayout = new QVBoxLayout;
   backupLayout->addWidget(backupLbl);
+  backupLayout->addLayout(backupAmountLayout);
   backupLayout->addWidget(backupAskChk);
   //backupLayout->addWidget(backupCustomChk);
   backupLayout->addStretch();

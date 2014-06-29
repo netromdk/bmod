@@ -7,6 +7,7 @@ Config::Config()
   : settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/bmod.ini",
              QSettings::IniFormat)
 {
+  qDebug() << "Using config:" << qPrintable(settings.fileName());
   load();
 }
 
@@ -15,13 +16,21 @@ Config::~Config() {
 }
 
 void Config::load() {
+  settings.beginReadArray("Backups");
   backupEnabled = settings.value("backupEnabled", true).toBool();
   backupAsk = settings.value("backupAsk", true).toBool();
+  backupAmount = settings.value("backupAmount", 5).toInt();
+  settings.endArray();
 }
 
 void Config::save() {
   settings.clear();
+
+  settings.beginGroup("Backups");
   settings.setValue("backupEnabled", backupEnabled);
   settings.setValue("backupAsk", backupAsk);
+  settings.setValue("backupAmount", backupAmount);
+  settings.endGroup();
+
   settings.sync();
 }

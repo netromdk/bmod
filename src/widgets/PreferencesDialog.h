@@ -15,6 +15,7 @@ public:
 private slots:
   void onBackupsToggled(bool on);
   void onBackupAskChanged(int state);
+  void onBackupAmountChanged(int amount);
 
 private:
   void createLayout();
