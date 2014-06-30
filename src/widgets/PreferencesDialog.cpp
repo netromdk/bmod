@@ -15,6 +15,10 @@ PreferencesDialog::PreferencesDialog(Config &config) : config{config} {
   createTabs();
 }
 
+void PreferencesDialog::onConfirmCommitChanged(int state) {
+  config.setConfirmCommit(state == Qt::Checked);
+}
+
 void PreferencesDialog::onBackupsToggled(bool on) {
   config.setBackupEnabled(on);
 }
@@ -39,6 +43,19 @@ void PreferencesDialog::createLayout() {
 }
 
 void PreferencesDialog::createTabs() {
+  auto *generalConfirmCommitChk =
+    new QCheckBox(tr("Confirm before committing to a binary."));
+  generalConfirmCommitChk->setChecked(config.getConfirmCommit());
+  connect(generalConfirmCommitChk, &QCheckBox::stateChanged,
+          this, &PreferencesDialog::onConfirmCommitChanged);
+
+  auto *generalLayout = new QVBoxLayout;
+  generalLayout->addWidget(generalConfirmCommitChk);
+  generalLayout->addStretch();
+
+  auto *generalWidget = new QWidget;
+  generalWidget->setLayout(generalLayout);
+
   auto *backupWidget =
     new QGroupBox(tr("Enable backups when committing changes to binaries."));
   backupWidget->setCheckable(true);
@@ -87,6 +104,7 @@ void PreferencesDialog::createTabs() {
   //backupLayout->addWidget(backupCustomChk);
   backupLayout->addStretch();
   backupWidget->setLayout(backupLayout);
-  
+
+  tabWidget->addTab(generalWidget, tr("General"));
   tabWidget->addTab(backupWidget, tr("Backup"));
 }

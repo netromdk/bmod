@@ -87,12 +87,14 @@ void MainWindow::saveBinary() {
   int idx = tabWidget->currentIndex();
   auto *binary = binaryWidgets[idx];
 
-  auto answer =
-    QMessageBox::question(this, "bmod",
-                          tr("Are you sure you want to commit changes to file \"%1\"?")
-                          .arg(binary->getFile()));
-  if (answer == QMessageBox::No) {
-    return;
+  if (config.getConfirmCommit()) {
+    auto answer =
+      QMessageBox::question(this, "bmod",
+                            tr("Are you sure you want to commit changes to file \"%1\"?")
+                            .arg(binary->getFile()));
+    if (answer == QMessageBox::No) {
+      return;
+    }
   }
 
   if (config.getBackupEnabled()) {

@@ -11,6 +11,9 @@ public:
   void load();
   void save();
 
+  bool getConfirmCommit() const { return confirmCommit; }
+  void setConfirmCommit(bool confirm) { confirmCommit = confirm; }
+
   bool getBackupEnabled() const { return backupEnabled; }
   void setBackupEnabled(bool enabled) { backupEnabled = enabled; }
 
@@ -22,7 +25,11 @@ public:
 
 private:
   QSettings settings;
-  
+
+  // General
+  bool confirmCommit;
+
+  // Backup
   bool backupEnabled, backupAsk;
   int backupAmount;
 };

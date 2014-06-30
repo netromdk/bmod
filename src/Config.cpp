@@ -16,6 +16,10 @@ Config::~Config() {
 }
 
 void Config::load() {
+  settings.beginReadArray("General");
+  confirmCommit = settings.value("confirmCommit", true).toBool();
+  settings.endArray();
+
   settings.beginReadArray("Backups");
   backupEnabled = settings.value("backupEnabled", true).toBool();
   backupAsk = settings.value("backupAsk", true).toBool();
@@ -26,6 +30,10 @@ void Config::load() {
 
 void Config::save() {
   settings.clear();
+
+  settings.beginGroup("General");
+  settings.setValue("confirmCommit", confirmCommit);
+  settings.endGroup();
 
   settings.beginGroup("Backups");
   settings.setValue("backupEnabled", backupEnabled);
