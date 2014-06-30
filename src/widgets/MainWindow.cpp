@@ -308,6 +308,10 @@ void MainWindow::saveBackup(const QString &file) {
     }
   }
 
-  QString num = Util::padString(QString::number(++bakNum), 4);
-  QFile::copy(file, QString("%1.bak%2").arg(file).arg(num));
+  QString num = Util::padString(QString::number(++bakNum), 4),
+    dest = QString("%1.bak%2").arg(file).arg(num);
+  if (!QFile::copy(file, dest)) {
+    QMessageBox::warning(this, "bmod",
+                         tr("Could not save backup to \"%1\"!").arg(dest));
+  }
 }
