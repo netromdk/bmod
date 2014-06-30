@@ -14,6 +14,9 @@ public:
   bool getConfirmCommit() const { return confirmCommit; }
   void setConfirmCommit(bool confirm) { confirmCommit = confirm; }
 
+  bool getConfirmQuit() const { return confirmQuit; }
+  void setConfirmQuit(bool confirm) { confirmQuit = confirm; }
+
   bool getBackupEnabled() const { return backupEnabled; }
   void setBackupEnabled(bool enabled) { backupEnabled = enabled; }
 
@@ -27,7 +30,7 @@ private:
   QSettings settings;
 
   // General
-  bool confirmCommit;
+  bool confirmCommit, confirmQuit;
 
   // Backup
   bool backupEnabled, backupAsk;

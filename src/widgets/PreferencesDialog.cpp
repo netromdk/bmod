@@ -19,6 +19,10 @@ void PreferencesDialog::onConfirmCommitChanged(int state) {
   config.setConfirmCommit(state == Qt::Checked);
 }
 
+void PreferencesDialog::onConfirmQuitChanged(int state) {
+  config.setConfirmQuit(state == Qt::Checked);
+}
+
 void PreferencesDialog::onBackupsToggled(bool on) {
   config.setBackupEnabled(on);
 }
@@ -49,8 +53,15 @@ void PreferencesDialog::createTabs() {
   connect(generalConfirmCommitChk, &QCheckBox::stateChanged,
           this, &PreferencesDialog::onConfirmCommitChanged);
 
+  auto *generalConfirmQuitChk =
+    new QCheckBox(tr("Confirm before quitting if any binaries are modified."));
+  generalConfirmQuitChk->setChecked(config.getConfirmQuit());
+  connect(generalConfirmQuitChk, &QCheckBox::stateChanged,
+          this, &PreferencesDialog::onConfirmQuitChanged);
+
   auto *generalLayout = new QVBoxLayout;
   generalLayout->addWidget(generalConfirmCommitChk);
+  generalLayout->addWidget(generalConfirmQuitChk);
   generalLayout->addStretch();
 
   auto *generalWidget = new QWidget;

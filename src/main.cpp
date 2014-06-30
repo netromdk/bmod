@@ -1,3 +1,4 @@
+#include <QDebug> //
 #include <QTimer>
 #include <QStringList>
 #include <QApplication>

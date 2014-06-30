@@ -18,6 +18,7 @@ Config::~Config() {
 void Config::load() {
   settings.beginReadArray("General");
   confirmCommit = settings.value("confirmCommit", true).toBool();
+  confirmQuit = settings.value("confirmQuit", true).toBool();
   settings.endArray();
 
   settings.beginReadArray("Backups");
@@ -33,6 +34,7 @@ void Config::save() {
 
   settings.beginGroup("General");
   settings.setValue("confirmCommit", confirmCommit);
+  settings.setValue("confirmQuit", confirmQuit);
   settings.endGroup();
 
   settings.beginGroup("Backups");

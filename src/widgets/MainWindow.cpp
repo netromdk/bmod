@@ -2,6 +2,7 @@
 #include <QMenuBar>
 #include <QSettings>
 #include <QTabWidget>
+#include <QCloseEvent>
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -17,7 +18,7 @@
 #include "DisassemblerDialog.h"
 
 MainWindow::MainWindow(const QStringList &files)
-  : shown{false}, startupFiles{files}
+  : shown{false}, modified{false}, startupFiles{files}
 {
   // Remove possible duplicates.
   startupFiles = startupFiles.toSet().toList();
@@ -55,6 +56,20 @@ void MainWindow::showEvent(QShowEvent *event) {
       loadBinary(file);
     }
   }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+  if (config.getConfirmQuit() && modified) {
+    auto answer =
+      QMessageBox::question(this, "bmod",
+                            tr("Are you sure you want to quit without saving changes?"));
+    if (answer == QMessageBox::No) {
+      event->ignore();
+      return;
+    }
+  }
+
+  event->accept();
 }
 
 void MainWindow::openBinary() {
@@ -111,8 +126,6 @@ void MainWindow::saveBinary() {
     }
   }
 
-  return;//
-
   binary->commit();
 
   QString text = tabWidget->tabText(idx);
@@ -167,6 +180,7 @@ void MainWindow::onBinaryObjectModified() {
   auto *bin = qobject_cast<BinaryWidget*>(sender());
   if (!bin) return;
 
+  modified = true;
   int idx = tabWidget->currentIndex();
   QString text = tabWidget->tabText(idx);
   if (!text.endsWith(" *")) {

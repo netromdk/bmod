@@ -19,6 +19,7 @@ public:
 
 protected:
   void showEvent(QShowEvent *event);
+  void closeEvent(QCloseEvent *event);
 
 private slots:
   void openBinary();
@@ -40,7 +41,7 @@ private:
   void saveBackup(const QString &file);
 
   Config config;
-  bool shown;
+  bool shown, modified;
   QStringList recentFiles, startupFiles;
   QByteArray geometry;
 

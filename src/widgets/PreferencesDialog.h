@@ -15,6 +15,7 @@ public:
 
 private slots:
   void onConfirmCommitChanged(int state);
+  void onConfirmQuitChanged(int state);
   void onBackupsToggled(bool on);
   void onBackupAskChanged(int state);
   void onBackupAmountChanged(int amount);
