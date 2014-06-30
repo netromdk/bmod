@@ -100,7 +100,8 @@ void MainWindow::saveBinary() {
     if (config.getBackupAsk()) {
       auto answer =
         QMessageBox::question(this, "bmod",
-                              tr("Do you want to save a backup before committing?"));
+                              tr("Do you want to save a backup before committing?"
+                                 "\n(This dialog can be turned off in Preferences.)"));
       backup = (answer == QMessageBox::Yes);
     }
     if (backup) {
