@@ -95,6 +95,21 @@ void MainWindow::saveBinary() {
     return;
   }
 
+  if (config.getBackupEnabled()) {
+    bool backup{true};
+    if (config.getBackupAsk()) {
+      auto answer =
+        QMessageBox::question(this, "bmod",
+                              tr("Do you want to save a backup before committing?"));
+      backup = (answer == QMessageBox::Yes);
+    }
+    if (backup) {
+      saveBackup(binary->getFile());
+    }
+  }
+
+  return;//
+
   binary->commit();
 
   QString text = tabWidget->tabText(idx);
@@ -263,4 +278,35 @@ void MainWindow::loadBinary(QString file) {
   binaryWidgets << binWidget;
   int idx = tabWidget->addTab(binWidget, QFileInfo(file).fileName());
   tabWidget->setCurrentIndex(idx);
+}
+
+void MainWindow::saveBackup(const QString &file) {
+  // Determine if prior backups have been made and, if so, how many.
+  QFileInfo fi(file);
+  QDir dir = fi.dir();
+  int bakCount = 0, bakNum = 0;
+  QStringList files;
+  foreach (const auto &entry,
+           dir.entryInfoList(QStringList{QString("%1.bak*").arg(fi.fileName())},
+                             QDir::Files, QDir::Name)) {
+    files << entry.absoluteFilePath();
+    bakCount++;
+    QString ext = entry.suffix();
+    static QRegExp re("bak([\\d]+)$");
+    if (re.indexIn(ext) != -1 && re.captureCount() == 1) {
+      bakNum = re.capturedTexts()[1].toUInt();
+    }
+  }
+
+  // Remove previous backups if not unlimited. And remove one due to
+  // the file that will be created beneath.
+  int maxAmount = config.getBackupAmount();
+  if (maxAmount > 0 && bakCount >= maxAmount - 1) {
+    for (int i = 0; i < bakCount - (maxAmount - 1); i++) {
+      QFile::remove(files[i]);
+    }
+  }
+
+  QString num = Util::padString(QString::number(++bakNum), 4);
+  QFile::copy(file, QString("%1.bak%2").arg(file).arg(num));
 }

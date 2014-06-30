@@ -37,6 +37,7 @@ private:
   void createMenu();
 
   void loadBinary(QString file);
+  void saveBackup(const QString &file);
 
   Config config;
   bool shown;
